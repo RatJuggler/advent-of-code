@@ -154,6 +154,9 @@ def main():
     step1_processor = IntcodeProcessor.from_file('input9.txt')
     step1_outputs = step1_processor.run([1])
     print("Step 1 Outputs = {0}".format(step1_outputs))
+    step2_processor = IntcodeProcessor.from_file('input9.txt')
+    step2_outputs = step1_processor.run([2])
+    print("Step 2 Outputs = {0}".format(step2_outputs))
 
 
 if __name__ == '__main__':
