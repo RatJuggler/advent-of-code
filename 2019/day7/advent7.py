@@ -38,15 +38,27 @@ class IntcodeProcessor:
         modes = instruction // 100
         return opcode, modes
 
-    def decode_parameter(self, parameter_modes):
+    @staticmethod
+    def determine_mode(parameter_modes):
         mode = parameter_modes % 10
         parameter_modes = parameter_modes // 10
+        return mode, parameter_modes
+
+    def read_parameter(self, parameter_modes):
+        mode, parameter_modes = self.determine_mode(parameter_modes)
         parameter = self.next_instruction()
         if mode == 0:
             parameter = self.read(parameter)
         elif mode != 1:
             raise Exception("Unknown parameter mode {0}!".format(mode))
         return parameter, parameter_modes
+
+    def write_parameter(self, parameter_modes, value):
+        mode, parameter_modes = self.determine_mode(parameter_modes)
+        if mode != 0:
+            raise Exception("Unexpected mode {0} for write parameter!".format(mode))
+        parameter = self.next_instruction()
+        self.write(parameter, value)
 
     def run(self, inputs):
         outputs = []
@@ -58,54 +70,47 @@ class IntcodeProcessor:
                 return outputs
             elif opcode == 1:
                 # P3 = P1 + P2
-                parameter1, parameter_modes = self.decode_parameter(parameter_modes)
-                parameter2, parameter_modes = self.decode_parameter(parameter_modes)
+                parameter1, parameter_modes = self.read_parameter(parameter_modes)
+                parameter2, parameter_modes = self.read_parameter(parameter_modes)
                 result = parameter1 + parameter2
-                if parameter_modes != 0:
-                    raise Exception("Unexpected immediate mode for opcode 1 result!")
-                parameter3 = self.next_instruction()
-                self.write(parameter3, result)
+                self.write_parameter(parameter_modes, result)
             elif opcode == 2:
                 # P3 = P1 * P2
-                parameter1, parameter_modes = self.decode_parameter(parameter_modes)
-                parameter2, parameter_modes = self.decode_parameter(parameter_modes)
+                parameter1, parameter_modes = self.read_parameter(parameter_modes)
+                parameter2, parameter_modes = self.read_parameter(parameter_modes)
                 result = parameter1 * parameter2
-                if parameter_modes != 0:
-                    raise Exception("Unexpected immediate mode for opcode 2 result!")
-                parameter3 = self.next_instruction()
-                self.write(parameter3, result)
+                self.write_parameter(parameter_modes, result)
             elif opcode == 3:
                 # Input
-                parameter1 = self.next_instruction()
-                self.write(parameter1, inputs.pop(0))
+                self.write_parameter(parameter_modes, inputs.pop(0))
             elif opcode == 4:
                 # Output
-                parameter1, parameter_modes = self.decode_parameter(parameter_modes)
+                parameter1, parameter_modes = self.read_parameter(parameter_modes)
                 outputs.append(parameter1)
             elif opcode == 5:
                 # If P1 != 0 InstructionPointer = P2
-                parameter1, parameter_modes = self.decode_parameter(parameter_modes)
-                parameter2, parameter_modes = self.decode_parameter(parameter_modes)
+                parameter1, parameter_modes = self.read_parameter(parameter_modes)
+                parameter2, parameter_modes = self.read_parameter(parameter_modes)
                 if parameter1 != 0:
                     self.set_instruction_pointer(parameter2)
             elif opcode == 6:
                 # If P1 == 0 InstructionPointer = P2
-                parameter1, parameter_modes = self.decode_parameter(parameter_modes)
-                parameter2, parameter_modes = self.decode_parameter(parameter_modes)
+                parameter1, parameter_modes = self.read_parameter(parameter_modes)
+                parameter2, parameter_modes = self.read_parameter(parameter_modes)
                 if parameter1 == 0:
                     self.set_instruction_pointer(parameter2)
             elif opcode == 7:
                 # P3 = P1 < P2
-                parameter1, parameter_modes = self.decode_parameter(parameter_modes)
-                parameter2, parameter_modes = self.decode_parameter(parameter_modes)
-                parameter3 = self.next_instruction()
-                self.write(parameter3, int(parameter1 < parameter2))
+                parameter1, parameter_modes = self.read_parameter(parameter_modes)
+                parameter2, parameter_modes = self.read_parameter(parameter_modes)
+                result = int(parameter1 < parameter2)
+                self.write_parameter(parameter_modes, result)
             elif opcode == 8:
                 # P3 = P1 == P2
-                parameter1, parameter_modes = self.decode_parameter(parameter_modes)
-                parameter2, parameter_modes = self.decode_parameter(parameter_modes)
-                parameter3 = self.next_instruction()
-                self.write(parameter3, int(parameter1 == parameter2))
+                parameter1, parameter_modes = self.read_parameter(parameter_modes)
+                parameter2, parameter_modes = self.read_parameter(parameter_modes)
+                result = int(parameter1 == parameter2)
+                self.write_parameter(parameter_modes, result)
             else:
                 raise Exception('Unknown opcode {0}!'.format(opcode))
 
