@@ -31,12 +31,12 @@ def load_orbiting_objects(filename):
 def count_orbiters(orbiting_count, orbiting_objects, orbiters):
     checksum = 0
     for orbiter in orbiters:
-        # print('Orbit count for {0} = {1}'.format(orbiter, orbiting_count))
+#        print('Orbit count for {0} = {1}'.format(orbiter, orbiting_count))
         checksum += orbiting_count
         next_orbiters = orbiting_objects.get(orbiter)
         if next_orbiters is not None:
             checksum += count_orbiters(orbiting_count + 1, orbiting_objects, next_orbiters)
-    # print('Subtotal at {0} = {1}'.format(orbiters, checksum))
+#    print('Subtotal at {0} = {1}'.format(orbiters, checksum))
     return checksum
 
 
@@ -45,37 +45,39 @@ def load_orbits_and_checksum(filename):
     return count_orbiters(1, orbiting_objects, orbiting_objects['COM'])
 
 
-def locate_orbitee(orbits, orbiter):
+def find_orbiter(orbits, orbiter):
     for orbitee in orbits:
         orbiters = orbits.get(orbitee)
-        # print(orbitee, orbiters)
-        if orbiters is not None and orbiter in orbiters:
+        if orbiter in orbiters:
             return orbitee
+    return None
 
 
-def make_next_transfer(orbits, visited, transfer_count, to_orbit, find_to):
-    orbiters = orbits.get(to_orbit)
-    if orbiters is not None:
-        if find_to in orbiters:
-            return transfer_count
-        else:
-            transfer_count += 1
+def move_orbit(orbits, transfers, visited, from_orbit, to_orbitee):
+    print('At {0} in {1} transfers having visited {2}'.format(from_orbit, transfers, visited))
+    if from_orbit not in visited:
+        visited.append(from_orbit)
+        orbiters = orbits.get(from_orbit)
+        if orbiters is not None:
             for orbiter in orbiters:
+                if orbiter == to_orbitee:
+                    print("Found {0} in {1} transfers!".format(to_orbitee, transfers))
+                    exit(0)
                 if orbiter not in visited:
-                    print('Moving from {0} to {1}'.format(to_orbit, orbiter))
-                    transfer_count = make_next_transfer(orbits, visited, transfer_count, orbiter, find_to)
-            visited.append(to_orbit)
-            back_orbitee = locate_orbitee(orbits, to_orbit)
-            print('Moving back to {0}, having visited {1}'.format(back_orbitee, visited))
-            return make_next_transfer(orbits, visited, transfer_count, back_orbitee, find_to)
-    visited.append(to_orbit)
-    return transfer_count
+                    move_orbit(orbits, transfers + 1, visited, orbiter, to_orbitee)
+    return visited
 
 
 def count_transfers(orbits, from_orbit, to_orbit):
-    find_from = locate_orbitee(orbits, from_orbit)
-    find_to = locate_orbitee(orbits, to_orbit)
-    return make_next_transfer(orbits, ['YOU'], 1, find_from, find_to)
+    transfers = 1
+    from_orbitee = find_orbiter(orbits, from_orbit)
+    to_orbitee = find_orbiter(orbits, to_orbit)
+    visited = [from_orbit]
+    while from_orbitee != to_orbitee:
+        visited = move_orbit(orbits, transfers, visited, from_orbitee, to_orbitee)
+        from_orbitee = find_orbiter(orbits, from_orbitee)
+        transfers += 1
+    return transfers
 
 
 def load_orbits_and_count_transfers(filename, from_orbit, to_orbit):
@@ -86,15 +88,14 @@ def load_orbits_and_count_transfers(filename, from_orbit, to_orbit):
 def main():
     checksum = load_orbits_and_checksum('test6a.txt')
     assert(checksum == 42)
+#    transfers = load_orbits_and_count_transfers('test6b.txt', 'YOU', 'SAN')
+#    assert(transfers == 4)
+#    transfers = load_orbits_and_count_transfers('test6c.txt', 'YOU', 'SAN')
+#    assert(transfers == 7)
+
     checksum = load_orbits_and_checksum('input6.txt')
     print("Step 1 Orbit Checksum is {0}".format(checksum))
-    transfers = load_orbits_and_count_transfers('test6b.txt', 'YOU', 'SAN')
-    print(transfers)
-    assert(transfers == 4)
-    transfers = load_orbits_and_count_transfers('test6c.txt', 'YOU', 'SAN')
-    print(transfers)
-    assert (transfers == 4)
-#    transfers = load_orbits_and_count_transfers('input6.txt', 'YOU', 'SAN')
+    transfers = load_orbits_and_count_transfers('input6.txt', 'YOU', 'SAN')
     print("Step 2 Orbit Transfers required is {0}".format(transfers))
 
 
