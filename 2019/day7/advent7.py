@@ -1,7 +1,7 @@
 import itertools
 
 
-class Memory:
+class IntcodeProcessor:
 
     def __init__(self, int_code):
         self.memory = [int(x) for x in int_code.split(',')]
@@ -13,7 +13,7 @@ class Memory:
         with open(filename) as csv_file:
             for line in csv_file:
                 int_code += line.rstrip('\n')
-        return Memory(int_code)
+        return IntcodeProcessor(int_code)
 
     def read(self, address):
         return self.memory[address]
@@ -32,102 +32,99 @@ class Memory:
     def set_instruction_pointer(self, instruction_pointer):
         self.instruction_pointer = instruction_pointer
 
+    @staticmethod
+    def decode_instruction(instruction):
+        opcode = instruction % 100
+        modes = instruction // 100
+        return opcode, modes
 
-def decode_instruction(instruction):
-    opcode = instruction % 100
-    modes = instruction // 100
-    return opcode, modes
+    def decode_parameter(self, parameter_modes):
+        mode = parameter_modes % 10
+        parameter_modes = parameter_modes // 10
+        parameter = self.next_instruction()
+        if mode == 0:
+            parameter = self.read(parameter)
+        elif mode != 1:
+            raise Exception("Unknown parameter mode {0}!".format(mode))
+        return parameter, parameter_modes
 
-
-def decode_parameter(memory, parameter_modes):
-    mode = parameter_modes % 10
-    parameter_modes = parameter_modes // 10
-    parameter = memory.next_instruction()
-    if mode == 0:
-        parameter = memory.read(parameter)
-    elif mode != 1:
-        raise Exception("Unknown parameter mode {0}!".format(mode))
-    return parameter, parameter_modes
-
-
-def run(memory, inputs):
-    instruction_pointer = 0
-    outputs = []
-    while True:
-        instruction = memory.next_instruction()
-        opcode, parameter_modes = decode_instruction(instruction)
-        if opcode == 99:
-            # End
-            return outputs
-        elif opcode == 1:
-            # P3 = P1 + P2
-            parameter1, parameter_modes = decode_parameter(memory, parameter_modes)
-            parameter2, parameter_modes = decode_parameter(memory, parameter_modes)
-            result = parameter1 + parameter2
-            if parameter_modes != 0:
-                raise Exception("Unexpected immediate mode for opcode 1 result!")
-            parameter3 = memory.next_instruction()
-            memory.write(parameter3, result)
-        elif opcode == 2:
-            # P3 = P1 * P2
-            parameter1, parameter_modes = decode_parameter(memory, parameter_modes)
-            parameter2, parameter_modes = decode_parameter(memory, parameter_modes)
-            result = parameter1 * parameter2
-            if parameter_modes != 0:
-                raise Exception("Unexpected immediate mode for opcode 2 result!")
-            parameter3 = memory.next_instruction()
-            memory.write(parameter3, result)
-        elif opcode == 3:
-            # Input
-            parameter1 = memory.next_instruction()
-            memory.write(parameter1, inputs.pop(0))
-        elif opcode == 4:
-            # Output
-            parameter1, parameter_modes = decode_parameter(memory, parameter_modes)
-            outputs.append(parameter1)
-        elif opcode == 5:
-            # If P1 != 0 InstructionPointer = P2
-            parameter1, parameter_modes = decode_parameter(memory, parameter_modes)
-            parameter2, parameter_modes = decode_parameter(memory, parameter_modes)
-            if parameter1 != 0:
-                memory.set_instruction_pointer(parameter2)
-        elif opcode == 6:
-            # If P1 == 0 InstructionPointer = P2
-            parameter1, parameter_modes = decode_parameter(memory, parameter_modes)
-            parameter2, parameter_modes = decode_parameter(memory, parameter_modes)
-            if parameter1 == 0:
-                memory.set_instruction_pointer(parameter2)
-        elif opcode == 7:
-            # P3 = P1 < P2
-            parameter1, parameter_modes = decode_parameter(memory, parameter_modes)
-            parameter2, parameter_modes = decode_parameter(memory, parameter_modes)
-            parameter3 = memory.next_instruction()
-            memory.write(parameter3, int(parameter1 < parameter2))
-        elif opcode == 8:
-            # P3 = P1 == P2
-            parameter1, parameter_modes = decode_parameter(memory, parameter_modes)
-            parameter2, parameter_modes = decode_parameter(memory, parameter_modes)
-            parameter3 = memory.next_instruction()
-            memory.write(parameter3, int(parameter1 == parameter2))
-        else:
-            raise Exception('Unknown opcode {0} at address {1}!'.format(opcode, instruction_pointer))
+    def run(self, inputs):
+        outputs = []
+        while True:
+            instruction = self.next_instruction()
+            opcode, parameter_modes = self.decode_instruction(instruction)
+            if opcode == 99:
+                # End
+                return outputs
+            elif opcode == 1:
+                # P3 = P1 + P2
+                parameter1, parameter_modes = self.decode_parameter(parameter_modes)
+                parameter2, parameter_modes = self.decode_parameter(parameter_modes)
+                result = parameter1 + parameter2
+                if parameter_modes != 0:
+                    raise Exception("Unexpected immediate mode for opcode 1 result!")
+                parameter3 = self.next_instruction()
+                self.write(parameter3, result)
+            elif opcode == 2:
+                # P3 = P1 * P2
+                parameter1, parameter_modes = self.decode_parameter(parameter_modes)
+                parameter2, parameter_modes = self.decode_parameter(parameter_modes)
+                result = parameter1 * parameter2
+                if parameter_modes != 0:
+                    raise Exception("Unexpected immediate mode for opcode 2 result!")
+                parameter3 = self.next_instruction()
+                self.write(parameter3, result)
+            elif opcode == 3:
+                # Input
+                parameter1 = self.next_instruction()
+                self.write(parameter1, inputs.pop(0))
+            elif opcode == 4:
+                # Output
+                parameter1, parameter_modes = self.decode_parameter(parameter_modes)
+                outputs.append(parameter1)
+            elif opcode == 5:
+                # If P1 != 0 InstructionPointer = P2
+                parameter1, parameter_modes = self.decode_parameter(parameter_modes)
+                parameter2, parameter_modes = self.decode_parameter(parameter_modes)
+                if parameter1 != 0:
+                    self.set_instruction_pointer(parameter2)
+            elif opcode == 6:
+                # If P1 == 0 InstructionPointer = P2
+                parameter1, parameter_modes = self.decode_parameter(parameter_modes)
+                parameter2, parameter_modes = self.decode_parameter(parameter_modes)
+                if parameter1 == 0:
+                    self.set_instruction_pointer(parameter2)
+            elif opcode == 7:
+                # P3 = P1 < P2
+                parameter1, parameter_modes = self.decode_parameter(parameter_modes)
+                parameter2, parameter_modes = self.decode_parameter(parameter_modes)
+                parameter3 = self.next_instruction()
+                self.write(parameter3, int(parameter1 < parameter2))
+            elif opcode == 8:
+                # P3 = P1 == P2
+                parameter1, parameter_modes = self.decode_parameter(parameter_modes)
+                parameter2, parameter_modes = self.decode_parameter(parameter_modes)
+                parameter3 = self.next_instruction()
+                self.write(parameter3, int(parameter1 == parameter2))
+            else:
+                raise Exception('Unknown opcode {0}!'.format(opcode))
 
 
 def run_amplifiers(filename, inputs):
     outputs = [0]
     for phase in inputs:
-        amplifier = Memory.from_file(filename)
+        amplifier = IntcodeProcessor.from_file(filename)
         amplifier_input = [phase, outputs[0]]
-        outputs = run(amplifier, amplifier_input)
+        outputs = amplifier.run(amplifier_input)
     return outputs
 
 
 def run_amplifiers_with_feedback(filename, inputs):
     outputs = [0]
     for phase in inputs:
-        amplifier = Memory.from_file(filename)
+        amplifier = IntcodeProcessor.from_file(filename)
         amplifier_input = [phase, outputs[0]]
-        outputs = run(amplifier, amplifier_input)
+        outputs = amplifier.run(amplifier_input)
     return outputs
 
 
@@ -168,7 +165,7 @@ def tests():
     test('test7b.txt', [0,1,2,3,4], [54321])
     test('test7c.txt', [1,0,4,3,2], [65210])
 
-    test_with_feedback('test7d.txt', [9,8,7,6,5], [139629729])
+#    test_with_feedback('test7d.txt', [9,8,7,6,5], [139629729])
 #    test_with_feedback('test7e.txt', [9,7,8,5,6], [18216])
 
 
@@ -184,7 +181,7 @@ def find_highest_signal_with_feedback():
 
 def main():
     tests()
-#    find_highest_signal()
+    find_highest_signal()
 #    find_highest_signal_with_feedback()
 
 
