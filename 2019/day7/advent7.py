@@ -6,6 +6,8 @@ class IntcodeProcessor:
     def __init__(self, int_code):
         self.memory = [int(x) for x in int_code.split(',')]
         self.instruction_pointer = 0
+        self.opcode = 0
+        self.parameter_modes = 0
 
     @classmethod
     def from_file(cls, filename):
@@ -31,6 +33,9 @@ class IntcodeProcessor:
 
     def set_instruction_pointer(self, instruction_pointer):
         self.instruction_pointer = instruction_pointer
+
+    def is_halted(self):
+        return self.opcode == 99
 
     @staticmethod
     def decode_instruction(instruction):
@@ -62,107 +67,86 @@ class IntcodeProcessor:
 
     def run(self, inputs):
         outputs = []
+        parameter_modes = 0
+        restart = self.opcode == 3
         while True:
-            instruction = self.next_instruction()
-            opcode, parameter_modes = self.decode_instruction(instruction)
-            if opcode == 99:
+            if restart:
+                restart = False
+            else:
+                instruction = self.next_instruction()
+                self.opcode, self.parameter_modes = self.decode_instruction(instruction)
+            if self.opcode == 99:
                 # End
                 return outputs
-            elif opcode == 1:
+            elif self.opcode == 1:
                 # P3 = P1 + P2
-                parameter1, parameter_modes = self.read_parameter(parameter_modes)
-                parameter2, parameter_modes = self.read_parameter(parameter_modes)
+                parameter1, self.parameter_modes = self.read_parameter(self.parameter_modes)
+                parameter2, self.parameter_modes = self.read_parameter(self.parameter_modes)
                 result = parameter1 + parameter2
-                self.write_parameter(parameter_modes, result)
-            elif opcode == 2:
+                self.write_parameter(self.parameter_modes, result)
+            elif self.opcode == 2:
                 # P3 = P1 * P2
-                parameter1, parameter_modes = self.read_parameter(parameter_modes)
-                parameter2, parameter_modes = self.read_parameter(parameter_modes)
+                parameter1, self.parameter_modes = self.read_parameter(self.parameter_modes)
+                parameter2, self.parameter_modes = self.read_parameter(self.parameter_modes)
                 result = parameter1 * parameter2
                 self.write_parameter(parameter_modes, result)
-            elif opcode == 3:
+            elif self.opcode == 3:
                 # Input
-                self.write_parameter(parameter_modes, inputs.pop(0))
-            elif opcode == 4:
+                if len(inputs) == 0:
+                    return outputs
+                self.write_parameter(self.parameter_modes, inputs.pop(0))
+            elif self.opcode == 4:
                 # Output
-                parameter1, parameter_modes = self.read_parameter(parameter_modes)
+                parameter1, self.parameter_modes = self.read_parameter(self.parameter_modes)
                 outputs.append(parameter1)
-            elif opcode == 5:
+            elif self.opcode == 5:
                 # If P1 != 0 InstructionPointer = P2
-                parameter1, parameter_modes = self.read_parameter(parameter_modes)
-                parameter2, parameter_modes = self.read_parameter(parameter_modes)
+                parameter1, self.parameter_modes = self.read_parameter(self.parameter_modes)
+                parameter2, self.parameter_modes = self.read_parameter(self.parameter_modes)
                 if parameter1 != 0:
                     self.set_instruction_pointer(parameter2)
-            elif opcode == 6:
+            elif self.opcode == 6:
                 # If P1 == 0 InstructionPointer = P2
-                parameter1, parameter_modes = self.read_parameter(parameter_modes)
-                parameter2, parameter_modes = self.read_parameter(parameter_modes)
+                parameter1, self.parameter_modes = self.read_parameter(self.parameter_modes)
+                parameter2, self.parameter_modes = self.read_parameter(self.parameter_modes)
                 if parameter1 == 0:
                     self.set_instruction_pointer(parameter2)
-            elif opcode == 7:
+            elif self.opcode == 7:
                 # P3 = P1 < P2
-                parameter1, parameter_modes = self.read_parameter(parameter_modes)
-                parameter2, parameter_modes = self.read_parameter(parameter_modes)
+                parameter1, self.parameter_modes = self.read_parameter(self.parameter_modes)
+                parameter2, self.parameter_modes = self.read_parameter(self.parameter_modes)
                 result = int(parameter1 < parameter2)
                 self.write_parameter(parameter_modes, result)
-            elif opcode == 8:
+            elif self.opcode == 8:
                 # P3 = P1 == P2
-                parameter1, parameter_modes = self.read_parameter(parameter_modes)
-                parameter2, parameter_modes = self.read_parameter(parameter_modes)
+                parameter1, self.parameter_modes = self.read_parameter(self.parameter_modes)
+                parameter2, self.parameter_modes = self.read_parameter(self.parameter_modes)
                 result = int(parameter1 == parameter2)
                 self.write_parameter(parameter_modes, result)
             else:
-                raise Exception('Unknown opcode {0}!'.format(opcode))
+                raise Exception('Unknown opcode {0}!'.format(self.opcode))
 
 
-def run_amplifiers(filename, inputs):
-    outputs = [0]
-    for phase in inputs:
-        amplifier = IntcodeProcessor.from_file(filename)
-        amplifier_input = [phase, outputs[0]]
-        outputs = amplifier.run(amplifier_input)
-    return outputs
+def create_amplifiers(filename, number_to_create):
+    amplifiers = []
+    for i in range(number_to_create):
+        amplifiers.append(IntcodeProcessor.from_file(filename))
+    return amplifiers
 
 
-def run_amplifiers_with_feedback(filename, inputs):
-    outputs = [0]
-    for phase in inputs:
-        amplifier = IntcodeProcessor.from_file(filename)
-        amplifier_input = [phase, outputs[0]]
-        outputs = amplifier.run(amplifier_input)
-    return outputs
+def run_amplifiers(amplifiers, phase_sequence):
+    output = [0]
+    for i in range(len(amplifiers)):
+        amplifier = amplifiers[i]
+        amplifier_input = [phase_sequence[i], output[0]]
+        output = amplifier.run(amplifier_input)
+    return output
 
 
-def scan_phases(filename):
-    maximum_signal = 0
-    for phases in itertools.permutations('01234'):
-        inputs = [int(x) for x in list(phases)]
-        outputs = run_amplifiers(filename, inputs)
-        if outputs[0] > maximum_signal:
-            maximum_signal = outputs[0]
-            print(inputs, maximum_signal)
-    return maximum_signal
-
-
-def scan_phases_with_feedback(filename):
-    maximum_signal = 0
-    for phases in itertools.permutations('56789'):
-        inputs = [int(x) for x in list(phases)]
-        outputs = run_amplifiers_with_feedback(filename, inputs)
-        if outputs[0] > maximum_signal:
-            maximum_signal = outputs[0]
-            print(inputs, maximum_signal)
-    return maximum_signal
-
-
-def test(filename, inputs, expected_outputs):
-    outputs = run_amplifiers(filename, inputs)
-    assert outputs == expected_outputs
-
-
-def test_with_feedback(filename, inputs, expected_outputs):
-    output = run_amplifiers_with_feedback(filename, inputs)
-    assert output == expected_outputs
+def test(filename, phase_sequence, expected_output):
+    amplifiers = create_amplifiers(filename, len(phase_sequence))
+    output = run_amplifiers(amplifiers, phase_sequence)
+    assert output == expected_output
 
 
 def tests():
@@ -170,24 +154,70 @@ def tests():
     test('test7b.txt', [0, 1, 2, 3, 4], [54321])
     test('test7c.txt', [1, 0, 4, 3, 2], [65210])
 
-#    test_with_feedback('test7d.txt', [9,8,7,6,5], [139629729])
-#    test_with_feedback('test7e.txt', [9,7,8,5,6], [18216])
+
+def run_amplifiers_with_phase(filename, phase_permutation):
+    phase_sequence = [int(x) for x in list(phase_permutation)]
+    amplifiers = create_amplifiers(filename, len(phase_sequence))
+    return run_amplifiers(amplifiers, phase_sequence)
 
 
-def find_highest_signal():
-    highest_signal = scan_phases('input7.txt')
-    print('Step 1 - Highest signal = {0}'.format(highest_signal))
+def scan_phases(filename):
+    maximum_signal = 0
+    for phase_permutation in itertools.permutations('01234'):
+        output = run_amplifiers_with_phase(filename, phase_permutation)
+        if output[0] > maximum_signal:
+            maximum_signal = output[0]
+            print(phase_permutation, maximum_signal)
+    return maximum_signal
 
 
-def find_highest_signal_with_feedback():
-    highest_signal = scan_phases_with_feedback('input7.txt')
-    print('Step 2 - Highest signal = {0}'.format(highest_signal))
+def run_amplifiers_with_feedback(amplifiers, phase_sequence):
+    output = [0]
+    halted = False
+    while not halted:
+        halted = True
+        for i in range(len(amplifiers)):
+            amplifier = amplifiers[i]
+            if len(phase_sequence) > 0:
+                amplifier_input = [phase_sequence.pop(0), output[0]]
+            else:
+                amplifier_input = [output[0]]
+            output = amplifier.run(amplifier_input)
+            halted = halted and amplifier.is_halted()
+    return output
+
+
+def test_with_feedback(filename, phase_sequence, expected_output):
+    amplifiers = create_amplifiers(filename, len(phase_sequence))
+    output = run_amplifiers_with_feedback(amplifiers, phase_sequence)
+    assert output == expected_output
+
+
+def run_amplifiers_with_feedback_with_phase(filename, phase_permutation):
+    phase_sequence = [int(x) for x in list(phase_permutation)]
+    amplifiers = create_amplifiers(filename, len(phase_sequence))
+    return run_amplifiers_with_feedback(amplifiers, phase_sequence)
+
+
+def scan_phases_with_feedback(filename):
+    maximum_signal = 0
+    for phase_permutation in itertools.permutations('56789'):
+        output = run_amplifiers_with_feedback_with_phase(filename, phase_permutation)
+        if output[0] > maximum_signal:
+            maximum_signal = output[0]
+            print(phase_permutation, maximum_signal)
+    return maximum_signal
 
 
 def main():
     tests()
-    find_highest_signal()
-#    find_highest_signal_with_feedback()
+    test_with_feedback('test7d.txt', [9, 8, 7, 6, 5], [139629729])
+    test_with_feedback('test7e.txt', [9, 7, 8, 5, 6], [18216])
+
+    highest_signal = scan_phases('input7.txt')
+    print('Step 1 - Highest signal = {0}'.format(highest_signal))
+    highest_signal = scan_phases_with_feedback('input7.txt')
+    print('Step 2 - Highest signal = {0}'.format(highest_signal))
 
 
 if __name__ == '__main__':
