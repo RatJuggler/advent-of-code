@@ -166,9 +166,9 @@ def test_with_feedback(filename, inputs, expected_outputs):
 
 
 def tests():
-    test('test7a.txt', [4,3,2,1,0], [43210])
-    test('test7b.txt', [0,1,2,3,4], [54321])
-    test('test7c.txt', [1,0,4,3,2], [65210])
+    test('test7a.txt', [4, 3, 2, 1, 0], [43210])
+    test('test7b.txt', [0, 1, 2, 3, 4], [54321])
+    test('test7c.txt', [1, 0, 4, 3, 2], [65210])
 
 #    test_with_feedback('test7d.txt', [9,8,7,6,5], [139629729])
 #    test_with_feedback('test7e.txt', [9,7,8,5,6], [18216])
