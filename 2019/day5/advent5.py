@@ -112,10 +112,11 @@ class IntcodeProcessor:
                 raise Exception('Unknown opcode {0}!'.format(opcode))
 
 
-def simple_test(int_code, inputs, expected_outputs):
+def simple_test(int_code, inputs, expected_output):
     processor = IntcodeProcessor(int_code)
-    outputs = processor.run(inputs)
-    assert outputs == expected_outputs
+    output = processor.run(inputs)
+    assert output == expected_output, \
+        'For {0} expect output of {0} but got {1}!'.format(int_code, expected_output, output)
 
 
 def simple_tests():
@@ -142,10 +143,11 @@ def simple_tests():
     simple_test(int_code, [13], [0])
 
 
-def complex_test(filename, inputs, expected_outputs):
+def complex_test(filename, inputs, expected_output):
     processor = IntcodeProcessor.from_file(filename)
-    outputs = processor.run(inputs)
-    assert outputs == expected_outputs
+    output = processor.run(inputs)
+    assert output == expected_output, \
+        'For {0} expect output of {1} but got {2}!'.format(filename, expected_output, output)
 
 
 def main():

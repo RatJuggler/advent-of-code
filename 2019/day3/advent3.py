@@ -97,7 +97,7 @@ def find_closest_distance(intersections):
     closest_found = 99999999
     # Ignore intersections at 0,0
     for intersection in intersections[1:]:
-        distance = abs(intersection[1][0]) + abs(intersection[1][1])
+        distance = int(abs(intersection[1][0]) + abs(intersection[1][1]))
         print("Intersection ({0}, {1}) distance = {2}".format(intersection[0], intersection[1], distance))
         if distance < closest_found:
             closest_found = distance
@@ -144,13 +144,17 @@ def run(filename):
     return closest, shortest
 
 
+def test(filename, expected_closest, expected_shortest):
+    closest, shortest = run(filename)
+    assert closest == expected_closest, \
+        'For {0} expected closest {1} but got {2}!'.format(filename, expected_closest, closest)
+    assert shortest == expected_shortest, \
+        'For {0} expected shortest {1} but got {2}!'.format(filename, expected_shortest, shortest)
+
+
 def main():
-    closest, shortest = run('test3a.txt')
-    assert(closest == 159)
-    assert(shortest == 610)
-    closest, shortest = run('test3b.txt')
-    assert(closest == 135)
-    assert(shortest == 410)
+    test('test3a.txt', 159, 610)
+    test('test3b.txt', 135, 410)
     run('input3.txt')
 
 
