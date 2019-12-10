@@ -9,9 +9,27 @@ def load_asteroid_map(filename):
     return asteroid_map
 
 
+def convert_map_to_coords(asteroid_map):
+    coords = []
+    x = 0
+    y = 0
+    for c in asteroid_map:
+        if c == '#':
+            coords.append((x, y))
+        elif c == '\n':
+            y += 1
+            x = -1
+        elif c != '.':
+            raise Exception('Unknown map character {0}!'.format(c))
+        x += 1
+    return coords
+
+
 def find_best_location(filename):
     asteroid_map = load_asteroid_map(filename)
     print(asteroid_map)
+    asteroid_coords = convert_map_to_coords(asteroid_map)
+    print(asteroid_coords)
     return (0,0), 0
 
 
