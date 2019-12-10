@@ -64,9 +64,9 @@ def noun_verb(n):
 
 
 def main():
-    result = run_test('test2a.txt')      # 3500
+    result = run_test('test2a.txt')
     assert result == 3500
-    result = run('input2.txt', [12, 2])  # 12490719
+    result = run('input2.txt', [12, 2])
     print('Gravity assist "1202 program alarm" result = {0}'.format(result))
     for noun, verb in noun_verb(100):
         result = run('input2.txt', [noun, verb])
