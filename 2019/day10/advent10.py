@@ -1,4 +1,17 @@
+def load_asteroid_map(filename):
+    asteroid_map = ''
+    with open(filename) as fh:
+        while True:
+            map_line = fh.readline()
+            if not map_line:
+                break
+            asteroid_map += map_line
+    return asteroid_map
+
+
 def find_best_location(filename):
+    asteroid_map = load_asteroid_map(filename)
+    print(asteroid_map)
     return (0,0), 0
 
 
