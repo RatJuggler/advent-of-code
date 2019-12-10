@@ -1,20 +1,15 @@
 def load_asteroid_map(filename):
     asteroid_map = []
     with open(filename) as fh:
-        while True:
-            map_line = fh.readline()
-            if not map_line:
-                break
+        for map_line in fh:
             asteroid_map.append(map_line.rstrip('\n'))
     return asteroid_map
 
 
 def convert_map_to_coords(asteroid_map):
     coords = []
-    for y in range(len(asteroid_map)):
-        map_line = asteroid_map[y]
-        for x in range(len(map_line)):
-            c = map_line[x]
+    for y, map_line in enumerate(asteroid_map):
+        for x, c in enumerate(map_line):
             if c == '#':
                 coords.append((x, y))
             elif c != '.':
