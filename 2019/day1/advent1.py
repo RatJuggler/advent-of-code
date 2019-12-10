@@ -1,10 +1,7 @@
 def read_module_list(filename):
     modules = []
-    with open('input1.txt') as fh:
-        while True:
-            module_mass = fh.readline()
-            if not module_mass:
-                break
+    with open(filename) as fh:
+        for module_mass in fh:
             module_mass = module_mass.rstrip('\n')
             if module_mass.isdigit():
                 modules.append(int(module_mass))
