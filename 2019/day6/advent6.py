@@ -19,10 +19,7 @@ def add_orbit(orbiting_objects, orbitee, orbiter):
 def load_orbiting_objects(filename):
     orbiting_objects = {}
     with open(filename) as fh:
-        while True:
-            orbiting_object = fh.readline()
-            if not orbiting_object:
-                break
+        for orbiting_object in fh:
             orbitee, orbiter = decode_orbit_definition(orbiting_object.rstrip('\n'))
             add_orbit(orbiting_objects, orbitee, orbiter)
     return orbiting_objects
@@ -31,12 +28,12 @@ def load_orbiting_objects(filename):
 def count_orbiters(orbiting_count, orbiting_objects, orbiters):
     checksum = 0
     for orbiter in orbiters:
-#        print('Orbit count for {0} = {1}'.format(orbiter, orbiting_count))
+        # print('Orbit count for {0} = {1}'.format(orbiter, orbiting_count))
         checksum += orbiting_count
         next_orbiters = orbiting_objects.get(orbiter)
         if next_orbiters is not None:
             checksum += count_orbiters(orbiting_count + 1, orbiting_objects, next_orbiters)
-#    print('Subtotal at {0} = {1}'.format(orbiters, checksum))
+    # print('Subtotal at {0} = {1}'.format(orbiters, checksum))
     return checksum
 
 
