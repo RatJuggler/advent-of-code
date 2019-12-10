@@ -4,7 +4,7 @@ def read_wires_file(filename):
         for line in csv_file:
             wires_found.append([_section for _section in line.rstrip('\n').split(',')])
     if len(wires_found) > 2:
-        raise Exception('Expect 2 wires but found {0}!'.format(len(wires_found)))
+        raise Exception('Expected 2 wires but found {0}!'.format(len(wires_found)))
     return wires_found
 
 
@@ -39,9 +39,9 @@ def extrapolate_wire_paths(wires):
     paths = []
     for select_wire in range(len(wires)):
         wire = wires[select_wire]
-        print("Wire: {0} -> {1} Sections {2}".format(select_wire, len(wire), wire))
+        print("Wire: {0} has {1} Sections {2}".format(select_wire, len(wire), wire))
         coords = convert_to_coords(wire)
-        print(coords)
+        print('Which translates to {0}'.format(coords))
         paths.append(coords)
     return paths
 
