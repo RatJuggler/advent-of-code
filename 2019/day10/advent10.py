@@ -25,16 +25,31 @@ def convert_map_to_coords(asteroid_map):
     return coords
 
 
-def find_best_location(filename):
+def detect_asteroids(from_base):
+    return 0
+
+
+def find_best_base(asteroid_coords):
+    maximum_detected = 0
+    best_base = None
+    for base in asteroid_coords:
+        asteroids_detected = detect_asteroids(base)
+        if asteroids_detected == maximum_detected:
+            print('More than one solution found!')
+        elif asteroids_detected > maximum_detected:
+            maximum_detected = asteroids_detected
+            best_base = base
+    return maximum_detected, best_base
+
+
+def analyse_map(filename):
     asteroid_map = load_asteroid_map(filename)
-    print(asteroid_map)
     asteroid_coords = convert_map_to_coords(asteroid_map)
-    print(asteroid_coords)
-    return (0,0), 0
+    return find_best_base(asteroid_coords)
 
 
 def test(filename, expected_location, expected_detected):
-    location, detected = find_best_location(filename)
+    location, detected = analyse_map(filename)
     assert location == expected_location, \
         'Expected to find location {0} but found {1}!'.format(expected_location, location)
     assert detected == expected_detected, \
@@ -48,7 +63,7 @@ def main():
     test('test10d.txt', (6, 3), 41)
     test('test10e.txt', (11, 13), 210)
 
-    location, detected = find_best_location('test10e.txt')
+    location, detected = analyse_map('test10e.txt')
     print('Day 10 Step 1, best location {1} detects {1} asteroids'.format(location, detected))
 
 
