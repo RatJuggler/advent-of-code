@@ -1,3 +1,6 @@
+import random
+
+
 def load_asteroid_map(filename):
     asteroid_map = []
     with open(filename) as fh:
@@ -78,7 +81,12 @@ def test_analyse_map(filename, expected_location, expected_detected):
 def vapourise_asteroids(filename, from_base):
     asteroid_map = load_asteroid_map(filename)
     asteroid_coords = convert_map_to_coords(asteroid_map)
-    vapourised_asteroids = asteroid_coords
+    vapourised_asteroids = []
+    while asteroid_coords:
+        vapourise = random.randrange(len(asteroid_coords))
+        vapourise_asteroid = asteroid_coords[vapourise]
+        vapourised_asteroids.append(vapourise_asteroid)
+        asteroid_coords.remove(vapourise_asteroid)
     return vapourised_asteroids
 
 
