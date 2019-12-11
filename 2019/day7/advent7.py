@@ -67,7 +67,6 @@ class IntcodeProcessor:
 
     def run(self, inputs):
         outputs = []
-        parameter_modes = 0
         restart = self.opcode == 3
         while True:
             if restart:
@@ -89,7 +88,7 @@ class IntcodeProcessor:
                 parameter1, self.parameter_modes = self.read_parameter(self.parameter_modes)
                 parameter2, self.parameter_modes = self.read_parameter(self.parameter_modes)
                 result = parameter1 * parameter2
-                self.write_parameter(parameter_modes, result)
+                self.write_parameter(self.parameter_modes, result)
             elif self.opcode == 3:
                 # Input
                 if len(inputs) == 0:
@@ -116,13 +115,13 @@ class IntcodeProcessor:
                 parameter1, self.parameter_modes = self.read_parameter(self.parameter_modes)
                 parameter2, self.parameter_modes = self.read_parameter(self.parameter_modes)
                 result = int(parameter1 < parameter2)
-                self.write_parameter(parameter_modes, result)
+                self.write_parameter(self.parameter_modes, result)
             elif self.opcode == 8:
                 # P3 = P1 == P2
                 parameter1, self.parameter_modes = self.read_parameter(self.parameter_modes)
                 parameter2, self.parameter_modes = self.read_parameter(self.parameter_modes)
                 result = int(parameter1 == parameter2)
-                self.write_parameter(parameter_modes, result)
+                self.write_parameter(self.parameter_modes, result)
             else:
                 raise Exception('Unknown opcode {0}!'.format(self.opcode))
 
