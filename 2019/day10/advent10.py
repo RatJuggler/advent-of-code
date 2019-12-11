@@ -67,7 +67,7 @@ def analyse_map(filename):
     return find_best_base(asteroid_coords)
 
 
-def test(filename, expected_location, expected_detected):
+def test_analyse_map(filename, expected_location, expected_detected):
     detected, location = analyse_map(filename)
     assert location == expected_location, \
         'For map {0} expected to find location {1} but found {2}!'.format(filename, expected_location, location)
@@ -75,15 +75,42 @@ def test(filename, expected_location, expected_detected):
         'For map {0} expected to detect {0} asteroids but detected {1}!'.format(filename, expected_detected, detected)
 
 
-def main():
-    test('test10a.txt', (3, 4), 8)
-    test('test10b.txt', (5, 8), 33)
-    test('test10c.txt', (1, 2), 35)
-    test('test10d.txt', (6, 3), 41)
-    test('test10e.txt', (11, 13), 210)
+def vapourise_asteroids(filename, from_base):
+    asteroid_map = load_asteroid_map(filename)
+    asteroid_coords = convert_map_to_coords(asteroid_map)
+    vapourised_asteroids = asteroid_coords
+    return vapourised_asteroids
 
-    detected, location = analyse_map('input10.txt')
-    print('Day 10 Step 1, best location {0} detects {1} asteroids'.format(location, detected))
+
+def test_vapourise(filename, from_base, sample_results):
+    vapourised = vapourise_asteroids(filename, from_base)
+    for result in sample_results:
+        expected_coords = sample_results.get(result)
+        actual_coords = vapourised[result]
+        assert actual_coords == expected_coords, \
+            "Expected asteroid {0} to be vapourised at {1} but was at {2}!"\
+            .format(result, expected_coords, actual_coords)
+
+
+def main():
+    test_analyse_map('test10a.txt', (3, 4), 8)
+    test_analyse_map('test10b.txt', (5, 8), 33)
+    test_analyse_map('test10c.txt', (1, 2), 35)
+    test_analyse_map('test10d.txt', (6, 3), 41)
+    test_analyse_map('test10e.txt', (11, 13), 210)
+
+    test_vapourise('test10e.txt', (11, 13),
+                   {1: (11, 12), 2: (12, 1), 3: (12, 2),
+                    10: (12, 8), 20: (16, 0), 50: (16, 9),
+                    100: (10, 16), 199: (9, 6), 200: (8, 2),
+                    201: (10, 9), 299: (11, 1)})
+
+    detected_asteroids, best_base = analyse_map('input10.txt')
+    print('Day 10 Step 1, best location {0} detects {1} asteroids'.format(best_base, detected_asteroids))
+    vapourised = vapourise_asteroids('input10.txt', best_base)
+    th200 = vapourised[200]
+    print('Day 10 Step 2, 200th vapourised asteroid at {0}, x * 100 + y => {1}'
+          .format(th200, th200[0] * 100 + th200[1]))
 
 
 if __name__ == '__main__':
