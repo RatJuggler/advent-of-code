@@ -156,10 +156,10 @@ def move_robot(x, y, heading, turn):
     elif heading == 'E':
         if turn == 0:
             heading = 'N'
-            y += 1
+            y -= 1
         else:
             heading = 'S'
-            y -= 1
+            y += 1
     elif heading == 'S':
         if turn == 0:
             heading = 'E'
@@ -170,18 +170,18 @@ def move_robot(x, y, heading, turn):
     elif heading == 'W':
         if turn == 0:
             heading = 'S'
-            y -= 1
+            y += 1
         else:
             heading = 'N'
-            y += 1
+            y -= 1
     else:
         raise Exception('Unknown heading {0}!'.format(heading))
     return x, y, heading
 
 
 def run_paint_robot(start_colour):
-    x = 100
-    y = 100
+    x = 50
+    y = 50
     heading = 'N'
     painted = {(x, y): start_colour}
     robot = IntcodeProcessor.from_file('input11.txt')
@@ -204,9 +204,22 @@ def step1_count_colours():
     print("Day 11, Step 1 panels painted = {0}".format(len(painted)))
 
 
+def render_painted(painted):
+    hull_plates = []
+    for y in range(60):
+        hull_plates.append(list(' ' * 100))
+    for plate in painted:
+        if painted[plate] == 1:
+            plate_row = hull_plates[plate[1]]
+            plate_row[plate[0]] = '#'
+    for plate_row in hull_plates:
+        print("".join(plate_row))
+
+
 def step2_show_output():
     painted = run_paint_robot(1)  # Start on white
     print("Day 11, Step 2 panels painted = {0}".format(len(painted)))
+    render_painted(painted)
 
 
 def main():
