@@ -8,6 +8,8 @@ class IntcodeProcessor:
         for i in range(len(self.memory), 2048):
             self.memory.append(0)
         self.instruction_pointer = 0
+        self.opcode = 0
+        self.parameter_modes = 0
         self.relative_base = 0
 
     @classmethod
@@ -38,6 +40,9 @@ class IntcodeProcessor:
 
     def set_instruction_pointer(self, instruction_pointer):
         self.instruction_pointer = instruction_pointer
+
+    def is_halted(self):
+        return self.opcode == 99
 
     def adjust_relative_base(self, adjust_by):
         self.relative_base += adjust_by
@@ -78,61 +83,67 @@ class IntcodeProcessor:
 
     def run(self, inputs):
         outputs = []
+        restart = self.opcode == 3
         while True:
-            instruction = self.next_instruction()
-            opcode, parameter_modes = self.decode_instruction(instruction)
-            if opcode == 99:
+            if restart:
+                restart = False
+            else:
+                instruction = self.next_instruction()
+                self.opcode, self.parameter_modes = self.decode_instruction(instruction)
+            if self.opcode == 99:
                 # End
                 return outputs
-            elif opcode == 1:
+            elif self.opcode == 1:
                 # P3 = P1 + P2
-                parameter1, parameter_modes = self.read_parameter(parameter_modes)
-                parameter2, parameter_modes = self.read_parameter(parameter_modes)
+                parameter1, self.parameter_modes = self.read_parameter(self.parameter_modes)
+                parameter2, self.parameter_modes = self.read_parameter(self.parameter_modes)
                 result = parameter1 + parameter2
-                self.write_parameter(parameter_modes, result)
-            elif opcode == 2:
+                self.write_parameter(self.parameter_modes, result)
+            elif self.opcode == 2:
                 # P3 = P1 * P2
-                parameter1, parameter_modes = self.read_parameter(parameter_modes)
-                parameter2, parameter_modes = self.read_parameter(parameter_modes)
+                parameter1, self.parameter_modes = self.read_parameter(self.parameter_modes)
+                parameter2, self.parameter_modes = self.read_parameter(self.parameter_modes)
                 result = parameter1 * parameter2
-                self.write_parameter(parameter_modes, result)
-            elif opcode == 3:
+                self.write_parameter(self.parameter_modes, result)
+            elif self.opcode == 3:
                 # Input
-                self.write_parameter(parameter_modes, inputs.pop(0))
-            elif opcode == 4:
+                if len(inputs) == 0:
+                    return outputs
+                self.write_parameter(self.parameter_modes, inputs.pop(0))
+            elif self.opcode == 4:
                 # Output
-                parameter1, parameter_modes = self.read_parameter(parameter_modes)
+                parameter1, self.parameter_modes = self.read_parameter(self.parameter_modes)
                 outputs.append(parameter1)
-            elif opcode == 5:
+            elif self.opcode == 5:
                 # If P1 != 0 InstructionPointer = P2
-                parameter1, parameter_modes = self.read_parameter(parameter_modes)
-                parameter2, parameter_modes = self.read_parameter(parameter_modes)
+                parameter1, self.parameter_modes = self.read_parameter(self.parameter_modes)
+                parameter2, self.parameter_modes = self.read_parameter(self.parameter_modes)
                 if parameter1 != 0:
                     self.set_instruction_pointer(parameter2)
-            elif opcode == 6:
+            elif self.opcode == 6:
                 # If P1 == 0 InstructionPointer = P2
-                parameter1, parameter_modes = self.read_parameter(parameter_modes)
-                parameter2, parameter_modes = self.read_parameter(parameter_modes)
+                parameter1, self.parameter_modes = self.read_parameter(self.parameter_modes)
+                parameter2, self.parameter_modes = self.read_parameter(self.parameter_modes)
                 if parameter1 == 0:
                     self.set_instruction_pointer(parameter2)
-            elif opcode == 7:
+            elif self.opcode == 7:
                 # P3 = P1 < P2
-                parameter1, parameter_modes = self.read_parameter(parameter_modes)
-                parameter2, parameter_modes = self.read_parameter(parameter_modes)
+                parameter1, self.parameter_modes = self.read_parameter(self.parameter_modes)
+                parameter2, self.parameter_modes = self.read_parameter(self.parameter_modes)
                 result = int(parameter1 < parameter2)
-                self.write_parameter(parameter_modes, result)
-            elif opcode == 8:
+                self.write_parameter(self.parameter_modes, result)
+            elif self.opcode == 8:
                 # P3 = P1 == P2
-                parameter1, parameter_modes = self.read_parameter(parameter_modes)
-                parameter2, parameter_modes = self.read_parameter(parameter_modes)
+                parameter1, self.parameter_modes = self.read_parameter(self.parameter_modes)
+                parameter2, self.parameter_modes = self.read_parameter(self.parameter_modes)
                 result = int(parameter1 == parameter2)
-                self.write_parameter(parameter_modes, result)
-            elif opcode == 9:
+                self.write_parameter(self.parameter_modes, result)
+            elif self.opcode == 9:
                 # RelativeBase += P1
-                parameter1, parameter_modes = self.read_parameter(parameter_modes)
+                parameter1, parameter_modes = self.read_parameter(self.parameter_modes)
                 self.adjust_relative_base(parameter1)
             else:
-                raise Exception('Unknown opcode {0}!'.format(opcode))
+                raise Exception('Unknown opcode {0}!'.format(self.opcode))
 
 
 def simple_test(int_code, inputs, expected_outputs):
