@@ -140,7 +140,7 @@ class IntcodeProcessor:
                 self.write_parameter(self.parameter_modes, result)
             elif self.opcode == 9:
                 # RelativeBase += P1
-                parameter1, parameter_modes = self.read_parameter(self.parameter_modes)
+                parameter1, self.parameter_modes = self.read_parameter(self.parameter_modes)
                 self.adjust_relative_base(parameter1)
             else:
                 raise Exception('Unknown opcode {0}!'.format(self.opcode))
