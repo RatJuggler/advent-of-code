@@ -93,16 +93,52 @@ def calculate_total_energy(moons):
     return total_energy
 
 
-def test(filename, time_steps, expected_energy):
+def run_simulation(filename, time_steps):
     moons = load_moon_start_positions(filename)
     simulate_motion(moons, time_steps)
-    total_energy = calculate_total_energy(moons)
-    assert total_energy == expected_energy, 'Expect total energy {0} but got {1}!'.format(expected_energy, total_energy)
+    return calculate_total_energy(moons)
+
+
+def test_total_energy(filename, time_steps, expected_energy):
+    total_energy = run_simulation(filename, time_steps)
+    assert total_energy == expected_energy, 'Expect total energy of {0} but got {1}!'\
+        .format(expected_energy, total_energy)
+
+
+def get_moons_state(moons):
+    state = ''
+    for moon in moons:
+        state += moon.__repr__()
+    return state
+
+
+def simulate_motion_until_repeat(moons):
+    time_steps = 0
+    previous_states = []
+    moons_state = get_moons_state(moons)
+    while moons_state not in previous_states:
+        previous_states.append(moons_state)
+        apply_gravity(moons)
+        apply_velocity(moons)
+        moons_state = get_moons_state(moons)
+        time_steps += 1
+    return time_steps
+
+
+def test_previous_state(filename, expected_steps):
+    moons = load_moon_start_positions(filename)
+    time_steps = simulate_motion_until_repeat(moons)
+    assert time_steps == expected_steps, 'Expect {0} time steps but got {1}!'.format(expected_steps, time_steps)
 
 
 def main():
-    test('test12a.txt', 10, 179)
-    test('test12b.txt', 100, 1940)
+    test_total_energy('test12a.txt', 10, 179)
+    test_total_energy('test12b.txt', 100, 1940)
+
+    test_previous_state('test12a.txt', 2772)
+
+    step1_total_energy = run_simulation('input12.txt', 1000)
+    print('Day 12 Step 1, total energy = {0}'.format(step1_total_energy))
 
 
 if __name__ == '__main__':
