@@ -1,3 +1,4 @@
+import itertools
 import re
 
 
@@ -46,8 +47,30 @@ def output_moon_state(moons, time_step):
         print(moon)
 
 
-def apply_gravity():
-    pass
+def gravity(moon1, moon2):
+    if moon1.x > moon2.x:
+        moon1.vel_x -= 1
+        moon2.vel_x += 1
+    elif moon2.x > moon1.x:
+        moon2.vel_x -= 1
+        moon1.vel_x += 1
+    if moon1.y > moon2.y:
+        moon1.vel_y -= 1
+        moon2.vel_y += 1
+    elif moon2.y > moon1.y:
+        moon2.vel_y -= 1
+        moon1.vel_y += 1
+    if moon1.z > moon2.z:
+        moon1.vel_z -= 1
+        moon2.vel_z += 1
+    elif moon2.z > moon1.z:
+        moon2.vel_z -= 1
+        moon1.vel_z += 1
+
+
+def apply_gravity(moons):
+    for combination in itertools.combinations(moons, 2):
+        gravity(combination[0], combination[1])
 
 
 def apply_velocity(moons):
@@ -56,11 +79,11 @@ def apply_velocity(moons):
 
 
 def simulate_motion(moons, time_steps):
+    output_moon_state(moons, 0)
     for time_step in range(time_steps):
-        apply_gravity()
+        apply_gravity(moons)
         apply_velocity(moons)
-        output_moon_state(moons, time_step)
-    return moons
+        output_moon_state(moons, time_step + 1)
 
 
 def calculate_total_energy(moons):
