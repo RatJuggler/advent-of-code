@@ -30,10 +30,30 @@ def load_moon_start_positions(filename):
     return moons
 
 
-def main():
-    moons = load_moon_start_positions('test12a.txt')
+def output_moon_state(moons, time_step):
+    print('After {0} steps:'.format(time_step))
     for moon in moons:
         print(moon)
+
+
+def apply_gravity():
+    pass
+
+def apply_velocity():
+    pass
+
+
+def simulate_motion(moons, time_steps):
+    for time_step in range(time_steps):
+        apply_gravity()
+        apply_velocity()
+        output_moon_state(moons, time_step)
+    return moons
+
+
+def main():
+    moons = load_moon_start_positions('test12a.txt')
+    simulate_motion(moons, 1)
 
 
 if __name__ == '__main__':
