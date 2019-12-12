@@ -28,6 +28,9 @@ class Moon:
         kin = abs(self.vel_x) + abs(self.vel_y) + abs(self.vel_z)
         return pot * kin
 
+    def not_stationary(self):
+        return self.vel_x or self.vel_y or self.vel_z
+
     def __repr__(self):
         return 'pos=<x={0}, y={1}, z={2}>, vel=<x={3}, y={4}, z={5}>'\
             .format(self.x, self.y, self.z, self.vel_x, self.vel_y, self.vel_z)
@@ -99,25 +102,25 @@ def test_total_energy(filename, time_steps, expected_energy):
         .format(expected_energy, total_energy)
 
 
-def get_moons_state(moons):
-    state = ''
+def stationary_moons(moons):
     for moon in moons:
-        state += moon.__repr__()
-    return state
+        if moon.not_stationary() > 0:
+            return False
+    return True
 
 
 def simulate_motion_until_repeat(moons):
     time_steps = 0
-    initial_state = get_moons_state(moons)
-    current_state = ''
-    while current_state != initial_state:
+    # Must cycle to (0,0,0) velocity then back to initial state.
+    while True:
         apply_gravity(moons)
         apply_velocity(moons)
-        current_state = get_moons_state(moons)
         time_steps += 1
         if time_steps % 100000 == 0:
             print(time_steps)
-    return time_steps
+        if stationary_moons(moons):
+            break
+    return time_steps * 2
 
 
 def run_simulation_until_repeat(filename):
