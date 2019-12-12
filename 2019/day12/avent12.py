@@ -56,9 +56,23 @@ def simulate_motion(moons, time_steps):
     return moons
 
 
+def calculate_total_enery(moons):
+    total_energy = 0
+    for moon in moons:
+        total_energy += moon.total_energy()
+    return total_energy
+
+
+def test(filename, time_steps, expected_energy):
+    moons = load_moon_start_positions(filename)
+    simulate_motion(moons, time_steps)
+    total_energy = calculate_total_enery(moons)
+    assert total_energy == expected_energy, 'Expect total energy {0} but go {1}!'.format(expected_energy, total_energy)
+
+
 def main():
-    moons = load_moon_start_positions('test12a.txt')
-    simulate_motion(moons, 1)
+    test('test12a.txt', 10, 179)
+    test('test12b.txt', 100, 1940)
 
 
 if __name__ == '__main__':
