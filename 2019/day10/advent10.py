@@ -2,11 +2,8 @@ import random
 
 
 def load_asteroid_map(filename):
-    asteroid_map = []
     with open(filename) as fh:
-        for map_line in fh:
-            asteroid_map.append(map_line.rstrip('\n'))
-    return asteroid_map
+        return [map_line.rstrip('\n') for map_line in fh]
 
 
 def convert_map_to_coords(asteroid_map):
