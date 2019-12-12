@@ -114,14 +114,15 @@ def get_moons_state(moons):
 
 def simulate_motion_until_repeat(moons):
     time_steps = 0
-    previous_states = []
-    moons_state = get_moons_state(moons)
-    while moons_state not in previous_states:
-        previous_states.append(moons_state)
+    initial_state = get_moons_state(moons)
+    current_state = ''
+    while current_state != initial_state:
         apply_gravity(moons)
         apply_velocity(moons)
-        moons_state = get_moons_state(moons)
+        current_state = get_moons_state(moons)
         time_steps += 1
+        if time_steps % 100000 == 0:
+            print(time_steps)
     return time_steps
 
 
