@@ -34,11 +34,8 @@ class Moon:
 
 
 def load_moon_start_positions(filename):
-    moons = []
     with open(filename) as fh:
-        for moon_start in fh:
-            moons.append(Moon.from_string(moon_start))
-    return moons
+        return [Moon.from_string(moon_start) for moon_start in fh]
 
 
 def output_moon_state(moons, time_step):
