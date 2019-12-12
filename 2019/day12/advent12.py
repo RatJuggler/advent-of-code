@@ -47,25 +47,22 @@ def output_moon_state(moons, time_step):
         print(moon)
 
 
+def axis_pull(moon1_axis, moon2_axis):
+    return 1 if moon2_axis > moon1_axis else -1 if moon2_axis < moon1_axis else 0
+
+
 def gravity(moon1, moon2):
-    if moon1.x > moon2.x:
-        moon1.vel_x -= 1
-        moon2.vel_x += 1
-    elif moon2.x > moon1.x:
-        moon2.vel_x -= 1
-        moon1.vel_x += 1
-    if moon1.y > moon2.y:
-        moon1.vel_y -= 1
-        moon2.vel_y += 1
-    elif moon2.y > moon1.y:
-        moon2.vel_y -= 1
-        moon1.vel_y += 1
-    if moon1.z > moon2.z:
-        moon1.vel_z -= 1
-        moon2.vel_z += 1
-    elif moon2.z > moon1.z:
-        moon2.vel_z -= 1
-        moon1.vel_z += 1
+    x_axis_pull = axis_pull(moon1.x, moon2.x)
+    moon1.vel_x += x_axis_pull
+    moon2.vel_x += -x_axis_pull
+
+    y_axis_pull = axis_pull(moon1.y, moon2.y)
+    moon1.vel_y += y_axis_pull
+    moon2.vel_y += -y_axis_pull
+
+    z_axis_pull = axis_pull(moon1.z, moon2.z)
+    moon1.vel_z += z_axis_pull
+    moon2.vel_z += -z_axis_pull
 
 
 def apply_gravity(moons):
