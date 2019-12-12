@@ -17,6 +17,11 @@ class Moon:
         coords = r.findall(moon_coords)
         return Moon(coords[0], coords[1], coords[2])
 
+    def total_energy(self):
+        pot = abs(self.x) + abs(self.y) + abs(self.z)
+        kin = abs(self.vel_x) + abs(self.vel_y) + abs(self.vel_z)
+        return pot * kin
+
     def __repr__(self):
         return 'pos=<x={0}, y={1}, z={2}>, vel=<x={3}, y={4}, z={5}>'\
             .format(self.x, self.y, self.z, self.vel_x, self.vel_y, self.vel_z)
