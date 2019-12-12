@@ -17,6 +17,11 @@ class Moon:
         coords = r.findall(moon_coords)
         return Moon(coords[0], coords[1], coords[2])
 
+    def apply_velocity(self):
+        self.x += self.vel_x
+        self.y += self.vel_y
+        self.z += self.vel_z
+
     def total_energy(self):
         pot = abs(self.x) + abs(self.y) + abs(self.z)
         kin = abs(self.vel_x) + abs(self.vel_y) + abs(self.vel_z)
@@ -44,19 +49,21 @@ def output_moon_state(moons, time_step):
 def apply_gravity():
     pass
 
-def apply_velocity():
-    pass
+
+def apply_velocity(moons):
+    for moon in moons:
+        moon.apply_velocity()
 
 
 def simulate_motion(moons, time_steps):
     for time_step in range(time_steps):
         apply_gravity()
-        apply_velocity()
+        apply_velocity(moons)
         output_moon_state(moons, time_step)
     return moons
 
 
-def calculate_total_enery(moons):
+def calculate_total_energy(moons):
     total_energy = 0
     for moon in moons:
         total_energy += moon.total_energy()
@@ -66,8 +73,8 @@ def calculate_total_enery(moons):
 def test(filename, time_steps, expected_energy):
     moons = load_moon_start_positions(filename)
     simulate_motion(moons, time_steps)
-    total_energy = calculate_total_enery(moons)
-    assert total_energy == expected_energy, 'Expect total energy {0} but go {1}!'.format(expected_energy, total_energy)
+    total_energy = calculate_total_energy(moons)
+    assert total_energy == expected_energy, 'Expect total energy {0} but got {1}!'.format(expected_energy, total_energy)
 
 
 def main():
