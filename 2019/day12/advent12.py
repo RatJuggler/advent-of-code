@@ -125,9 +125,13 @@ def simulate_motion_until_repeat(moons):
     return time_steps
 
 
-def test_previous_state(filename, expected_steps):
+def run_simulation_until_repeat(filename):
     moons = load_moon_start_positions(filename)
-    time_steps = simulate_motion_until_repeat(moons)
+    return simulate_motion_until_repeat(moons)
+
+
+def test_previous_state(filename, expected_steps):
+    time_steps = run_simulation_until_repeat(filename)
     assert time_steps == expected_steps, 'Expect {0} time steps but got {1}!'.format(expected_steps, time_steps)
 
 
@@ -136,9 +140,12 @@ def main():
     test_total_energy('test12b.txt', 100, 1940)
 
     test_previous_state('test12a.txt', 2772)
+    test_previous_state('test12b.txt', 4686774924)
 
     step1_total_energy = run_simulation('input12.txt', 1000)
     print('Day 12 Step 1, total energy = {0}'.format(step1_total_energy))
+    step2_time_steps = run_simulation_until_repeat('input12.txt')
+    print('Day 12 Step 2, time steps until repeat = {0}'.format(step2_time_steps))
 
 
 if __name__ == '__main__':
