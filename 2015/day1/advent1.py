@@ -35,6 +35,12 @@ def simple_test_step2(directions, expected_step):
     assert step == expected_step, 'Expected to be in basement on step {0} but was step {1}!'.format(expected_step, step)
 
 
+def step2_load_and_follow_directions(filename):
+    directions = load_directions(filename)
+    step = basement_step(directions)
+    print('Day 1, Step 2 basement reached on step {0}'.format(step))
+
+
 def main():
     simple_test_step1('(())', 0)
     simple_test_step1('()()', 0)
@@ -48,6 +54,7 @@ def main():
     step1_load_and_follow_directions('input1.txt')
     simple_test_step2(')', 1)
     simple_test_step2('()())', 5)
+    step2_load_and_follow_directions('input1.txt')
 
 
 if __name__ == '__main__':
