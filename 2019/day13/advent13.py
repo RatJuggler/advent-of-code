@@ -157,8 +157,21 @@ def step1_count_block_tiles():
     print('Day 13, Step 1 block tiles output = {0}'.format(count_block_tiles(output)))
 
 
+def display_screen(output):
+    print(output)
+
+
+def step2_play_game():
+    game = IntcodeProcessor.from_file('input13.txt')
+    game.write(0, 2)  # Set to free play.
+    while not game.is_halted():
+        output = game.run([0])
+        display_screen(output)
+
+
 def main():
     step1_count_block_tiles()
+    step2_play_game()
 
 
 if __name__ == '__main__':
