@@ -161,12 +161,14 @@ def step1_count_block_tiles():
 
 
 def display_screen(output, screen):
+    score = 0
     for tile_index in range(2, len(output), 3):
         tile = output[tile_index]
         x = output[tile_index - 2]
         y = output[tile_index - 1]
         if x == -1:
-            screen.addstr(0, 0, 'Score: {0} '.format(tile))
+            score = tile
+            screen.addstr(0, 0, '{0} '.format(score))
         else:
             if tile == 0:
                 display = ' '
@@ -181,6 +183,7 @@ def display_screen(output, screen):
             else:
                 display = '?'
             screen.addch(y, x, display)
+    return score
 
 
 def step2_play_game():
@@ -191,13 +194,16 @@ def step2_play_game():
     curses.curs_set(0)
     screen.nodelay(True)
     joystick = [0]
+    high_score = 0
     while not game.is_halted():
         output = game.run(joystick)
-        display_screen(output, screen)
+        score = display_screen(output, screen)
+        if score > high_score:
+            high_score = score
         screen.refresh()
         screen.timeout(500)
         c = screen.getch()
-        screen.addstr(0, 20, 'Key: {0} '.format(c))
+        screen.addstr(0, 20, ' Key: {0} '.format(c))
         if c == 122:  # Z key
             joystick = [-1]
         elif c == 120:  # X key
@@ -208,6 +214,7 @@ def step2_play_game():
     curses.curs_set(1)
     curses.echo()
     curses.endwin()
+    print('Day 13, Step 2 highest score = {0}'.format(high_score))
 
 
 def main():
