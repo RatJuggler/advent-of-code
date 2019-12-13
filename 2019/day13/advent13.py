@@ -1,3 +1,6 @@
+import curses
+
+
 class IntcodeProcessor:
 
     def __init__(self, int_code):
@@ -157,16 +160,54 @@ def step1_count_block_tiles():
     print('Day 13, Step 1 block tiles output = {0}'.format(count_block_tiles(output)))
 
 
-def display_screen(output):
-    print(output)
+def display_screen(output, screen):
+    for tile_index in range(2, len(output), 3):
+        tile = output[tile_index]
+        x = output[tile_index - 2]
+        y = output[tile_index - 1]
+        if x == -1:
+            screen.addstr(0, 0, 'Score: {0} '.format(tile))
+        else:
+            if tile == 0:
+                display = ' '
+            elif tile == 1:
+                display = '@'
+            elif tile == 2:
+                display = 'X'
+            elif tile == 3:
+                display = '='
+            elif tile == 4:
+                display = 'o'
+            else:
+                display = '?'
+            screen.addch(y, x, display)
 
 
 def step2_play_game():
     game = IntcodeProcessor.from_file('input13.txt')
     game.write(0, 2)  # Set to free play.
+    screen = curses.initscr()
+    curses.noecho()
+    curses.curs_set(0)
+    screen.nodelay(True)
+    joystick = [0]
     while not game.is_halted():
-        output = game.run([0])
-        display_screen(output)
+        output = game.run(joystick)
+        display_screen(output, screen)
+        screen.refresh()
+        screen.timeout(500)
+        c = screen.getch()
+        screen.addstr(0, 20, 'Key: {0} '.format(c))
+        if c == 122:  # Z key
+            joystick = [-1]
+        elif c == 120:  # X key
+            joystick = [1]
+        else:
+            joystick = [0]
+    screen.nodelay(False)
+    curses.curs_set(1)
+    curses.echo()
+    curses.endwin()
 
 
 def main():
