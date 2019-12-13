@@ -161,7 +161,10 @@ def step1_count_block_tiles():
 
 
 def display_screen(output, screen):
+    display_chars = ' @X=O?'
     score = 0
+    bat_at = 0
+    ball_at = 0
     for tile_index in range(2, len(output), 3):
         tile = output[tile_index]
         x = output[tile_index - 2]
@@ -170,38 +173,28 @@ def display_screen(output, screen):
             score = tile
             screen.addstr(0, 0, '{0} '.format(score))
         else:
-            if tile == 0:
-                display = ' '
-            elif tile == 1:
-                display = '@'
-            elif tile == 2:
-                display = 'X'
-            elif tile == 3:
-                display = '='
+            if tile == 3:
+                bat_at = x
             elif tile == 4:
-                display = 'o'
-            else:
-                display = '?'
-            screen.addch(y, x, display)
-    return score
+                ball_at = x
+            elif tile > 4:
+                tile = 5
+            screen.addch(y, x, display_chars[tile])
+    return score, ball_at - bat_at
 
 
-def step2_play_game():
+def game_loop(screen):
     game = IntcodeProcessor.from_file('input13.txt')
     game.write(0, 2)  # Set to free play.
-    screen = curses.initscr()
-    curses.noecho()
-    curses.curs_set(0)
-    screen.nodelay(True)
-    joystick = [0]
     high_score = 0
+    joystick = [0]
     while not game.is_halted():
         output = game.run(joystick)
-        score = display_screen(output, screen)
+        score, move_to = display_screen(output, screen)
         if score > high_score:
             high_score = score
         screen.refresh()
-        screen.timeout(500)
+        screen.timeout(10)
         c = screen.getch()
         screen.addstr(0, 20, ' Key: {0} '.format(c))
         if c == 122:  # Z key
@@ -209,7 +202,16 @@ def step2_play_game():
         elif c == 120:  # X key
             joystick = [1]
         else:
-            joystick = [0]
+            joystick = [0] if move_to == 0 else [1] if move_to > 0 else [-1]
+    return high_score
+
+
+def step2_play_game():
+    screen = curses.initscr()
+    curses.noecho()
+    curses.curs_set(0)
+    screen.nodelay(True)
+    high_score = game_loop(screen)
     screen.nodelay(False)
     curses.curs_set(1)
     curses.echo()
