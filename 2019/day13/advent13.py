@@ -149,8 +149,7 @@ class IntcodeProcessor:
 def count_block_tiles(output):
     block_tiles = 0
     for tile_index in range(2, len(output), 3):
-        if output[tile_index] == 2:
-            block_tiles += 1
+        block_tiles += int(output[tile_index] == 2)
     return block_tiles
 
 
@@ -165,10 +164,8 @@ def display_screen(output, screen):
     score = 0
     bat_at = 0
     ball_at = 0
-    for tile_index in range(2, len(output), 3):
-        tile = output[tile_index]
-        x = output[tile_index - 2]
-        y = output[tile_index - 1]
+    for tile_index in range(0, len(output), 3):
+        x, y, tile = output[tile_index:tile_index+3]
         if x == -1:
             score = tile
             screen.addstr(0, 0, '{0} '.format(score))
@@ -210,12 +207,12 @@ def step2_play_game():
     screen = curses.initscr()
     curses.noecho()
     curses.curs_set(0)
-    screen.nodelay(True)
-    high_score = game_loop(screen)
-    screen.nodelay(False)
-    curses.curs_set(1)
-    curses.echo()
-    curses.endwin()
+    try:
+        high_score = game_loop(screen)
+    finally:
+        curses.curs_set(1)
+        curses.echo()
+        curses.endwin()
     print('Day 13, Step 2 highest score = {0}'.format(high_score))
 
 
