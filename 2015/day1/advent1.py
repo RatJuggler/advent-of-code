@@ -22,7 +22,12 @@ def step1_load_and_follow_directions(filename):
 
 
 def basement_step(directions):
-    return 0
+    floor = 0
+    for step, c in enumerate(directions):
+        floor += 1 if c == '(' else -1 if c == ')' else 0
+        if floor < 0:
+            return step + 1
+    return -1
 
 
 def simple_test_step2(directions, expected_step):
