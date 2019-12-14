@@ -88,7 +88,7 @@ def analyse_production_requirements(required, reactions, production_requirements
     return production_requirements
 
 
-def load_and_analyse_reactions(filename):
+def load_and_analyse_reactions_for_step1(filename):
     reactions = load_reactions(filename)
     required = Chemical('FUEL', 1)
     production_required = analyse_production_requirements(required, reactions, {})
@@ -97,9 +97,20 @@ def load_and_analyse_reactions(filename):
 
 
 def test_ore_required(filename, expected_ore_required):
-    ore_required = load_and_analyse_reactions(filename)
+    ore_required = load_and_analyse_reactions_for_step1(filename)
     assert ore_required == expected_ore_required, \
         'Expected to need {0} ore but actually used {1}!'.format(expected_ore_required, ore_required)
+
+
+def load_and_analyse_reactions_for_step2(filename, ore_used):
+    reactions = load_reactions(filename)
+    return 0
+
+
+def test_ore_produces(filename, ore_used, expected_fuel_produced):
+    fuel_produced = load_and_analyse_reactions_for_step2(filename, ore_used)
+    assert fuel_produced == expected_fuel_produced, \
+        'Expected to produce {0} fuel but actually produced {1}!'.format(expected_fuel_produced, fuel_produced)
 
 
 def main():
@@ -108,8 +119,14 @@ def main():
     test_ore_required('test14c.txt', 13312)
     test_ore_required('test14d.txt', 180697)
     test_ore_required('test14e.txt', 2210736)
-    ore_required = load_and_analyse_reactions('input14.txt')
+    ore_required = load_and_analyse_reactions_for_step1('input14.txt')
     print('Day 14, Step 1 - Ore required to produce 1 Fuel is {0}'.format(ore_required))
+
+    test_ore_produces('test14c.txt', 13312, 82892753)
+    test_ore_produces('test14d.txt', 180697, 5586022)
+    test_ore_produces('test14e.txt', 2210736, 460664)
+    fuel_produced = load_and_analyse_reactions_for_step2('input14.txt', 1000000000000)
+    print('Day 14, Step 2 - Ore required to produce 1 Fuel is {0}'.format(fuel_produced))
 
 
 if __name__ == '__main__':
