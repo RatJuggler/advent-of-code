@@ -1,3 +1,34 @@
+class Chemical:
+
+    def __init__(self, name, quantity):
+        self.name = name
+        self.quantity = int(quantity)
+
+    def __repr__(self):
+        return '{0} {1}'.format(self.quantity, self.name)
+
+
+class Reaction:
+
+    def __init__(self, produces, requires):
+        self.produces = produces
+        self.requires = requires
+
+    def __repr__(self):
+        return 'Production of {0} requires {1}'.format(self.produces, self.requires)
+
+
+class Production:
+
+    def __init__(self, of_chemical):
+        self.of_chemical = of_chemical
+        self.produced = 0
+        self.consumed = 0
+
+    def __repr__(self):
+        return 'Chemical: {0} Produced: {1} Consumed: {2}'.format(self.of_chemical, self.produced, self.consumed)
+
+
 def parse_reaction_line(reaction_line):
     produces_indicator = reaction_line.find('=>')
     input_chemicals = reaction_line[:produces_indicator].split(',')
@@ -6,7 +37,8 @@ def parse_reaction_line(reaction_line):
 
 
 def parse_chemical_details(chemical_details):
-    return chemical_details.strip().split(' ')
+    quantity, name = chemical_details.strip().split(' ')
+    return Chemical(name, quantity)
 
 
 def parse_input_chemicals(input_chemicals):
@@ -21,24 +53,47 @@ def load_reactions(filename):
     with open(filename) as f:
         for reaction_line in f:
             input_chemicals, output_chemical = parse_reaction_line(reaction_line.rstrip('\n'))
-            output_quantity, output_name = parse_chemical_details(output_chemical)
-            reactions[output_name] = (output_quantity, parse_input_chemicals(input_chemicals))
-        return reactions
+            produces = parse_chemical_details(output_chemical)
+            reactions[produces.name] = Reaction(produces, parse_input_chemicals(input_chemicals))
+    return reactions
 
 
-def analyse_reactions(chemical_required, reactions):
-    produces_quantity = reactions[chemical_required][0]
-    requires_chemicals = reactions[chemical_required][1]
-    print('{0} {1} requires {2}'.format(produces_quantity, chemical_required, requires_chemicals))
-    for requires_chemical in requires_chemicals:
-        if requires_chemical[1] != 'ORE':
-            analyse_reactions(requires_chemical[1], reactions)
+def analyse_production_requirements(required, reactions, production_requirements):
+    print('{0} required'.format(required))
+    current_requirement = production_requirements.get(required.name)
+    if not current_requirement:
+        current_requirement = Production(required.name)
+    current_requirement.consumed += required.quantity
+    production_requirements[required.name] = current_requirement
+    if required.name == 'ORE':
+        return production_requirements
+    if current_requirement.consumed <= current_requirement.produced:
+        print('Requirement met! Now using {0} out of a total production of {1}'
+              .format(current_requirement.consumed, current_requirement.produced))
+    else:
+        reaction = reactions.get(required.name)
+        if not reaction:
+            raise Exception('No reaction found to produce chemical {0}!'.format(required.name))
+        production_multiplier = 0
+        while current_requirement.consumed > current_requirement.produced:
+            print('Requirements not met, increase production of {0} by {1}'
+                  .format(required.name, reaction.produces.quantity))
+            current_requirement.produced += reaction.produces.quantity
+            production_multiplier += 1
+        production_requirements[required.name] = current_requirement
+        for multiplier in range(production_multiplier):
+            for requires in reaction.requires:
+                production_requirements = \
+                    analyse_production_requirements(requires, reactions, production_requirements)
+    return production_requirements
 
 
 def load_and_analyse_reactions(filename):
     reactions = load_reactions(filename)
-    analyse_reactions('FUEL', reactions)
-    return 0
+    required = Chemical('FUEL', 1)
+    production_required = analyse_production_requirements(required, reactions, {})
+    print(production_required)
+    return production_required.get('ORE').consumed
 
 
 def test_ore_required(filename, expected_ore_required):
@@ -52,7 +107,7 @@ def main():
     test_ore_required('test14b.txt', 165)
     test_ore_required('test14c.txt', 13312)
     test_ore_required('test14d.txt', 180697)
-    test_ore_required('test14e.txt', 22107136)
+    test_ore_required('test14e.txt', 2210736)
     ore_required = load_and_analyse_reactions('input14.txt')
     print('Day 14, Step 1 - Ore required to produce 1 Fuel is {0}'.format(ore_required))
 
