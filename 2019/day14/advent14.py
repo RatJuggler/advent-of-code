@@ -103,17 +103,21 @@ def test_ore_required(filename, expected_ore_required):
 
 def load_and_run_reactions_for_step2(filename, ore_used):
     reactions = load_reactions(filename)
-    fuel_produced = 10000
-    fuel_increment = 10000
+    fuel_produced = 1
+    fuel_increment = 1
     while True:
         required = Chemical('FUEL', fuel_produced)
         production_required = analyse_production(required, reactions, {})
         print(production_required)
         if production_required.get('ORE').consumed == ore_used:
             break
+        if production_required.get('ORE').consumed < ore_used:
+            fuel_produced -= fuel_increment
+            fuel_increment *= 10
         if production_required.get('ORE').consumed > ore_used:
             fuel_produced -= fuel_increment
-            fuel_increment //= 10
+            if fuel_increment > 1:
+                fuel_increment //= 10
         fuel_produced += fuel_increment
     return fuel_produced
 
