@@ -1,4 +1,5 @@
-from day13.intcode_processor import IntcodeProcessor
+from intcode_processor import IntcodeProcessor
+from random import randint
 import curses
 
 
@@ -19,18 +20,19 @@ def display_position(status, droid_position, move, screen):
         wall = update_position([droid_position[0], droid_position[1]], move)
         screen.addch(wall[1], wall[0], '#')
     elif status == 1:
-        screen.addch(droid_position[1], droid_position[0], '.')
+        screen.addch(droid_position[1], droid_position[0], ' ')
         droid_position = update_position(droid_position, move)
         screen.addch(droid_position[1], droid_position[0], 'D')
     elif status == 2:
-        oxygen_system = update_position(droid_position, move)
-        screen.addch(oxygen_system[1], oxygen_system[0], 'O')
+        oxygen_system = update_position([droid_position[0], droid_position[1]], move)
+        screen.addch(oxygen_system[1], oxygen_system[0], '*')
+        screen.addstr(0, 20, ' Oxygen System: {0} '.format(oxygen_system))
     return droid_position
 
 
 def control_loop(screen):
     repair_droid = IntcodeProcessor.from_file('input15.txt')
-    droid_position = [40, 10]
+    droid_position = [40, 25]
     moves_taken = 0
     move = 0
     while not repair_droid.is_halted():
@@ -39,9 +41,9 @@ def control_loop(screen):
             droid_position = display_position(output[0], droid_position, move, screen)
             moves_taken += 1
         screen.refresh()
-        screen.timeout(500)
+        screen.timeout(10)
         c = screen.getch()
-        screen.addstr(0, 0, ' Key: {0} '.format(c))
+        screen.addstr(0, 0, ' Repair Droid: {0} '.format(droid_position))
         if c == 119:  # W key
             move = 1
         elif c == 115:  # S key
