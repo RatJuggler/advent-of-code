@@ -4,6 +4,14 @@ class IntcodeProcessor:
         self.memory = [int(x) for x in int_code.split(',')]
         for i in range(len(self.memory), 4096):
             self.memory.append(0)
+        self.cache = self.memory.copy()
+        self.instruction_pointer = 0
+        self.opcode = 0
+        self.parameter_modes = 0
+        self.relative_base = 0
+
+    def reset(self):
+        self.memory = self.cache.copy()
         self.instruction_pointer = 0
         self.opcode = 0
         self.parameter_modes = 0
