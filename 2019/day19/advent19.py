@@ -50,6 +50,7 @@ def step1_points_affected_by_tractor_beam(size):
         print('Scanning row {0} from {1}...'.format(y, x), end='')
         x = scan_for_affected(drone_control, x - 1, y, size)
         if x == -1:
+            x = 0
             columns_affected = 0
         else:
             columns_affected = count_affected(drone_control, x, y, size)
@@ -59,20 +60,28 @@ def step1_points_affected_by_tractor_beam(size):
     print('Day 19, Step 1 points affected found = {0}'.format(total_affected))
 
 
+def square_test(rows_affected, size):
+    return len(rows_affected) < size
+
+
 def step2_find_closest_square(size):
     drone_control = IntcodeProcessor.from_file('input19.txt')
     x = 0
     y = 0
-    columns_affected = 0
-    while columns_affected < size:
+    rows_affected = []
+    while square_test(rows_affected, size):
         print('Scanning row {0} from {1}...'.format(y, x), end='')
         x = scan_for_affected(drone_control, x - 1, y, 1000)
         if x == -1:
+            x = 0
             columns_affected = 0
         else:
             columns_affected = count_affected(drone_control, x, y, 1000)
-        print('Found {0}'.format(columns_affected))
+        print('Found {0} from {1}'.format(columns_affected, x))
+        if columns_affected >= size:
+            rows_affected.append((x, columns_affected))
         y += 1
+    print(rows_affected)
 
 
 def main():
