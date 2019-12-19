@@ -41,20 +41,25 @@ def count_affected(drone_control, x_from, y, max_columns):
     return affected
 
 
+def find_affected(drone_control, x, y, max_columns):
+    print('Scanning row {0} from {1}...'.format(y, x), end='')
+    x = scan_for_affected(drone_control, x - 1, y, max_columns)
+    if x == -1:
+        x = 0
+        columns_affected = 0
+    else:
+        columns_affected = count_affected(drone_control, x, y, max_columns)
+    print('Found {0}'.format(columns_affected))
+    return x, columns_affected
+
+
 def step1_points_affected_by_tractor_beam(size):
     drone_control = IntcodeProcessor.from_file('input19.txt')
     x = 0
     y = 0
     total_affected = 0
     while y < size:
-        print('Scanning row {0} from {1}...'.format(y, x), end='')
-        x = scan_for_affected(drone_control, x - 1, y, size)
-        if x == -1:
-            x = 0
-            columns_affected = 0
-        else:
-            columns_affected = count_affected(drone_control, x, y, size)
-        print('Found {0}'.format(columns_affected))
+        x, columns_affected = find_affected(drone_control, x, y, size)
         total_affected += columns_affected
         y += 1
     print('Day 19, Step 1 points affected found = {0}'.format(total_affected))
@@ -77,14 +82,7 @@ def step2_find_closest_square(size):
     max_columns = 10000
     rows_affected = []
     while square_test(rows_affected, size):
-        print('Scanning row {0} from {1}...'.format(y, x), end='')
-        x = scan_for_affected(drone_control, x - 1, y, max_columns)
-        if x == -1:
-            x = 0
-            columns_affected = 0
-        else:
-            columns_affected = count_affected(drone_control, x, y, max_columns)
-        print('Found {0} from {1}'.format(columns_affected, x))
+        x, columns_affected = find_affected(drone_control, x, y, max_columns)
         if columns_affected >= size:
             rows_affected.append((x, y, columns_affected))
             if len(rows_affected) > size:
@@ -92,14 +90,14 @@ def step2_find_closest_square(size):
         y += 1
     print(rows_affected)
     first_row = rows_affected[0]
-    value = first_row[0] * 10000 + first_row[1]
+    value = (first_row[0] + first_row[2] - size) * 10000 + first_row[1]
     print('Day 19, Step 2 square size {0} starts at ({1}, {2}) giving value {3}'
           .format(size, first_row[0], first_row[1], value))
 
 
 def main():
-    # visualise(50)
-    # step1_points_affected_by_tractor_beam(50)
+    visualise(50)
+    step1_points_affected_by_tractor_beam(50)
     step2_find_closest_square(100)
 
 
