@@ -5,13 +5,20 @@ def parse_dimensions(dimensions):
     return [int(dimension) for dimension in re.split(r'x', dimensions)]
 
 
+def process_presents(filename, calculation):
+    total_required = 0
+    with open(filename) as fh:
+        for present_dimensions in fh:
+            total_required += calculation(present_dimensions)
+    return total_required
+
+
 def calculate_paper_required(present_dimensions):
     l, w, h = parse_dimensions(present_dimensions)
     side1 = l * w
     side2 = w * h
     side3 = h * l
-    paper_required = (2 * side1) + (2 * side2) + (2 * side3) + min(side1, side2, side3)
-    return paper_required
+    return (2 * side1) + (2 * side2) + (2 * side3) + min(side1, side2, side3)
 
 
 def simple_test_step1(present_dimensions, expected_paper_required):
@@ -22,10 +29,7 @@ def simple_test_step1(present_dimensions, expected_paper_required):
 
 
 def step1_calculate_total_paper_required(filename):
-    total_paper_required = 0
-    with open(filename) as fh:
-        for present_dimensions in fh:
-            total_paper_required += calculate_paper_required(present_dimensions)
+    total_paper_required = process_presents(filename, calculate_paper_required)
     print('Day 2, Step 1 wrapping paper required = {0} sq ft'.format(total_paper_required))
 
 
@@ -34,8 +38,7 @@ def calculate_ribbon_required(present_dimensions):
     face1 = 2 * (l + w)
     face2 = 2 * (w + h)
     face3 = 2 * (h + l)
-    ribbon_required = min(face1, face2, face3) + (l * w * h)
-    return ribbon_required
+    return min(face1, face2, face3) + (l * w * h)
 
 
 def simple_test_step2(present_dimensions, expected_ribbon_required):
@@ -46,11 +49,8 @@ def simple_test_step2(present_dimensions, expected_ribbon_required):
 
 
 def step2_calculate_total_ribbon_required(filename):
-    total_ribbon_required = 0
-    with open(filename) as fh:
-        for present_dimensions in fh:
-            total_ribbon_required += calculate_ribbon_required(present_dimensions)
-    print('Day 2, Step 2 ribbon paper required = {0} ft'.format(total_ribbon_required))
+    total_ribbon_required = process_presents(filename, calculate_ribbon_required)
+    print('Day 2, Step 2 ribbon required = {0} ft'.format(total_ribbon_required))
 
 
 def main():
