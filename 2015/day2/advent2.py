@@ -29,10 +29,22 @@ def step1_calculate_total_paper_required(filename):
     print('Day 2, Step 1 wrapping paper required = {0} sq ft'.format(total_paper_required))
 
 
+def calculate_ribbon_required(present_dimensions):
+    return 0
+
+
+def simple_test_step2(present_dimensions, expected_ribbon_required):
+    ribbon_required = calculate_ribbon_required(present_dimensions)
+    assert ribbon_required == expected_ribbon_required, \
+        'Expected to need {0} ft of ribbon for a present of dimensions {1} but calculated {2}!'\
+        .format(expected_ribbon_required, present_dimensions, ribbon_required)
+
 def main():
     simple_test_step1('2x3x4', 58)
     simple_test_step1('1x1x10', 43)
     step1_calculate_total_paper_required('input2.txt')
+    simple_test_step2('2x3x4', 34)
+    simple_test_step2('1x1x10', 14)
 
 
 if __name__ == '__main__':
