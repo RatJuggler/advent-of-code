@@ -8,16 +8,14 @@ def move_and_visit(position, direction, visited_houses, houses_visited):
     new_position = (x, y)
     house_visits = visited_houses.get(new_position)
     if house_visits is None:
-        visited_houses[new_position] = 1
+        visited_houses[new_position] = True
         houses_visited += 1
-    else:
-        visited_houses[new_position] = house_visits + 1
     return new_position, visited_houses, houses_visited
 
 
 def follow_directions(directions):
     position = (0, 0)
-    visited_houses = {position: 1}
+    visited_houses = {position: True}
     houses_visited = 1
     for direction in directions:
         position, visited_houses, houses_visited = move_and_visit(position, direction, visited_houses, houses_visited)
@@ -51,7 +49,7 @@ def grouper(iterable, n, fillvalue=None):
 def santa_and_robo_santa_follow_directions(directions):
     santa_position = (0, 0)
     robo_santa_position = (0, 0)
-    visited_houses = {santa_position: 2}
+    visited_houses = {santa_position: True}
     houses_visited = 1
     for direction in grouper(directions, 2):
         santa_position, visited_houses, houses_visited = \
