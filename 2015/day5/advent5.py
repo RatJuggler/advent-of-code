@@ -1,5 +1,25 @@
+def contains_three_vowels(string):
+    vowel_count = 0
+    for v in 'aeiou':
+        vowel_count += string.count(v)
+    return vowel_count > 2
+
+
+def contains_at_least_one_double_letter(string):
+    for i in range(len(string) - 1):
+        if string[i] == string[i + 1]:
+            return True
+    return False
+
+
+def does_not_contain(string):
+    return not('ab' in string or 'cd' in string or 'pq' in string or 'xy' in string)
+
+
 def is_nice_string(string):
-    return True
+    return contains_three_vowels(string) and \
+           contains_at_least_one_double_letter(string) and \
+           does_not_contain(string)
 
 
 def simple_test_step1(string, expected_nice):
