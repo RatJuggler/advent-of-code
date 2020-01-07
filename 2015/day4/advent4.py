@@ -1,15 +1,26 @@
 import hashlib
+from time import perf_counter
 
 
 def find_number(secret_key, for_hash_beginning):
     number = 1
+    utf8_key = secret_key.encode('utf-8')
+    l = len(for_hash_beginning)
     while True:
-        full_key = secret_key + str(number)
-        md5 = hashlib.md5(full_key.encode('utf-8')).hexdigest()
-        if md5[:len(for_hash_beginning)] == for_hash_beginning:
+        full_key = utf8_key + str(number).encode('utf-8')
+        md5 = hashlib.md5(full_key).hexdigest()
+        if md5[:l] == for_hash_beginning:
             break
         number += 1
     return str(number)
+
+
+def find_number_timed(secret_key, for_hash_beginning):
+    t_start = perf_counter()
+    number_found = find_number(secret_key, for_hash_beginning)
+    t_stop = perf_counter()
+    print("Hashing took {0} secs.".format(t_stop - t_start))
+    return number_found
 
 
 def simple_test_step1(secret_key, expected_number):
@@ -19,12 +30,12 @@ def simple_test_step1(secret_key, expected_number):
 
 
 def step1_find_number(secret_key):
-    number_found = find_number(secret_key, '00000')
+    number_found = find_number_timed(secret_key, '00000')
     print('Day 4, Step 1 number for secret key {0} is {1}.'.format(secret_key, number_found))
 
 
 def step2_find_number(secret_key):
-    number_found = find_number(secret_key, '000000')
+    number_found = find_number_timed(secret_key, '000000')
     print('Day 4, Step 2 number for secret key {0} is {1}.'.format(secret_key, number_found))
 
 
