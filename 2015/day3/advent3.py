@@ -49,10 +49,8 @@ def santa_and_robo_santa_follow_directions(directions):
     robo_santa_position = (0, 0)
     visited_houses = {santa_position: True}
     for direction in grouper(directions, 2):
-        santa_position, visited_houses = \
-            move_and_visit(santa_position, direction[0], visited_houses)
-        robo_santa_position, visited_houses = \
-            move_and_visit(robo_santa_position, direction[1], visited_houses)
+        santa_position, visited_houses = move_and_visit(santa_position, direction[0], visited_houses)
+        robo_santa_position, visited_houses = move_and_visit(robo_santa_position, direction[1], visited_houses)
     return len(visited_houses)
 
 
