@@ -1,5 +1,15 @@
+import hashlib
+
+
 def find_number(secret_key):
-    return 0
+    number = 1
+    while True:
+        full_key = secret_key + str(number)
+        md5 = hashlib.md5(full_key.encode('utf-8')).hexdigest()
+        if md5[:5] == '00000':
+            break
+        number += 1
+    return str(number)
 
 
 def simple_test_step1(secret_key, expected_number):
