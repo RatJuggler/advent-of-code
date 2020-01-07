@@ -49,8 +49,10 @@ def contains_non_overlapping_pair(string):
             return True
     return False
 
+
 def step2_is_nice_string(string):
-    return contains_non_overlapping_pair(string) and repeating_letter_with_separator(string, 1)
+    return contains_non_overlapping_pair(string) and \
+           repeating_letter_with_separator(string, 1)
 
 
 def simple_test_step2(string, expected_nice):
