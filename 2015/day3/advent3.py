@@ -1,25 +1,23 @@
 from itertools import zip_longest
 
 
-def move_and_visit(position, direction, visited_houses, houses_visited):
+def move_and_visit(position, direction, visited_houses):
     x, y = position[0], position[1]
     x += 1 if direction == '>' else -1 if direction == '<' else 0
     y += 1 if direction == '^' else -1 if direction == 'v' else 0
     new_position = (x, y)
-    house_visits = visited_houses.get(new_position)
-    if house_visits is None:
+    house_visited = visited_houses.get(new_position)
+    if house_visited is None:
         visited_houses[new_position] = True
-        houses_visited += 1
-    return new_position, visited_houses, houses_visited
+    return new_position, visited_houses
 
 
 def follow_directions(directions):
     position = (0, 0)
     visited_houses = {position: True}
-    houses_visited = 1
     for direction in directions:
-        position, visited_houses, houses_visited = move_and_visit(position, direction, visited_houses, houses_visited)
-    return houses_visited
+        position, visited_houses = move_and_visit(position, direction, visited_houses)
+    return len(visited_houses)
 
 
 def simple_test_step1(directions, expected_houses_visited):
@@ -50,13 +48,12 @@ def santa_and_robo_santa_follow_directions(directions):
     santa_position = (0, 0)
     robo_santa_position = (0, 0)
     visited_houses = {santa_position: True}
-    houses_visited = 1
     for direction in grouper(directions, 2):
-        santa_position, visited_houses, houses_visited = \
-            move_and_visit(santa_position, direction[0], visited_houses, houses_visited)
-        robo_santa_position, visited_houses, houses_visited = \
-            move_and_visit(robo_santa_position, direction[1], visited_houses, houses_visited)
-    return houses_visited
+        santa_position, visited_houses = \
+            move_and_visit(santa_position, direction[0], visited_houses)
+        robo_santa_position, visited_houses = \
+            move_and_visit(robo_santa_position, direction[1], visited_houses)
+    return len(visited_houses)
 
 
 def simple_test_step2(directions, expected_houses_visited):
