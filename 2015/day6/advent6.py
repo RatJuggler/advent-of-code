@@ -13,7 +13,11 @@ def apply_instructions(light_grid, param):
 
 
 def count_lights(light_grid):
-    pass
+    lights_lit = 0
+    for grid_row in light_grid:
+        for light in grid_row:
+            lights_lit += light
+    return lights_lit
 
 
 def main():
