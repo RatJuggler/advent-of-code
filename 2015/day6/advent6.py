@@ -1,5 +1,11 @@
 def create_light_grid():
-    pass
+    light_grid = []
+    for y in range(1000):
+        grid_row = []
+        for x in range(1000):
+            grid_row.append(0)
+        light_grid.append(grid_row)
+    return light_grid
 
 
 def apply_instructions(light_grid, param):
