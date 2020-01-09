@@ -36,7 +36,7 @@ def toggle_lights(grid, corner1, corner2):
     for y in range(y_start, y_start + y_range):
         for x in range(x_start, x_start + x_range):
             current = grid[y][x]
-            grid[y][x] = 1 if current == 0 else 1
+            grid[y][x] = 1 if current == 0 else 0
 
 
 def set_lights(grid, corner1, corner2, light):
@@ -93,8 +93,8 @@ def step1_simple_test(filename, expected_lights_lit):
 
 
 def main():
-    step1_simple_test('test6a.txt', 9)
-    step1_simple_test('test6b.txt', 4)
+    step1_simple_test('test6a.txt', 13)
+    step1_simple_test('test6b.txt', 999000)
     lights_lit = light_grid('input6.txt')
     print('Day 6, Step 1 lights lit = {0}'.format(lights_lit))
 
