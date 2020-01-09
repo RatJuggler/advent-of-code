@@ -25,6 +25,14 @@ class LightGrid:
             for x in range(x_start, x_start + x_range):
                 self.grid[y][x] = change_light(self.grid[y][x])
 
+    def apply_instruction(self, instruction):
+        if instruction.action == 'toggle':
+            self.set_lights(instruction.corner1, instruction.corner2, lambda light: 1 if light == 0 else 0)
+        elif instruction.action == 'turn on':
+            self.set_lights(instruction.corner1, instruction.corner2, lambda light: 1)
+        elif instruction.action == 'turn off':
+            self.set_lights(instruction.corner1, instruction.corner2, lambda light: 0)
+
     def count_lights(self):
         lights_lit = 0
         for grid_row in self.grid:
@@ -41,30 +49,34 @@ class LightGrid:
         print(display)
 
 
-def decode_instruction(instruction):
-    regex = r'(\D+) (\d+,\d+)'
-    matches = re.findall(regex, instruction)
-    action = matches[0][0]
-    regex = r'(\d+)'
-    corner1 = re.findall(regex, matches[0][1])
-    corner2 = re.findall(regex, matches[1][1])
-    return action, corner1, corner2
+class Instruction:
 
+    def __init__(self, action, corner1, corner2):
+        self.action = action
+        self.corner1 = corner1
+        self.corner2 = corner2
 
-def decode_and_apply_instruction(grid, instruction):
-    action, corner1, corner2 = decode_instruction(instruction)
-    if action == 'toggle':
-        grid.set_lights(corner1, corner2, lambda light: 1 if light == 0 else 0)
-    elif action == 'turn on':
-        grid.set_lights(corner1, corner2, lambda light: 1)
-    elif action == 'turn off':
-        grid.set_lights(corner1, corner2, lambda light: 0)
+    @classmethod
+    def from_line(cls, line):
+        action, corner1, corner2 = cls.decode_instruction(line)
+        return Instruction(action, corner1, corner2)
+
+    @staticmethod
+    def decode_instruction(line):
+        regex = r'(\D+) (\d+,\d+)'
+        matches = re.findall(regex, line)
+        action = matches[0][0]
+        regex = r'(\d+)'
+        corner1 = re.findall(regex, matches[0][1])
+        corner2 = re.findall(regex, matches[1][1])
+        return action, corner1, corner2
 
 
 def apply_instructions(grid, filename):
     with open(filename) as fh:
-        for instruction in fh:
-            decode_and_apply_instruction(grid, instruction)
+        for line in fh:
+            instruction = Instruction.from_line(line)
+            grid.apply_instruction(instruction)
 
 
 def light_grid(filename):
