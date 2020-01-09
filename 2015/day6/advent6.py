@@ -9,29 +9,11 @@ class LightGrid:
             grid_row = [0] * grid_size
             self.grid.append(grid_row)
 
-    @staticmethod
-    def decode_coords(corner1, corner2):
-        x_start = int(corner1[0])
-        x_finish = int(corner2[0])
-        x_range = x_finish - x_start + 1
-        y_start = int(corner1[1])
-        y_finish = int(corner2[1])
-        y_range = y_finish - y_start + 1
-        return x_start, x_range, y_start, y_range
-
-    def set_lights(self, corner1, corner2, change_light):
-        x_start, x_range, y_start, y_range = self.decode_coords(corner1, corner2)
+    def set_lights(self, instruction):
+        x_start, x_range, y_start, y_range = instruction.decode_coords()
         for y in range(y_start, y_start + y_range):
             for x in range(x_start, x_start + x_range):
-                self.grid[y][x] = change_light(self.grid[y][x])
-
-    def apply_instruction(self, instruction):
-        if instruction.action == 'toggle':
-            self.set_lights(instruction.corner1, instruction.corner2, lambda light: 1 if light == 0 else 0)
-        elif instruction.action == 'turn on':
-            self.set_lights(instruction.corner1, instruction.corner2, lambda light: 1)
-        elif instruction.action == 'turn off':
-            self.set_lights(instruction.corner1, instruction.corner2, lambda light: 0)
+                self.grid[y][x] = instruction.apply_action(self.grid[y][x])
 
     def count_lights(self):
         lights_lit = 0
@@ -71,12 +53,29 @@ class Instruction:
         corner2 = re.findall(regex, matches[1][1])
         return action, corner1, corner2
 
+    def decode_coords(self):
+        x_start = int(self.corner1[0])
+        x_finish = int(self.corner2[0])
+        x_range = x_finish - x_start + 1
+        y_start = int(self.corner1[1])
+        y_finish = int(self.corner2[1])
+        y_range = y_finish - y_start + 1
+        return x_start, x_range, y_start, y_range
+
+    def apply_action(self, light):
+        if self.action == 'toggle':
+            return 1 if light == 0 else 0
+        elif self.action == 'turn on':
+            return 1
+        elif self.action == 'turn off':
+            return 0
+
 
 def apply_instructions(grid, filename):
     with open(filename) as fh:
         for line in fh:
             instruction = Instruction.from_line(line)
-            grid.apply_instruction(instruction)
+            grid.set_lights(instruction)
 
 
 def light_grid(filename):
