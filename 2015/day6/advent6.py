@@ -60,7 +60,6 @@ def apply_instructions(light_grid, filename):
     with open(filename) as fh:
         for instruction in fh:
             decode_and_apply_instruction(light_grid, instruction)
-            return
 
 
 def count_lights(light_grid):
