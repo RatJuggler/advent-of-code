@@ -1,14 +1,51 @@
 import re
 
 
-def create_light_grid():
-    grid = []
-    for y in range(1000):
-        grid_row = []
-        for x in range(1000):
-            grid_row.append(0)
-        grid.append(grid_row)
-    return grid
+class LightGrid:
+
+    def __init__(self, grid_size):
+        self.grid = []
+        for y in range(grid_size):
+            grid_row = [0] * grid_size
+            self.grid.append(grid_row)
+
+    @staticmethod
+    def decode_coords(corner1, corner2):
+        x_start = int(corner1[0])
+        x_finish = int(corner2[0])
+        x_range = x_finish - x_start + 1
+        y_start = int(corner1[1])
+        y_finish = int(corner2[1])
+        y_range = y_finish - y_start + 1
+        return x_start, x_range, y_start, y_range
+
+    def set_lights(self, corner1, corner2, light):
+        x_start, x_range, y_start, y_range = self.decode_coords(corner1, corner2)
+        for y in range(y_start, y_start + y_range):
+            for x in range(x_start, x_start + x_range):
+                self.grid[y][x] = light
+
+    def toggle_lights(self, corner1, corner2):
+        x_start, x_range, y_start, y_range = self.decode_coords(corner1, corner2)
+        for y in range(y_start, y_start + y_range):
+            for x in range(x_start, x_start + x_range):
+                current = self.grid[y][x]
+                self.grid[y][x] = 1 if current == 0 else 0
+
+    def count_lights(self):
+        lights_lit = 0
+        for grid_row in self.grid:
+            for light in grid_row:
+                lights_lit += light
+        return lights_lit
+
+    def display(self):
+        display = ''
+        for grid_row in self.grid:
+            for light in grid_row:
+                display += 'X' if light == 1 else ' '
+            display += '\n'
+        print(display)
 
 
 def decode_instruction(instruction):
@@ -21,39 +58,14 @@ def decode_instruction(instruction):
     return action, corner1, corner2
 
 
-def decode_coords(corner1, corner2):
-    x_start = int(corner1[0])
-    x_finish = int(corner2[0])
-    x_range = x_finish - x_start + 1
-    y_start = int(corner1[1])
-    y_finish = int(corner2[1])
-    y_range = y_finish - y_start + 1
-    return x_start, x_range, y_start, y_range
-
-
-def toggle_lights(grid, corner1, corner2):
-    x_start, x_range, y_start, y_range = decode_coords(corner1, corner2)
-    for y in range(y_start, y_start + y_range):
-        for x in range(x_start, x_start + x_range):
-            current = grid[y][x]
-            grid[y][x] = 1 if current == 0 else 0
-
-
-def set_lights(grid, corner1, corner2, light):
-    x_start, x_range, y_start, y_range = decode_coords(corner1, corner2)
-    for y in range(y_start, y_start + y_range):
-        for x in range(x_start, x_start + x_range):
-            grid[y][x] = light
-
-
 def decode_and_apply_instruction(grid, instruction):
     action, corner1, corner2 = decode_instruction(instruction)
     if action == 'toggle':
-        toggle_lights(grid, corner1, corner2)
+        grid.toggle_lights(corner1, corner2)
     elif action == 'turn on':
-        set_lights(grid, corner1, corner2, 1)
+        grid.set_lights(corner1, corner2, 1)
     elif action == 'turn off':
-        set_lights(grid, corner1, corner2, 0)
+        grid.set_lights(corner1, corner2, 0)
 
 
 def apply_instructions(grid, filename):
@@ -62,28 +74,11 @@ def apply_instructions(grid, filename):
             decode_and_apply_instruction(grid, instruction)
 
 
-def count_lights(grid):
-    lights_lit = 0
-    for grid_row in grid:
-        for light in grid_row:
-            lights_lit += light
-    return lights_lit
-
-
-def display_grid(grid):
-    display = ''
-    for grid_row in grid:
-        for light in grid_row:
-            display += 'X' if light == 1 else ' '
-        display += '\n'
-    print(display)
-
-
 def light_grid(filename):
-    grid = create_light_grid()
+    grid = LightGrid(1000)
     apply_instructions(grid, filename)
-    display_grid(grid)
-    return count_lights(grid)
+    grid.display()
+    return grid.count_lights()
 
 
 def step1_simple_test(filename, expected_lights_lit):
