@@ -19,18 +19,11 @@ class LightGrid:
         y_range = y_finish - y_start + 1
         return x_start, x_range, y_start, y_range
 
-    def set_lights(self, corner1, corner2, light):
+    def set_lights(self, corner1, corner2, change_light):
         x_start, x_range, y_start, y_range = self.decode_coords(corner1, corner2)
         for y in range(y_start, y_start + y_range):
             for x in range(x_start, x_start + x_range):
-                self.grid[y][x] = light
-
-    def toggle_lights(self, corner1, corner2):
-        x_start, x_range, y_start, y_range = self.decode_coords(corner1, corner2)
-        for y in range(y_start, y_start + y_range):
-            for x in range(x_start, x_start + x_range):
-                current = self.grid[y][x]
-                self.grid[y][x] = 1 if current == 0 else 0
+                self.grid[y][x] = change_light(self.grid[y][x])
 
     def count_lights(self):
         lights_lit = 0
@@ -61,11 +54,11 @@ def decode_instruction(instruction):
 def decode_and_apply_instruction(grid, instruction):
     action, corner1, corner2 = decode_instruction(instruction)
     if action == 'toggle':
-        grid.toggle_lights(corner1, corner2)
+        grid.set_lights(corner1, corner2, lambda light: 1 if light == 0 else 0)
     elif action == 'turn on':
-        grid.set_lights(corner1, corner2, 1)
+        grid.set_lights(corner1, corner2, lambda light: 1)
     elif action == 'turn off':
-        grid.set_lights(corner1, corner2, 0)
+        grid.set_lights(corner1, corner2, lambda light: 0)
 
 
 def apply_instructions(grid, filename):
