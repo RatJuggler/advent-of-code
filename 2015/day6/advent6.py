@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 import re
 
 
@@ -23,18 +24,12 @@ class LightGrid:
         return lights_lit
 
 
-class Instruction:
+class Instruction(ABC):
 
-    def __init__(self, action, corner1, corner2, step):
+    def __init__(self, action, corner1, corner2):
         self.action = action
         self.corner1 = corner1
         self.corner2 = corner2
-        self.step = step
-
-    @classmethod
-    def from_line(cls, line, step):
-        action, corner1, corner2 = cls.decode_instruction(line)
-        return Instruction(action, corner1, corner2, step)
 
     @staticmethod
     def decode_instruction(line):
@@ -55,13 +50,19 @@ class Instruction:
         y_range = y_finish - y_start + 1
         return x_start, x_range, y_start, y_range
 
+    @abstractmethod
     def apply_action(self, light):
-        if self.step == 1:
-            return self.apply_action_step1(light)
-        if self.step == 2:
-            return self.apply_action_step2(light)
+        pass
 
-    def apply_action_step1(self, light):
+
+class Step1Instruction(Instruction):
+
+    @classmethod
+    def from_line(cls, line):
+        action, corner1, corner2 = cls.decode_instruction(line)
+        return Step1Instruction(action, corner1, corner2)
+
+    def apply_action(self, light):
         if self.action == 'toggle':
             return 1 if light == 0 else 0
         elif self.action == 'turn on':
@@ -69,7 +70,15 @@ class Instruction:
         elif self.action == 'turn off':
             return 0
 
-    def apply_action_step2(self, light):
+
+class Step2Instruction(Instruction):
+
+    @classmethod
+    def from_line(cls, line):
+        action, corner1, corner2 = cls.decode_instruction(line)
+        return Step2Instruction(action, corner1, corner2)
+
+    def apply_action(self, light):
         if self.action == 'toggle':
             return light + 2
         elif self.action == 'turn on':
@@ -78,27 +87,27 @@ class Instruction:
             return light - 1 if light > 0 else 0
 
 
-def apply_instructions(grid, filename, step):
+def apply_instructions(grid, filename, instruction_type):
     with open(filename) as fh:
         for line in fh:
-            instruction = Instruction.from_line(line, step)
+            instruction = instruction_type.from_line(line)
             grid.set_lights(instruction)
 
 
-def light_grid(filename, step):
+def light_grid(filename, instruction_type):
     grid = LightGrid(1000)
-    apply_instructions(grid, filename, step)
+    apply_instructions(grid, filename, instruction_type)
     return grid.count_brightness()
 
 
 def step1_simple_test(filename, expected_lights_lit):
-    lights_lit = light_grid(filename, 1)
+    lights_lit = light_grid(filename, Step1Instruction)
     assert lights_lit == expected_lights_lit, \
         'Expected {0} lights to be lit but found {1}!'.format(expected_lights_lit, lights_lit)
 
 
 def step2_simple_test(filename, expected_lights_lit):
-    lights_lit = light_grid(filename, 2)
+    lights_lit = light_grid(filename, Step2Instruction)
     assert lights_lit == expected_lights_lit, \
         'Expected brightness to be {0} but found {1}!'.format(expected_lights_lit, lights_lit)
 
@@ -106,11 +115,11 @@ def step2_simple_test(filename, expected_lights_lit):
 def main():
     step1_simple_test('test6a.txt', 13)
     step1_simple_test('test6b.txt', 999000)
-    lights_lit = light_grid('input6.txt', 1)
+    lights_lit = light_grid('input6.txt', Step1Instruction)
     print('Day 6, Step 1 lights lit = {0}'.format(lights_lit))
     step2_simple_test('test6a.txt', 13)
     step2_simple_test('test6b.txt', 1002000)
-    lights_lit = light_grid('input6.txt', 2)
+    lights_lit = light_grid('input6.txt', Step2Instruction)
     print('Day 6, Step 2 brightness = {0}'.format(lights_lit))
 
 
