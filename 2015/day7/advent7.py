@@ -3,37 +3,37 @@ import re
 
 class Instruction:
 
-    def __init__(self, wire, op1, operand, op2, signal):
+    def __init__(self, wire, p1, op, p2, signal):
         self.wire = wire
-        self.op1 = op1
-        self.operand = operand
-        self.op2 = op2
+        self.p1 = p1
+        self.op = op
+        self.p2 = p2
         self.signal = signal
 
     @classmethod
     def from_line(cls, line):
-        wire, op1, operand, op2, signal = cls.decode_instruction(line)
-        return Instruction(wire, op1, operand, op2, signal)
+        wire, p1, op, p2, signal = cls.decode_instruction(line)
+        return Instruction(wire, p1, op, p2, signal)
 
     @staticmethod
     def decode_instruction(line):
-        regex = r'(?P<value>\d+)?((?P<op1>\S+)? ?(?P<operand>AND|OR|LSHIFT|RSHIFT|NOT) ?(?P<op2>\S+))? -> (?P<wire>\S+)'
+        regex = r'(?P<value>\d+)?((?P<p1>\S+)? ?(?P<op>AND|OR|LSHIFT|RSHIFT|NOT) ?(?P<p2>\S+))? -> (?P<wire>\S+)'
         matches = re.match(regex, line)
         wire = matches.group('wire')
         value = matches.group('value')
         signal = None if value is None else int(value)
-        op1 = matches.group('op1')
-        operand = matches.group('operand')
-        op2 = matches.group('op2')
-        return wire, op1, operand, op2, signal
+        p1 = matches.group('p1')
+        op = matches.group('op')
+        p2 = matches.group('p2')
+        return wire, p1, op, p2, signal
 
     def __repr__(self):
-        return "Instruction({0}: {1} {2} {3} = {4})".format(self.wire, self.op1, self.operand, self.op2, self.signal)
+        return "Instruction({0}: {1} {2} {3} = {4})".format(self.wire, self.p1, self.op, self.p2, self.signal)
 
-    def evaluate(self):
-        if self.signal is not None:
-            return
-        self.signal = 0
+    def evaluate(self, circuit):
+        if not self.signal:
+            return self.signal
+        return self.signal
 
 
 def load_circuit(filename):
@@ -48,7 +48,7 @@ def load_circuit(filename):
 def evaluate_circuit(filename):
     circuit = load_circuit(filename)
     for instruction in circuit.values():
-        instruction.evaluate()
+        instruction.evaluate(circuit)
         print(instruction)
     return {}
 
