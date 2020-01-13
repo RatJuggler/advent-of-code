@@ -30,9 +30,28 @@ class Instruction:
     def __repr__(self):
         return "Instruction({0}: {1} {2} {3} = {4})".format(self.wire, self.p1, self.op, self.p2, self.signal)
 
+    def get_parameter(self, circuit, p):
+        if not p:
+            return p
+        if p.isnumeric():
+            return int(p)
+        return 0
+
     def evaluate(self, circuit):
         if not self.signal:
             return self.signal
+        p1_value = self.get_parameter(circuit, self.p1)
+        p2_value = self.get_parameter(circuit, self.p2)
+        if self.op == 'NOT':
+            self.signal = ~ p2_value
+        elif self.op == 'AND':
+            self.signal = p1_value & p2_value
+        elif self.op == 'OR':
+            self.signal = p1_value | p2_value
+        elif self.op == 'LSHIFT':
+            self.signal = p1_value << p2_value
+        elif self.op == 'RSHIFT':
+            self.signal = p1_value >> p2_value
         return self.signal
 
 
