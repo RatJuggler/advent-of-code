@@ -21,7 +21,7 @@ class Instruction:
         matches = re.match(regex, line)
         wire = matches.group('wire')
         value = matches.group('value')
-        signal = 0 if value is None else int(value)
+        signal = None if value is None else int(value)
         op1 = matches.group('op1')
         operand = matches.group('operand')
         op2 = matches.group('op2')
@@ -29,6 +29,11 @@ class Instruction:
 
     def __repr__(self):
         return "Instruction({0}: {1} {2} {3} = {4})".format(self.wire, self.op1, self.operand, self.op2, self.signal)
+
+    def evaluate(self):
+        if self.signal is not None:
+            return
+        self.signal = 0
 
 
 def load_circuit(filename):
@@ -42,7 +47,9 @@ def load_circuit(filename):
 
 def evaluate_circuit(filename):
     circuit = load_circuit(filename)
-    print(circuit)
+    for instruction in circuit.values():
+        instruction.evaluate()
+        print(instruction)
     return {}
 
 
