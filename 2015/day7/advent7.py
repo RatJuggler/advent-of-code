@@ -3,25 +3,32 @@ import re
 
 class Instruction:
 
-    def __init__(self, wire, connection):
+    def __init__(self, wire, op1, operand, op2, signal):
         self.wire = wire
-        self.connection = connection
+        self.op1 = op1
+        self.operand = operand
+        self.op2 = op2
+        self.signal = signal
 
     @classmethod
     def from_line(cls, line):
-        wire, connection = cls.decode_instruction(line)
-        return Instruction(wire, connection)
+        wire, op1, operand, op2, signal = cls.decode_instruction(line)
+        return Instruction(wire, op1, operand, op2, signal)
 
     @staticmethod
     def decode_instruction(line):
-        regex = r'(.+) -> (.+)'
-        matches = re.findall(regex, line)
-        wire = matches[0][1]
-        connection = matches[0][0]
-        return wire, connection
+        regex = r'(?P<value>\d+)?((?P<op1>.+)? ?(?P<operand>AND|OR|LSHIFT|RSHIFT|NOT) ?(?P<op2>.+))? -> (?P<wire>.+)'
+        matches = re.match(regex, line)
+        wire = matches.group('wire')
+        value = matches.group('value')
+        signal = 0 if value is None else int(value)
+        op1 = matches.group('op1')
+        operand = matches.group('operand')
+        op2 = matches.group('op2')
+        return wire, op1, operand, op2, signal
 
     def __repr__(self):
-        return "Instruction({0}, {1})".format(self.wire, self.connection)
+        return "Instruction({0}: {1} {2} {3} = {4})".format(self.wire, self.op1, self.operand, self.op2, self.signal)
 
 
 def load_circuit(filename):
