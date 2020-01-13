@@ -17,7 +17,7 @@ class Instruction:
 
     @staticmethod
     def decode_instruction(line):
-        regex = r'(?P<value>\d+)?((?P<op1>.+)? ?(?P<operand>AND|OR|LSHIFT|RSHIFT|NOT) ?(?P<op2>.+))? -> (?P<wire>.+)'
+        regex = r'(?P<value>\d+)?((?P<op1>\S+)? ?(?P<operand>AND|OR|LSHIFT|RSHIFT|NOT) ?(?P<op2>\S+))? -> (?P<wire>\S+)'
         matches = re.match(regex, line)
         wire = matches.group('wire')
         value = matches.group('value')
