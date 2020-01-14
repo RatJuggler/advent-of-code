@@ -84,7 +84,7 @@ def main():
                           {'a': 123, 'b': 456, 'd': 72, 'e': 507, 'f': 492,
                            'g': 114, 'h': 65412, 'i': 65079, 'x': 123, 'y': 456})
     signals = evaluate_circuit('input7.txt')
-    print(signals)
+    print('Day 7, Step 1 signal for wire "a" = {0}'.format(signals['a']))
 
 
 if __name__ == '__main__':
