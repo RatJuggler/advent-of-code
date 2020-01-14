@@ -3,34 +3,33 @@ import re
 
 class Instruction:
 
-    def __init__(self, wire, p1, op, p2, signal):
+    def __init__(self, wire, p1, op, p2):
         self.wire = wire
         self.p1 = p1
         self.op = op
         self.p2 = p2
-        self.signal = signal
+        self.signal = None
 
     @classmethod
     def from_line(cls, line):
-        wire, p1, op, p2, signal = cls.decode_instruction(line)
-        return Instruction(wire, p1, op, p2, signal)
+        wire, p1, op, p2 = cls.decode_instruction(line)
+        return Instruction(wire, p1, op, p2)
 
     @staticmethod
     def decode_instruction(line):
-        regex = r'(?P<value>\d+)?((?P<p1>\S+)? ?(?P<op>AND|OR|LSHIFT|RSHIFT|NOT) ?(?P<p2>\S+))? -> (?P<wire>\S+)'
+        regex = r'(?P<p1>\S+)? ?((?P<op>AND|OR|LSHIFT|RSHIFT|NOT) ?(?P<p2>\S+))? -> (?P<wire>\S+)'
         matches = re.match(regex, line)
         wire = matches.group('wire')
-        value = matches.group('value')
-        signal = None if value is None else int(value)
         p1 = matches.group('p1')
         op = matches.group('op')
         p2 = matches.group('p2')
-        return wire, p1, op, p2, signal
+        return wire, p1, op, p2
 
     def __repr__(self):
         return "Instruction({0}: {1} {2} {3} = {4})".format(self.wire, self.p1, self.op, self.p2, self.signal)
 
-    def get_parameter(self, circuit, p):
+    @staticmethod
+    def get_parameter(circuit, p):
         if not p:
             return p
         if p.isnumeric():
@@ -54,6 +53,8 @@ class Instruction:
             self.signal = p1_value << p2_value
         elif self.op == 'RSHIFT':
             self.signal = p1_value >> p2_value
+        else:
+            self.signal = p1_value
         return self.signal
 
 
@@ -70,7 +71,6 @@ def evaluate_circuit(filename):
     circuit = load_circuit(filename)
     for instruction in circuit.values():
         instruction.evaluate(circuit)
-        print(instruction)
     return {k: circuit[k].signal for k in sorted(circuit)}
 
 
@@ -81,7 +81,8 @@ def test_evaluate_circuit(filename, expected_signals):
 
 def main():
     test_evaluate_circuit('test7a.txt',
-                          {'d': 72, 'e': 507, 'f': 492, 'g': 114, 'h': 65412, 'i': 65079, 'x': 123, 'y': 456})
+                          {'a': 123, 'b': 456, 'd': 72, 'e': 507, 'f': 492,
+                           'g': 114, 'h': 65412, 'i': 65079, 'x': 123, 'y': 456})
     signals = evaluate_circuit('input7.txt')
     print(signals)
 
