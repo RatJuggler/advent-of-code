@@ -34,7 +34,7 @@ class Instruction:
             return p
         if p.isnumeric():
             return int(p)
-        return circuit[p].evaluate(circuit)
+        return circuit.get_wire_instruction(p).evaluate(circuit)
 
     def evaluate(self, circuit):
         if self.signal:
@@ -58,24 +58,35 @@ class Instruction:
         return self.signal
 
 
-def load_circuit(filename):
-    circuit = {}
-    with open(filename) as fh:
-        for line in fh:
-            instruction = Instruction.from_line(line)
-            circuit[instruction.wire] = instruction
-    return circuit
+class Circuit:
 
+    def __init__(self, instructions):
+        self.instructions = instructions
 
-def evaluate_circuit(filename):
-    circuit = load_circuit(filename)
-    for instruction in circuit.values():
-        instruction.evaluate(circuit)
-    return {k: circuit[k].signal for k in sorted(circuit)}
+    @classmethod
+    def from_file(cls, filename):
+        instructions = {}
+        with open(filename) as fh:
+            for line in fh:
+                instruction = Instruction.from_line(line)
+                instructions[instruction.wire] = instruction
+        return Circuit(instructions)
+
+    def get_wire_instruction(self, wire):
+        return self.instructions[wire]
+
+    def evaluate(self):
+        for instruction in self.instructions.values():
+            instruction.evaluate(self)
+
+    def get_signals(self):
+        return {k: self.instructions[k].signal for k in sorted(self.instructions)}
 
 
 def test_evaluate_circuit(filename, expected_signals):
-    signals = evaluate_circuit(filename)
+    circuit = Circuit.from_file(filename)
+    circuit.evaluate()
+    signals = circuit.get_signals()
     assert signals == expected_signals, 'Expected circuit to produce {0} but was {1}'.format(expected_signals, signals)
 
 
@@ -83,8 +94,10 @@ def main():
     test_evaluate_circuit('test7a.txt',
                           {'a': 123, 'b': 456, 'd': 72, 'e': 507, 'f': 492,
                            'g': 114, 'h': 65412, 'i': 65079, 'x': 123, 'y': 456})
-    signals = evaluate_circuit('input7.txt')
-    print('Day 7, Step 1 signal for wire "a" = {0}'.format(signals['a']))
+    circuit = Circuit.from_file('input7.txt')
+    circuit.evaluate()
+    signal_a = circuit.get_wire_instruction('a').signal
+    print('Day 7, Step 1 signal for wire "a" = {0}'.format(signal_a))
 
 
 if __name__ == '__main__':
