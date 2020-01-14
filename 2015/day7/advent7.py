@@ -35,15 +35,17 @@ class Instruction:
             return p
         if p.isnumeric():
             return int(p)
-        return 0
+        return circuit[p].evaluate(circuit)
 
     def evaluate(self, circuit):
-        if not self.signal:
+        if self.signal:
             return self.signal
         p1_value = self.get_parameter(circuit, self.p1)
         p2_value = self.get_parameter(circuit, self.p2)
         if self.op == 'NOT':
             self.signal = ~ p2_value
+            if self.signal < 0:
+                self.signal += 2**16
         elif self.op == 'AND':
             self.signal = p1_value & p2_value
         elif self.op == 'OR':
@@ -69,7 +71,7 @@ def evaluate_circuit(filename):
     for instruction in circuit.values():
         instruction.evaluate(circuit)
         print(instruction)
-    return {}
+    return {k: circuit[k].signal for k in sorted(circuit)}
 
 
 def test_evaluate_circuit(filename, expected_signals):
