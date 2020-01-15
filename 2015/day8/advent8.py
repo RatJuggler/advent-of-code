@@ -11,17 +11,17 @@ class SanatasList:
                 entries.append(line.strip())
         return SanatasList(entries)
 
-    def code_string_lengths(self):
+    def string_lengths(self, calc_length):
         total_length = 0
         for line in self.entries:
-            total_length += len(line)
+            total_length += calc_length(line)
         return total_length
 
+    def code_string_lengths(self):
+        return self.string_lengths(lambda s: len(s))
+
     def in_memory_string_lengths(self):
-        total_length = 0
-        for line in self.entries:
-            total_length += len(eval(line))
-        return total_length
+        return self.string_lengths(lambda s: len(eval(s)))
 
 
 def string_length_difference(filename):
