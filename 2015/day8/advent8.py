@@ -8,7 +8,7 @@ class SanatasList:
         entries = []
         with open(filename) as fh:
             for line in fh:
-                entries.append(line)
+                entries.append(line.strip())
         return SanatasList(entries)
 
     def code_string_lengths(self):
@@ -20,13 +20,13 @@ class SanatasList:
     def in_memory_string_lengths(self):
         total_length = 0
         for line in self.entries:
-            total_length += len(line)
+            total_length += len(eval(line))
         return total_length
 
 
 def string_length_difference(filename):
-    list = SanatasList.from_file(filename)
-    return list.code_string_lengths() - list.in_memory_string_lengths()
+    santas_list = SanatasList.from_file(filename)
+    return santas_list.code_string_lengths() - santas_list.in_memory_string_lengths()
 
 
 def test_string_count_difference(filename, expected_difference):
@@ -37,6 +37,7 @@ def test_string_count_difference(filename, expected_difference):
 
 def main():
     test_string_count_difference('test8a.txt', 12)
+    print('Day 8, Step 1 difference = {0}'.format((string_length_difference('input8.txt'))))
 
 
 if __name__ == '__main__':
