@@ -122,6 +122,7 @@ def test_find_shortest_route(filename, expected_shortest_distance):
 
 def main():
     test_find_shortest_route('test9a.txt', 605)
+    print('Day 9, Step 1 shortest route = {0}'.format(find_shortest_distance('input9.txt')))
 
 
 if __name__ == '__main__':
