@@ -42,6 +42,12 @@ def test_iterate_look_and_say(look, iterations, expected_say):
         'Expected to say {0} for {1} but was {2}'.format(expected_say, look, say)
 
 
+def length_after_iteration(step, look, iterations):
+    say_length = len(iterate_look_and_say(look, iterations))
+    print('Day 10, Step {0} look {1} after {2} iterations is {3} characters long!'
+          .format(step, look, iterations, say_length))
+
+
 def main():
     test_look_and_say('1', '11')
     test_look_and_say('11', '21')
@@ -49,16 +55,8 @@ def main():
     test_look_and_say('1211', '111221')
     test_look_and_say('111221', '312211')
     test_iterate_look_and_say('1', 5, '312211')
-    step1_look = '3113322113'
-    step1_iterations = 40
-    step1_say_length = len(iterate_look_and_say(step1_look, step1_iterations))
-    print('Day 10, Step 1 look {0} after {1} iterations is {2} characters long!'
-          .format(step1_look, step1_iterations, step1_say_length))
-    step2_look = '3113322113'
-    step2_iterations = 50
-    step2_say_length = len(iterate_look_and_say(step2_look, step2_iterations))
-    print('Day 10, Step 2 look {0} after {1} iterations is {2} characters long!'
-          .format(step2_look, step2_iterations, step2_say_length))
+    length_after_iteration(1, '3113322113', 40)
+    length_after_iteration(2, '3113322113', 50)
 
 
 if __name__ == '__main__':
