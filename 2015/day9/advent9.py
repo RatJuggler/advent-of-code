@@ -97,21 +97,29 @@ class Locations:
         return results
 
 
-def find_shortest_distance(filename):
+def get_distances(filename):
     locations = Locations.from_file(filename)
     locations.list()
     results = []
     for start_location in locations.get_locations():
         results.extend(locations.total_distances([start_location], 0))
-    print(results)
+    return results
+
+
+def find_distance(filename, comparison):
+    results = get_distances(filename)
     shortest_distance = None
     for result in results:
-        if shortest_distance is None or result[1] < shortest_distance[0][1]:
+        if shortest_distance is None or comparison(result[1], shortest_distance[0][1]):
             shortest_distance = [result]
         if result[1] == shortest_distance[0][1]:
             shortest_distance.append(result)
     print(shortest_distance)
     return shortest_distance[0][1]
+
+
+def find_shortest_distance(filename):
+    return find_distance(filename, lambda x, y: x < y)
 
 
 def test_find_shortest_route(filename, expected_shortest_distance):
@@ -123,6 +131,7 @@ def test_find_shortest_route(filename, expected_shortest_distance):
 def main():
     test_find_shortest_route('test9a.txt', 605)
     print('Day 9, Step 1 shortest route = {0}'.format(find_shortest_distance('input9.txt')))
+    print('Day 9, Step 2 longest route = {0}'.format(find_distance('input9.txt', lambda x, y: x > y)))
 
 
 if __name__ == '__main__':
