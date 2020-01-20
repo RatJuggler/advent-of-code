@@ -1,5 +1,25 @@
+def parse_look(look):
+    groups = []
+    group = None
+    for c in look:
+        if group is None:
+            group = c
+        elif c in group:
+            group += c
+        else:
+            groups.append(group)
+            group = c
+    groups.append(group)
+    return groups
+
+
 def look_and_say(look):
-    pass
+    groups = parse_look(look)
+    say = ''
+    for group in groups:
+        say += str(len(group))
+        say += group[0]
+    return say
 
 
 def test_look_and_say(look, expected_say):
