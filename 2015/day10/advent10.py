@@ -22,8 +22,22 @@ def look_and_say(look):
     return say
 
 
+def iterate_look_and_say(look, iterations):
+    say = None
+    for i in range(iterations):
+        say = look_and_say(look)
+        look = say
+    return say
+
+
 def test_look_and_say(look, expected_say):
     say = look_and_say(look)
+    assert say == expected_say, \
+        'Expected to say {0} for {1} but was {2}'.format(expected_say, look, say)
+
+
+def test_iterate_look_and_say(look, iterations, expected_say):
+    say = iterate_look_and_say(look, iterations)
     assert say == expected_say, \
         'Expected to say {0} for {1} but was {2}'.format(expected_say, look, say)
 
@@ -34,6 +48,7 @@ def main():
     test_look_and_say('21', '1211')
     test_look_and_say('1211', '111221')
     test_look_and_say('111221', '312211')
+    test_iterate_look_and_say('1', 5, '312211')
 
 
 if __name__ == '__main__':
