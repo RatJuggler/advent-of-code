@@ -54,6 +54,11 @@ def main():
     step1_say_length = len(iterate_look_and_say(step1_look, step1_iterations))
     print('Day 10, Step 1 look {0} after {1} iterations is {2} characters long!'
           .format(step1_look, step1_iterations, step1_say_length))
+    step2_look = '3113322113'
+    step2_iterations = 50
+    step2_say_length = len(iterate_look_and_say(step2_look, step2_iterations))
+    print('Day 10, Step 2 look {0} after {1} iterations is {2} characters long!'
+          .format(step2_look, step2_iterations, step2_say_length))
 
 
 if __name__ == '__main__':
