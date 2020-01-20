@@ -97,25 +97,25 @@ class Locations:
         return results
 
 
-def get_distances(filename):
+def get_total_distances(filename):
     locations = Locations.from_file(filename)
     locations.list()
-    results = []
+    total_distances = []
     for start_location in locations.get_locations():
-        results.extend(locations.total_distances([start_location], 0))
-    return results
+        total_distances.extend(locations.total_distances([start_location], 0))
+    return total_distances
 
 
 def find_distance(filename, comparison):
-    results = get_distances(filename)
-    shortest_distance = None
+    results = get_total_distances(filename)
+    distance_results = None
     for result in results:
-        if shortest_distance is None or comparison(result[1], shortest_distance[0][1]):
-            shortest_distance = [result]
-        if result[1] == shortest_distance[0][1]:
-            shortest_distance.append(result)
-    print(shortest_distance)
-    return shortest_distance[0][1]
+        if distance_results is None or comparison(result[1], distance_results[0][1]):
+            distance_results = [result]
+        if result[1] == distance_results[0][1]:
+            distance_results.append(result)
+    print(distance_results)
+    return distance_results[0][1]
 
 
 def find_shortest_distance(filename):
