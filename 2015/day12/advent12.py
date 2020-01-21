@@ -34,10 +34,10 @@ def sum_string(string, ignore_red=False):
         return -1
 
 
-def sum_string_from_file(filename):
+def sum_string_from_file(filename, ignore_red=False):
     with open(filename) as fh:
         file_string = fh.readline()
-    return sum_string(file_string)
+    return sum_string(file_string, ignore_red)
 
 
 def test_sum_array(array_string: str, expected_sum):
@@ -70,10 +70,12 @@ def main():
     test_sum_string('{"a":[-1,1]}', 0)
     test_sum_string('[-1,{"a":1}]', 0)
     file_string_sum = sum_string_from_file('input12.txt')
-    print('Day 12, Step sum of file = {0}'.format(file_string_sum))
+    print('Day 12, Step 1 sum of file = {0}'.format(file_string_sum))
     test_sum_string('[1,{"c":"red","b":2},3]', 4, True)
     test_sum_string('{"d":"red","e":[1,2,3,4],"f":5}', 0, True)
     test_sum_string('[1,"red",5]', 6, True)
+    file_string_sum = sum_string_from_file('input12.txt', True)
+    print('Day 12, Step 2 sum of file ignoring red = {0}'.format(file_string_sum))
 
 
 if __name__ == '__main__':
