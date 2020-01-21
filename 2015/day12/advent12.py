@@ -20,6 +20,11 @@ def sum_object(object: dict):
     return object_sum
 
 
+def sum_string(eval_string):
+    string_sum = -1
+    return string_sum
+
+
 def test_sum_array(array_string: str, expected_sum):
     array_list = eval(array_string)
     array_sum = sum_array(array_list)
@@ -34,6 +39,13 @@ def test_sum_object(object_string: str, expected_sum):
         'Expected sum of object {0} to be {1} but was {2}'.format(object_string, expected_sum, object_sum)
 
 
+def test_sum_string(string: str, expected_sum):
+    string_eval = eval(string)
+    string_sum = sum_string(string_eval)
+    assert string_sum == expected_sum, \
+        'Expected sum of string {0} to be {1} but was {2}'.format(string, expected_sum, string_sum)
+
+
 def main():
     test_sum_array('[1,2,3]', 6)
     test_sum_array('[[[3]]]', 3)
@@ -41,6 +53,8 @@ def main():
     test_sum_object('{"a":2,"b":4}', 6)
     test_sum_object('{"a":{"b":4},"c":-1}', 3)
     test_sum_object('{}', 0)
+    test_sum_string('{"a":[-1,1]}', 0)
+    test_sum_string('[-1,{"a":1}]', 0)
 
 
 if __name__ == '__main__':
