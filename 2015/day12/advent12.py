@@ -11,6 +11,12 @@ def sum_array(array: list):
 
 def sum_object(object: dict):
     object_sum = 0
+    for element in object.values():
+        print(element, type(element))
+        if type(element) is dict:
+            object_sum += sum_object(element)
+        else:
+            object_sum += element
     return object_sum
 
 
