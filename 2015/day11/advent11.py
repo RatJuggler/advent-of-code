@@ -33,7 +33,10 @@ def contains_pair(password):
     matches = re.findall(regex, password)
     if len(matches) < 2:
         return False
-    return matches[0] != matches[1]
+    for match in matches:
+        if matches.count(match) < len(matches):
+            return True
+    return False
 
 
 def valid_password(password):
@@ -70,8 +73,10 @@ def main():
     test_valid_password('abbcegjk', False)
     test_valid_password('abcxjkmq', False)
     test_valid_password('abcxxkmq', False)
+    test_valid_password('abcxxxxx', False)
     test_valid_password('abcxxkkq', True)
     test_valid_password('abcdffaa', True)
+    test_valid_password('abccccaa', True)
     test_valid_password('ghjaabcc', True)
     test_next_password('abcdefgh', 'abcdffaa')
     test_next_password('ghijklmn', 'ghjaabcc')
