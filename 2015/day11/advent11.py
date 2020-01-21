@@ -15,8 +15,11 @@ def contains_iol(password):
 
 def contains_sequence(password):
     sequence = 0
-    for c in range(len(password) - 1):
-        if ord(password[c + 1]) != ord(password[c]) + 1:
+    for i in range(len(password) - 1):
+        c = password[i]
+#        skip = 2 if c in ['h', 'n', 'k'] else 1
+        skip = 1
+        if ord(password[i + 1]) != ord(c) + skip:
             sequence = 0
         elif sequence == 2:
             return True
