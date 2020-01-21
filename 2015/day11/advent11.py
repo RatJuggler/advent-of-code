@@ -29,7 +29,11 @@ def contains_sequence(password):
 
 
 def contains_pair(password):
-    return password == password
+    regex = r'(?P<pair>[a-z])\1'
+    matches = re.findall(regex, password)
+    if len(matches) < 2:
+        return False
+    return matches[0] != matches[1]
 
 
 def valid_password(password):
@@ -64,6 +68,8 @@ def main():
     test_valid_password('hijklmmn', False)
     test_valid_password('abbceffg', False)
     test_valid_password('abbcegjk', False)
+    test_valid_password('abcxjkmq', False)
+    test_valid_password('abcxxkmq', False)
     test_valid_password('abcxxkkq', True)
     test_valid_password('abcdffaa', True)
     test_valid_password('ghjaabcc', True)
