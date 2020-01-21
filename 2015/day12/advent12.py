@@ -4,6 +4,8 @@ def sum_array(array: list):
         print(element, type(element))
         if type(element) is list:
             array_sum += sum_array(element)
+        elif type(element) is dict:
+            array_sum += sum_object(element)
         else:
             array_sum += element
     return array_sum
@@ -15,14 +17,20 @@ def sum_object(object: dict):
         print(element, type(element))
         if type(element) is dict:
             object_sum += sum_object(element)
+        elif type(element) is list:
+            object_sum += sum_array(element)
         else:
             object_sum += element
     return object_sum
 
 
 def sum_string(eval_string):
-    string_sum = -1
-    return string_sum
+    if type(eval_string) is list:
+        return sum_array(eval_string)
+    elif type(eval_string) is dict:
+        return sum_object(eval_string)
+    else:
+        return -1
 
 
 def test_sum_array(array_string: str, expected_sum):
