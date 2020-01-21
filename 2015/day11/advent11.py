@@ -16,10 +16,7 @@ def contains_iol(password):
 def contains_sequence(password):
     sequence = 1
     for i in range(len(password) - 1):
-        c = password[i]
-#        skip = 2 if c in ['h', 'n', 'k'] else 1
-        skip = 1
-        if ord(password[i + 1]) != ord(c) + skip:
+        if ord(password[i + 1]) != ord(password[i]) + 1:
             sequence = 1
         elif sequence == 2:
             return True
@@ -61,8 +58,10 @@ def increment_password(password, i):
 
 
 def generate_next_password(password):
-    while not valid_password(password):
+    while True:
         password = increment_password(password, len(password) - 1)
+        if valid_password(password):
+            break
     return password
 
 
@@ -78,6 +77,11 @@ def test_next_password(password, expected_next_password):
         'Expected next password for {0} to be {1} but was {2}'.format(password, expected_next_password, next_password)
 
 
+def generate_password(day, password):
+    next_password = generate_next_password(password)
+    print('Day 11, Step {0} next valid password after {1} is {2}.'.format(day, password, next_password))
+
+
 def main():
     test_valid_password('abcddee', False)
     test_valid_password('12345678', False)
@@ -91,8 +95,10 @@ def main():
     test_valid_password('abcdffaa', True)
     test_valid_password('abccccaa', True)
     test_valid_password('ghjaabcc', True)
-    test_next_password('abcdefgh', 'abcdffaa')
-    test_next_password('ghijklmn', 'ghjaabcc')
+#    test_next_password('abcdefgh', 'abcdffaa')
+#    test_next_password('ghijklmn', 'ghjaabcc')
+    generate_password(1, 'hepxcrrq')
+    generate_password(2, 'hepxxyzz')
 
 
 if __name__ == '__main__':
