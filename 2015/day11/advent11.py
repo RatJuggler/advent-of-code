@@ -14,18 +14,22 @@ def contains_iol(password):
 
 
 def contains_sequence(password):
-    sequence = 0
+    sequence = 1
     for i in range(len(password) - 1):
         c = password[i]
 #        skip = 2 if c in ['h', 'n', 'k'] else 1
         skip = 1
         if ord(password[i + 1]) != ord(c) + skip:
-            sequence = 0
+            sequence = 1
         elif sequence == 2:
             return True
         else:
             sequence += 1
     return False
+
+
+def contains_pair(password):
+    return password == password
 
 
 def valid_password(password):
@@ -35,7 +39,7 @@ def valid_password(password):
         return False
     if not contains_sequence(password):
         return False
-    return True
+    return contains_pair(password)
 
 
 def generate_next_password(password):
