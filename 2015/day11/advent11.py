@@ -49,7 +49,20 @@ def valid_password(password):
     return contains_pair(password)
 
 
+def increment_character(c):
+    return 'a' if c == 'z' else chr(ord(c) + 1)
+
+
+def increment_password(password, i):
+    password = password[:i] + increment_character(password[i]) + password[i+1:]
+    if password[i] == 'a':
+        password = increment_password(password, i - 1)
+    return password
+
+
 def generate_next_password(password):
+    while not valid_password(password):
+        password = increment_password(password, len(password) - 1)
     return password
 
 
