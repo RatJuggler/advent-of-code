@@ -8,6 +8,9 @@ class Reindeer:
         self.speed = speed
         self.duration = duration
         self.rest = rest
+        self.distance = 0
+        self.flying = 0
+        self.resting = 0
 
     @classmethod
     def from_line(cls, line):
@@ -20,10 +23,21 @@ class Reindeer:
                 r'but then must rest for (?P<rest>\d+) seconds\.'
         matches = re.match(regex, line)
         name = matches.group('name')
-        speed = matches.group('speed')
+        speed = int(matches.group('speed'))
         duration = int(matches.group('duration'))
         rest = int(matches.group('rest'))
         return name, speed, duration, rest
+
+    def race(self):
+        if self.resting > 0:
+            self.resting -= 1
+        else:
+            self.flying += 1
+            self.distance += self.speed
+            if self.flying == self.duration:
+                self.flying = 0
+                self.resting = self.rest
+        print(self.name, self.distance, self.flying, self.resting)
 
     def __repr__(self):
         return "Reindeer(Name: {0}, Speed: {1} km/s, Duration: {2}, Rest: {3})"\
@@ -38,11 +52,18 @@ def load_reindeer(filename):
     return reindeer
 
 
-def find_winning_distance(filename, after):
+def find_winning_distance(filename, after_time):
     reindeer = load_reindeer(filename)
     for a_reindeer in reindeer:
         print(a_reindeer)
-    return 0
+    for i in range(after_time):
+        for a_reindeer in reindeer:
+            a_reindeer.race()
+    winning_distance = 0
+    for a_reindeer in reindeer:
+        if a_reindeer.distance > winning_distance:
+            winning_distance = a_reindeer.distance
+    return winning_distance
 
 
 def test_winning_distance(filename, after, expected_distance):
