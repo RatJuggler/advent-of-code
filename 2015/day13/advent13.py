@@ -1,7 +1,7 @@
 import re
 
 
-class Seated:
+class HappinessNextTo:
 
     def __init__(self, person_a, person_b, happiness):
         self.person_a = person_a
@@ -10,11 +10,11 @@ class Seated:
 
     @classmethod
     def from_line(cls, line):
-        person_a, person_b, happiness = cls.decode_seated(line)
-        return Seated(person_a, person_b, happiness)
+        person_a, person_b, happiness = cls.decode_line(line)
+        return HappinessNextTo(person_a, person_b, happiness)
 
     @staticmethod
-    def decode_seated(line):
+    def decode_line(line):
         regex = r'^(?P<person_a>\S+) would (?P<difference>\S+) (?P<happiness>\d+) ' \
                 r'happiness units by sitting next to (?P<person_b>\S+)\.'
         matches = re.match(regex, line)
@@ -27,23 +27,27 @@ class Seated:
         return person_a, person_b, happiness
 
     def __repr__(self):
-        return "Seated({0} next to {1} = {2})".format(self.person_a, self.person_b, self.happiness)
+        return "Happiness({0} next to {1} = {2})".format(self.person_a, self.person_b, self.happiness)
 
 
 def load_seating(filename):
-    seating = []
+    people = {}
     with open(filename) as fh:
         for line in fh:
-            seated = Seated.from_line(line)
-            seating.append(seated)
-    return seating
+            next_to = HappinessNextTo.from_line(line)
+            person = people.get(next_to.person_a)
+            if person is None:
+                person = []
+            person.append(next_to)
+            people[next_to.person_a] = person
+    return people
 
 
 def plan_seating(filename):
-    seating = load_seating(filename)
+    people = load_seating(filename)
     happiness = 0
-    for seat in seating:
-        print(seat)
+    for person in people:
+        print(person, people[person])
     return happiness
 
 
