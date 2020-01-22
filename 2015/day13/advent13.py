@@ -37,8 +37,8 @@ def plan_seating(people):
             person_a = seating[i]
             person_b = seating[0] if i + 1 == places else seating[i + 1]
             total_happiness += people.get(person_a).get(person_b) + people.get(person_b).get(person_a)
-        print(seating, total_happiness)
-        if total_happiness > most_happiness:
+        if total_happiness >= most_happiness:
+            print(seating, most_happiness)
             most_happiness = total_happiness
     return most_happiness
 
