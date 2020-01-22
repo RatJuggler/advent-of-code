@@ -8,9 +8,9 @@ class Reindeer:
         self.speed = speed
         self.duration = duration
         self.rest = rest
-        self.distance = 0
-        self.flying = 0
-        self.resting = 0
+        self.distance = None
+        self.flying = None
+        self.resting = None
 
     @classmethod
     def from_line(cls, line):
@@ -28,6 +28,11 @@ class Reindeer:
         rest = int(matches.group('rest'))
         return name, speed, duration, rest
 
+    def into_the_starting_gate(self):
+        self.distance = 0
+        self.flying = 0
+        self.resting = 0
+
     def race(self):
         if self.resting > 0:
             self.resting -= 1
@@ -44,6 +49,32 @@ class Reindeer:
             .format(self.name, self.speed, self.duration, self.rest)
 
 
+class Racer:
+
+    def __init__(self, duration):
+        self.duration = duration
+
+    @staticmethod
+    def __load_the_starting_gate(reindeer):
+        for a_reindeer in reindeer:
+            a_reindeer.into_the_starting_gate()
+
+    @staticmethod
+    def __winning_distance(reindeer):
+        winning_distance = 0
+        for a_reindeer in reindeer:
+            if a_reindeer.distance > winning_distance:
+                winning_distance = a_reindeer.distance
+        return winning_distance
+
+    def run_race(self, reindeer):
+        self.__load_the_starting_gate(reindeer)
+        for i in range(self.duration):
+            for a_reindeer in reindeer:
+                a_reindeer.race()
+        return self.__winning_distance(reindeer)
+
+
 def load_reindeer(filename):
     reindeer = []
     with open(filename) as fh:
@@ -52,18 +83,11 @@ def load_reindeer(filename):
     return reindeer
 
 
-def find_winning_distance(filename, after_time):
+def find_winning_distance(filename, race_duration):
     reindeer = load_reindeer(filename)
     for a_reindeer in reindeer:
         print(a_reindeer)
-    for i in range(after_time):
-        for a_reindeer in reindeer:
-            a_reindeer.race()
-    winning_distance = 0
-    for a_reindeer in reindeer:
-        if a_reindeer.distance > winning_distance:
-            winning_distance = a_reindeer.distance
-    return winning_distance
+    return Racer(race_duration).run_race(reindeer)
 
 
 def test_winning_distance(filename, after, expected_distance):
