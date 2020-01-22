@@ -56,6 +56,8 @@ def test_plan_seating(filename, expected_happiness):
 
 def main():
     test_plan_seating('test13a.txt', 330)
+    most_happiness, with_seating = plan_seating('input13.txt')
+    print('Day 13, Step 1 most happiness could be {0}'.format(most_happiness))
 
 
 if __name__ == '__main__':
