@@ -28,12 +28,8 @@ def load_seating(filename):
     return people
 
 
-def plan_seating(filename):
-    people = load_seating(filename)
-    for person in people:
-        print(person, people[person])
+def plan_seating(people):
     most_happiness = 0
-    with_seating = None
     places = len(people)
     for seating in itertools.permutations(people, places):
         total_happiness = 0
@@ -44,20 +40,45 @@ def plan_seating(filename):
         print(seating, total_happiness)
         if total_happiness > most_happiness:
             most_happiness = total_happiness
-            with_seating = seating
-    return most_happiness, with_seating
+    return most_happiness
+
+
+def find_happiest_seating_plan(filename):
+    people = load_seating(filename)
+    for person in people:
+        print(person, people[person])
+    return plan_seating(people)
+
+
+def add_me(people):
+    me = 'Me'
+    people[me] = {}
+    for person in people:
+        people[me][person] = 0
+        people[person][me] = 0
+    return people
+
+
+def find_happiest_seating_plan_with_me(filename):
+    people = load_seating(filename)
+    people = add_me(people)
+    for person in people:
+        print(person, people[person])
+    return plan_seating(people)
 
 
 def test_plan_seating(filename, expected_happiness):
-    most_happiness, with_seating = plan_seating(filename)
+    most_happiness = find_happiest_seating_plan(filename)
     assert most_happiness == expected_happiness, \
         'Expected happiness of {0} for {1} but was {2}!'.format(expected_happiness, filename, most_happiness)
 
 
 def main():
     test_plan_seating('test13a.txt', 330)
-    most_happiness, with_seating = plan_seating('input13.txt')
+    most_happiness = find_happiest_seating_plan('input13.txt')
     print('Day 13, Step 1 most happiness could be {0}'.format(most_happiness))
+    most_happiness = find_happiest_seating_plan_with_me('input13.txt')
+    print('Day 13, Step 2 most happiness with me could be {0}'.format(most_happiness))
 
 
 if __name__ == '__main__':
