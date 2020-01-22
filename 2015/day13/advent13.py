@@ -1,4 +1,5 @@
 import re
+import itertools
 
 
 class HappinessNextTo:
@@ -48,6 +49,8 @@ def plan_seating(filename):
     happiness = 0
     for person in people:
         print(person, people[person])
+    for seating in itertools.permutations(people, len(people)):
+        print(seating)
     return happiness
 
 
