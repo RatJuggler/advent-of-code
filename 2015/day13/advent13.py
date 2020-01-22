@@ -30,18 +30,29 @@ def load_seating(filename):
 
 def plan_seating(filename):
     people = load_seating(filename)
-    happiness = 0
     for person in people:
         print(person, people[person])
+    most_happiness = 0
+    with_seating = None
     for seating in itertools.permutations(people, len(people)):
         print(seating)
-    return happiness
+        total_happiness = 0
+        places = len(seating)
+        for i in range(places):
+            person = seating[i]
+            next_to = seating[i + 1] if i < places - 1 else seating[0]
+            total_happiness += people.get(person).get(next_to)
+            total_happiness += people.get(next_to).get(person)
+        if total_happiness > most_happiness:
+            most_happiness = total_happiness
+            with_seating = seating
+    return most_happiness, with_seating
 
 
 def test_plan_seating(filename, expected_happiness):
-    happiness = plan_seating(filename)
-    assert happiness == expected_happiness, \
-        'Expected happiness of {0} for {1} but was {2}!'.format(expected_happiness, filename, happiness)
+    most_happiness, with_seating = plan_seating(filename)
+    assert most_happiness == expected_happiness, \
+        'Expected happiness of {0} for {1} but was {2}!'.format(expected_happiness, filename, most_happiness)
 
 
 def main():
