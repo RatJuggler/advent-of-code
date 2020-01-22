@@ -34,15 +34,14 @@ def plan_seating(filename):
         print(person, people[person])
     most_happiness = 0
     with_seating = None
-    for seating in itertools.permutations(people, len(people)):
-        print(seating)
+    places = len(people)
+    for seating in itertools.permutations(people, places):
         total_happiness = 0
-        places = len(seating)
         for i in range(places):
-            person = seating[i]
-            next_to = seating[i + 1] if i < places - 1 else seating[0]
-            total_happiness += people.get(person).get(next_to)
-            total_happiness += people.get(next_to).get(person)
+            person_a = seating[i]
+            person_b = seating[0] if i + 1 == places else seating[i + 1]
+            total_happiness += people.get(person_a).get(person_b) + people.get(person_b).get(person_a)
+        print(seating, total_happiness)
         if total_happiness > most_happiness:
             most_happiness = total_happiness
             with_seating = seating
