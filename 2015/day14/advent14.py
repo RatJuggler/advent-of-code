@@ -69,11 +69,14 @@ def find_winning_distance(filename, after_time):
 def test_winning_distance(filename, after, expected_distance):
     distance = find_winning_distance(filename, after)
     assert distance == expected_distance, \
-        'Expected to find winning distance of {0} but was {1}'.format(expected_distance, distance)
+        'Expected to find winning distance of {0} km but was {1}!'.format(expected_distance, distance)
 
 
 def main():
     test_winning_distance('test14a.txt', 1000, 1120)
+    race_duration = 2503
+    winning_distance = find_winning_distance('input14.txt', race_duration)
+    print('Day 14, Step 1 winning distance after {0} seconds is {1}.'.format(race_duration, winning_distance))
 
 
 if __name__ == '__main__':
