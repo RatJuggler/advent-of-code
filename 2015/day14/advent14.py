@@ -141,8 +141,10 @@ def main():
     test_winning_distance('test14a.txt', 1000, 1120)
     race_duration = 2503
     winning_distance = find_winning_distance('input14.txt', race_duration)
-    print('Day 14, Step 1 winning distance after {0} seconds is {1}.'.format(race_duration, winning_distance))
+    print('Day 14, Step 1 winning distance after {0} seconds is {1} km.'.format(race_duration, winning_distance))
     test_winning_points('test14a.txt', 1000, 689)
+    winning_points = find_winning_points('input14.txt', race_duration)
+    print('Day 14, Step 1 winning points after {0} seconds are {1}.'.format(race_duration, winning_points))
 
 
 if __name__ == '__main__':
