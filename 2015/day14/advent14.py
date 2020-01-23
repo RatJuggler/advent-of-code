@@ -67,12 +67,16 @@ class Racer:
                 winning_distance = a_reindeer.distance
         return winning_distance
 
-    def run_race(self, reindeer):
+    def run_distance_race(self, reindeer):
         self.__load_the_starting_gate(reindeer)
         for i in range(self.duration):
             for a_reindeer in reindeer:
                 a_reindeer.race()
         return self.__winning_distance(reindeer)
+
+    def run_points_race(self, reindeer):
+        self.__load_the_starting_gate(reindeer)
+        return 0
 
 
 def load_reindeer(filename):
@@ -87,13 +91,26 @@ def find_winning_distance(filename, race_duration):
     reindeer = load_reindeer(filename)
     for a_reindeer in reindeer:
         print(a_reindeer)
-    return Racer(race_duration).run_race(reindeer)
+    return Racer(race_duration).run_distance_race(reindeer)
 
 
-def test_winning_distance(filename, after, expected_distance):
-    distance = find_winning_distance(filename, after)
+def find_winning_points(filename, race_duration):
+    reindeer = load_reindeer(filename)
+    for a_reindeer in reindeer:
+        print(a_reindeer)
+    return Racer(race_duration).run_points_race(reindeer)
+
+
+def test_winning_distance(filename, race_duration, expected_distance):
+    distance = find_winning_distance(filename, race_duration)
     assert distance == expected_distance, \
         'Expected to find winning distance of {0} km but was {1}!'.format(expected_distance, distance)
+
+
+def test_winning_points(filename, race_duration, expected_points):
+    points = find_winning_points(filename, race_duration)
+    assert points == expected_points, \
+        'Expected to find winning points to be {0} but was {1}!'.format(expected_points, points)
 
 
 def main():
@@ -101,6 +118,7 @@ def main():
     race_duration = 2503
     winning_distance = find_winning_distance('input14.txt', race_duration)
     print('Day 14, Step 1 winning distance after {0} seconds is {1}.'.format(race_duration, winning_distance))
+    test_winning_points('test14a.txt', 1000, 689)
 
 
 if __name__ == '__main__':
