@@ -11,6 +11,7 @@ class Reindeer:
         self.distance = None
         self.flying = None
         self.resting = None
+        self.points = None
 
     @classmethod
     def from_line(cls, line):
@@ -32,6 +33,7 @@ class Reindeer:
         self.distance = 0
         self.flying = 0
         self.resting = 0
+        self.points = 0
 
     def race(self):
         if self.resting > 0:
@@ -74,9 +76,31 @@ class Racer:
                 a_reindeer.race()
         return self.__winning_distance(reindeer)
 
+    @staticmethod
+    def __award_points(reindeer):
+        leaders_distance = 0
+        for a_reindeer in reindeer:
+            if a_reindeer.distance >= leaders_distance:
+                leaders_distance = a_reindeer.distance
+        for a_reindeer in reindeer:
+            if a_reindeer.distance == leaders_distance:
+                a_reindeer.points += 1
+
+    @staticmethod
+    def __winning_points(reindeer):
+        winning_points = 0
+        for a_reindeer in reindeer:
+            if a_reindeer.points > winning_points:
+                winning_points = a_reindeer.points
+        return winning_points
+
     def run_points_race(self, reindeer):
         self.__load_the_starting_gate(reindeer)
-        return 0
+        for i in range(self.duration):
+            for a_reindeer in reindeer:
+                a_reindeer.race()
+            self.__award_points(reindeer)
+        return self.__winning_points(reindeer)
 
 
 def load_reindeer(filename):
