@@ -1,14 +1,19 @@
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Type
 import re
 
 
 class Instruction(ABC):
 
-    def __init__(self, action: str, corner1, corner2) -> None:
+    def __init__(self, action: str, corner1: List[int], corner2: List[int]) -> None:
         self.action = action
         self.corner1 = corner1
         self.corner2 = corner2
+
+    @classmethod
+    @abstractmethod
+    def from_line(cls, line: str):
+        pass
 
     @staticmethod
     def decode_instruction(line: str) -> [str, List[int], List[int]]:
@@ -20,17 +25,13 @@ class Instruction(ABC):
         corner2 = [int(x) for x in re.findall(regex, matches.group('coord2'))]
         return action, corner1, corner2
 
-    def decode_coords(self):
-        x_start = self.corner1[0]
-        x_finish = self.corner2[0]
-        x_range = x_finish - x_start + 1
-        y_start = self.corner1[1]
-        y_finish = self.corner2[1]
-        y_range = y_finish - y_start + 1
-        return x_start, x_range, y_start, y_range
+    def decode_coords(self) -> [int, int, int, int]:
+        x_range = self.corner2[0] - self.corner1[0] + 1
+        y_range = self.corner2[1] - self.corner1[1] + 1
+        return self.corner1[0], x_range, self.corner1[1], y_range
 
     @abstractmethod
-    def apply_action(self, light):
+    def apply_action(self, light: int) -> int:
         pass
 
 
@@ -88,14 +89,14 @@ class LightGrid:
         return lights_lit
 
 
-def apply_instructions(grid: LightGrid, filename: str, instruction_type) -> None:
+def apply_instructions(grid: LightGrid, filename: str, instruction_type: Type[Instruction]) -> None:
     with open(filename) as fh:
         for line in fh:
             instruction = instruction_type.from_line(line)
             grid.set_lights(instruction)
 
 
-def light_grid(filename: str, instruction_type) -> int:
+def light_grid(filename: str, instruction_type: Type[Instruction]) -> int:
     grid = LightGrid(1000)
     apply_instructions(grid, filename, instruction_type)
     return grid.count_brightness()
