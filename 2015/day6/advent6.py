@@ -25,11 +25,6 @@ class Instruction(ABC):
         corner2 = [int(x) for x in re.findall(regex, matches.group('coord2'))]
         return action, corner1, corner2
 
-    def decode_coords(self) -> [int, int, int, int]:
-        x_range = self.corner2[0] - self.corner1[0] + 1
-        y_range = self.corner2[1] - self.corner1[1] + 1
-        return self.corner1[0], x_range, self.corner1[1], y_range
-
     @abstractmethod
     def apply_action(self, light: int) -> int:
         pass
@@ -76,9 +71,8 @@ class LightGrid:
             self.grid.append(grid_row)
 
     def set_lights(self, instruction: Instruction) -> None:
-        x_start, x_range, y_start, y_range = instruction.decode_coords()
-        for y in range(y_start, y_start + y_range):
-            for x in range(x_start, x_start + x_range):
+        for y in range(instruction.corner1[1], instruction.corner2[1] + 1):
+            for x in range(instruction.corner1[0], instruction.corner2[0] + 1):
                 self.grid[y][x] = instruction.apply_action(self.grid[y][x])
 
     def count_brightness(self) -> int:
