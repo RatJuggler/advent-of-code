@@ -1,29 +1,36 @@
+import re
 from typing import Callable
 
 
+def count_matches(regex, string):
+    return len(re.findall(regex, string))
+
+
 def contains_three_vowels(string: str) -> bool:
-    vowel_count = 0
-    for v in 'aeiou':
-        vowel_count += string.count(v)
-    return vowel_count > 2
+    return count_matches(r'(a|e|i|o|u)', string) > 2
 
 
 def repeating_letter_with_gap(string: str, gap_size: int) -> bool:
-    gap_size += 1
-    for i in range(len(string) - gap_size):
-        if string[i] == string[i + gap_size]:
-            return True
-    return False
+    return count_matches(r'([a-z])[a-z]{{{}}}\1'.format(gap_size), string) > 0
 
 
 def does_not_contain(string: str) -> bool:
-    return not('ab' in string or 'cd' in string or 'pq' in string or 'xy' in string)
+    return count_matches(r'(ab|cd|pq|xy)', string) == 0
+
+
+def contains_non_overlapping_pair(string: str) -> bool:
+    return count_matches(r'([a-z][a-z])[a-z]*?\1', string) > 0
 
 
 def step1_is_nice_string(string: str) -> bool:
     return contains_three_vowels(string) and \
            repeating_letter_with_gap(string, 0) and \
            does_not_contain(string)
+
+
+def step2_is_nice_string(string: str) -> bool:
+    return contains_non_overlapping_pair(string) and \
+           repeating_letter_with_gap(string, 1)
 
 
 def process_strings(filename: str, is_nice_string: Callable[[str], bool]) -> int:
@@ -43,19 +50,6 @@ def simple_test_step1(string: str, expected_nice: bool) -> None:
 def step1_count_nice_strings(filename: str) -> None:
     nice_strings = process_strings(filename, step1_is_nice_string)
     print('Day 5, Step 1 nice strings found {0}.'.format(nice_strings))
-
-
-def contains_non_overlapping_pair(string: str) -> bool:
-    for i in range(len(string) - 4):
-        pair = string[i:i + 2]
-        if string.find(pair, i + 2) != -1:
-            return True
-    return False
-
-
-def step2_is_nice_string(string: str) -> bool:
-    return contains_non_overlapping_pair(string) and \
-           repeating_letter_with_gap(string, 1)
 
 
 def simple_test_step2(string: str, expected_nice: bool) -> None:
