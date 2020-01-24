@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Optional
 import re
 
 
@@ -30,9 +30,9 @@ class Instruction:
         return "Instruction({0}: {1} {2} {3} = {4})".format(self.wire, self.p1, self.op, self.p2, self.signal)
 
     @staticmethod
-    def get_parameter(circuit, p):
-        if not p:
-                return p
+    def get_parameter(circuit, p: str) -> Optional[int]:
+        if p is None:
+            return p
         if p.isnumeric():
             return int(p)
         return circuit.get_instruction(p).evaluate(circuit)
