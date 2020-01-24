@@ -1,11 +1,12 @@
+from typing import Callable, List
 import re
 
 
-def parse_dimensions(dimensions):
-    return [int(dimension) for dimension in re.split(r'x', dimensions)]
+def parse_dimensions(dimensions: str) -> List[int]:
+    return [int(dimension) for dimension in re.split('x', dimensions)]
 
 
-def process_presents(filename, calculation):
+def process_presents(filename: str, calculation: Callable[[str], int]) -> int:
     total_required = 0
     with open(filename) as fh:
         for present_dimensions in fh:
@@ -13,7 +14,7 @@ def process_presents(filename, calculation):
     return total_required
 
 
-def calculate_paper_required(present_dimensions):
+def calculate_paper_required(present_dimensions: str) -> int:
     l, w, h = parse_dimensions(present_dimensions)
     side1 = l * w
     side2 = w * h
@@ -21,19 +22,19 @@ def calculate_paper_required(present_dimensions):
     return (2 * side1) + (2 * side2) + (2 * side3) + min(side1, side2, side3)
 
 
-def simple_test_step1(present_dimensions, expected_paper_required):
+def simple_test_step1(present_dimensions: str, expected_paper_required: int) -> None:
     paper_required = calculate_paper_required(present_dimensions)
     assert paper_required == expected_paper_required, \
         'Expected to need {0} sq ft of wrapping paper for a present of dimensions {1} but calculated {2}!'\
         .format(expected_paper_required, present_dimensions, paper_required)
 
 
-def step1_calculate_total_paper_required(filename):
+def step1_calculate_total_paper_required(filename: str) -> None:
     total_paper_required = process_presents(filename, calculate_paper_required)
     print('Day 2, Step 1 wrapping paper required = {0} sq ft'.format(total_paper_required))
 
 
-def calculate_ribbon_required(present_dimensions):
+def calculate_ribbon_required(present_dimensions: str) -> int:
     l, w, h = parse_dimensions(present_dimensions)
     face1 = 2 * (l + w)
     face2 = 2 * (w + h)
@@ -41,19 +42,19 @@ def calculate_ribbon_required(present_dimensions):
     return min(face1, face2, face3) + (l * w * h)
 
 
-def simple_test_step2(present_dimensions, expected_ribbon_required):
+def simple_test_step2(present_dimensions: str, expected_ribbon_required: int) -> None:
     ribbon_required = calculate_ribbon_required(present_dimensions)
     assert ribbon_required == expected_ribbon_required, \
         'Expected to need {0} ft of ribbon for a present of dimensions {1} but calculated {2}!'\
         .format(expected_ribbon_required, present_dimensions, ribbon_required)
 
 
-def step2_calculate_total_ribbon_required(filename):
+def step2_calculate_total_ribbon_required(filename: str) -> None:
     total_ribbon_required = process_presents(filename, calculate_ribbon_required)
     print('Day 2, Step 2 ribbon required = {0} ft'.format(total_ribbon_required))
 
 
-def main():
+def main() -> None:
     simple_test_step1('2x3x4', 58)
     simple_test_step1('1x1x10', 43)
     step1_calculate_total_paper_required('input2.txt')
