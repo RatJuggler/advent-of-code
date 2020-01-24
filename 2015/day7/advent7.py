@@ -1,9 +1,10 @@
+from typing import Dict
 import re
 
 
 class Instruction:
 
-    def __init__(self, wire, p1, op, p2):
+    def __init__(self, wire: str, p1: str, op: str, p2: str) -> None:
         self.wire = wire
         self.p1 = p1
         self.op = op
@@ -11,12 +12,12 @@ class Instruction:
         self.signal = None
 
     @classmethod
-    def from_line(cls, line):
+    def from_line(cls, line: str):
         wire, p1, op, p2 = cls.decode_instruction(line)
         return Instruction(wire, p1, op, p2)
 
     @staticmethod
-    def decode_instruction(line):
+    def decode_instruction(line: str) -> [str, str, str, str]:
         regex = r'(?P<p1>\S+)? ?((?P<op>AND|OR|LSHIFT|RSHIFT|NOT) ?(?P<p2>\S+))? -> (?P<wire>\S+)'
         matches = re.match(regex, line)
         wire = matches.group('wire')
@@ -25,18 +26,18 @@ class Instruction:
         p2 = matches.group('p2')
         return wire, p1, op, p2
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "Instruction({0}: {1} {2} {3} = {4})".format(self.wire, self.p1, self.op, self.p2, self.signal)
 
     @staticmethod
     def get_parameter(circuit, p):
         if not p:
-            return p
+                return p
         if p.isnumeric():
             return int(p)
         return circuit.get_instruction(p).evaluate(circuit)
 
-    def evaluate(self, circuit):
+    def evaluate(self, circuit) -> int:
         if self.signal:
             return self.signal
         p1_value = self.get_parameter(circuit, self.p1)
@@ -60,11 +61,11 @@ class Instruction:
 
 class Circuit:
 
-    def __init__(self, instructions):
+    def __init__(self, instructions: Dict[str, Instruction]) -> None:
         self.instructions = instructions
 
     @classmethod
-    def from_file(cls, filename):
+    def from_file(cls, filename: str):
         instructions = {}
         with open(filename) as fh:
             for line in fh:
@@ -72,35 +73,35 @@ class Circuit:
                 instructions[instruction.wire] = instruction
         return Circuit(instructions)
 
-    def get_instruction(self, wire):
+    def get_instruction(self, wire: str) -> Instruction:
         return self.instructions[wire]
 
-    def get_signal(self, wire):
+    def get_signal(self, wire: str) -> int:
         return self.get_instruction(wire).signal
 
-    def set_signal(self, wire, signal):
+    def set_signal(self, wire: str, signal: int) -> None:
         self.get_instruction(wire).signal = signal
 
-    def evaluate(self):
+    def evaluate(self) -> None:
         for instruction in self.instructions.values():
             instruction.evaluate(self)
 
-    def get_signals(self):
+    def get_signals(self) -> Dict[str, int]:
         return {k: self.get_signal(k) for k in sorted(self.instructions)}
 
-    def reset_signals(self):
+    def reset_signals(self) -> None:
         for instruction in self.instructions.values():
             instruction.signal = None
 
 
-def test_evaluate_circuit(filename, expected_signals):
+def test_evaluate_circuit(filename: str, expected_signals: Dict[str, int]) -> None:
     circuit = Circuit.from_file(filename)
     circuit.evaluate()
     signals = circuit.get_signals()
     assert signals == expected_signals, 'Expected circuit to produce {0} but was {1}'.format(expected_signals, signals)
 
 
-def main():
+def main() -> None:
     test_evaluate_circuit('test7a.txt',
                           {'a': 123, 'b': 456, 'd': 72, 'e': 507, 'f': 492,
                            'g': 114, 'h': 65412, 'i': 65079, 'x': 123, 'y': 456})
