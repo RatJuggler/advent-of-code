@@ -1,4 +1,4 @@
-from typing import Callable, Dict, List
+from typing import Callable, Dict, List, Tuple
 import re
 
 
@@ -53,7 +53,7 @@ class Locations:
         for location in self.locations:
             print(location, ':', self.locations[location])
 
-    def total_distances(self, visited_locations: List[str], current_distance: int):
+    def total_distances(self, visited_locations: List[str], current_distance: int) -> List[Tuple[List[str], int]]:
         results = []
         last_visited = visited_locations[-1]
         for distance in self.locations[last_visited]:
@@ -63,19 +63,19 @@ class Locations:
                 if len(visited_locations) != len(self.locations):
                     results.extend(self.total_distances(visited_locations, current_distance))
                 else:
-                    results.append([visited_locations.copy(), current_distance])
+                    results.append((visited_locations.copy(), current_distance))
                 visited_locations.pop()
                 current_distance -= distance.distance
         return results
 
-    def total_locations(self):
+    def total_locations(self) -> List[Tuple[List[str], int]]:
         total_distances = []
         for start_location in self.locations:
             total_distances.extend(self.total_distances([start_location], 0))
         return total_distances
 
 
-def get_total_distances(filename: str):
+def get_total_distances(filename: str) -> List[Tuple[List[str], int]]:
     locations = Locations.from_file(filename)
     locations.list()
     return locations.total_locations()
@@ -83,14 +83,16 @@ def get_total_distances(filename: str):
 
 def find_distance(filename: str, comparison: Callable[[int, int], bool]) -> int:
     results = get_total_distances(filename)
+    distance_found = None
     distance_results = None
     for result in results:
-        if distance_results is None or comparison(result[1], distance_results[0][1]):
-            distance_results = [result]
-        if result[1] == distance_results[0][1]:
-            distance_results.append(result)
-    print(distance_results)
-    return distance_results[0][1]
+        if distance_found is None or comparison(result[1], distance_found):
+            distance_found = result[1]
+            distance_results = []
+        if result[1] == distance_found:
+            distance_results.append(result[0])
+    print(distance_found, distance_results)
+    return distance_found
 
 
 def find_shortest_distance(filename: str) -> int:
