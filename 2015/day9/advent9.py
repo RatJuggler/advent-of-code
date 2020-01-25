@@ -1,47 +1,43 @@
+from typing import Callable, Dict, List
 import re
 
 
 class Distance:
 
-    def __init__(self, from_location, to_location, distance):
+    def __init__(self, from_location: str, to_location: str, distance: int) -> None:
         self.from_location = from_location
         self.to_location = to_location
         self.distance = distance
 
     @classmethod
-    def from_line(cls, line):
-        from_location, to_location, distance = cls.decode_distance(line)
-        return Distance(from_location, to_location, distance)
-
-    @staticmethod
-    def decode_distance(line):
+    def from_line(cls, line: str):
         regex = r'(?P<from_location>\S+) to (?P<to_location>\S+) = (?P<distance>\d+)'
         matches = re.match(regex, line)
         from_location = matches.group('from_location')
         to_location = matches.group('to_location')
         distance = int(matches.group('distance'))
-        return from_location, to_location, distance
+        return Distance(from_location, to_location, distance)
 
     @staticmethod
     def from_reversed(distance):
         return Distance(distance.to_location, distance.from_location, distance.distance)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "Distance({0} to {1} = {2})".format(self.from_location, self.to_location, self.distance)
 
 
 class Distances:
 
-    def __init__(self, distances):
+    def __init__(self, distances: List[Distance]):
         self.distances = distances
 
-    def get_distances(self):
+    def get_distances(self) -> List[Distance]:
         return self.distances
 
-    def add_distance(self, distance):
+    def add_distance(self, distance: Distance):
         return self.distances.append(distance)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         to_string = ''
         for distance in self.distances:
             if len(to_string) > 0:
@@ -52,8 +48,15 @@ class Distances:
 
 class Locations:
 
-    def __init__(self, locations):
+    def __init__(self, locations: Dict[str, Distances]) -> None:
         self.locations = locations
+
+    def add_location_distance(self, distance: Distance) -> None:
+        distances = self.locations.get(distance.from_location)
+        if distances is None:
+            distances = Distances([])
+            self.locations[distance.from_location] = distances
+        distances.add_distance(distance)
 
     @classmethod
     def from_file(cls, filename):
@@ -66,21 +69,11 @@ class Locations:
                 locations.add_location_distance(distance)
         return locations
 
-    def add_location_distance(self, distance):
-        distances = self.locations.get(distance.from_location)
-        if distances is None:
-            distances = Distances([])
-            self.locations[distance.from_location] = distances
-        distances.add_distance(distance)
-
-    def get_locations(self):
-        return self.locations
-
-    def list(self):
+    def list(self) -> None:
         for location in self.locations:
             print(location, ':', self.locations[location])
 
-    def total_distances(self, visited_locations, current_distance):
+    def total_distances(self, visited_locations: List[str], current_distance: int):
         results = []
         last_visited = visited_locations[-1]
         from_distances = self.locations[last_visited]
@@ -96,17 +89,20 @@ class Locations:
                 current_distance -= distance.distance
         return results
 
+    def total_locations(self):
+        total_distances = []
+        for start_location in self.locations:
+            total_distances.extend(self.total_distances([start_location], 0))
+        return total_distances
 
-def get_total_distances(filename):
+
+def get_total_distances(filename: str):
     locations = Locations.from_file(filename)
     locations.list()
-    total_distances = []
-    for start_location in locations.get_locations():
-        total_distances.extend(locations.total_distances([start_location], 0))
-    return total_distances
+    return locations.total_locations()
 
 
-def find_distance(filename, comparison):
+def find_distance(filename: str, comparison: Callable[[int, int], bool]) -> int:
     results = get_total_distances(filename)
     distance_results = None
     for result in results:
@@ -118,17 +114,17 @@ def find_distance(filename, comparison):
     return distance_results[0][1]
 
 
-def find_shortest_distance(filename):
+def find_shortest_distance(filename: str) -> int:
     return find_distance(filename, lambda x, y: x < y)
 
 
-def test_find_shortest_route(filename, expected_shortest_distance):
+def test_find_shortest_route(filename: str, expected_shortest_distance: int) -> None:
     shortest_distance = find_shortest_distance(filename)
     assert shortest_distance == expected_shortest_distance, \
         'Expected to find shortest distance of {0} but was {1}'.format(expected_shortest_distance, shortest_distance)
 
 
-def main():
+def main() -> None:
     test_find_shortest_route('test9a.txt', 605)
     print('Day 9, Step 1 shortest route = {0}'.format(find_shortest_distance('input9.txt')))
     print('Day 9, Step 2 longest route = {0}'.format(find_distance('input9.txt', lambda x, y: x > y)))
