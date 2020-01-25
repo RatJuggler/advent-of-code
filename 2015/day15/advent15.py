@@ -1,11 +1,14 @@
-def find_best_ingredient_score(filename):
+from typing import List
+
+
+def find_best_ingredient_score(filename: str):
     with open(filename) as fh:
         for line in fh:
             print(line.strip())
     return 0, []
 
 
-def test_find_best_ingredient_score(filename, expected_score, expected_teaspoons):
+def test_find_best_ingredient_score(filename: str, expected_score: int, expected_teaspoons: List[int]) -> None:
     best_score, teaspoons = find_best_ingredient_score(filename)
     assert best_score == expected_score, \
         'Expected to get a best score of {0} but was {1}!'.format(expected_score, best_score)
@@ -13,7 +16,7 @@ def test_find_best_ingredient_score(filename, expected_score, expected_teaspoons
         'Expected to use {0} teaspoons but was {1}!'.format(expected_teaspoons, teaspoons)
 
 
-def main():
+def main() -> None:
     test_find_best_ingredient_score('test15a.txt', 62842880, [44, 56])
     best_score, teaspoons = find_best_ingredient_score('input15.txt')
     print('Day 15, Step 1 best ingredient score is {0} using {1} teaspoons.'.format(best_score, teaspoons))
