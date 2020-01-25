@@ -1,4 +1,4 @@
-def sum_array(array_list: list, ignore_red):
+def sum_array(array_list: list, ignore_red: bool) -> int:
     array_sum = 0
     for element in array_list:
         if type(element) is list:
@@ -10,7 +10,7 @@ def sum_array(array_list: list, ignore_red):
     return array_sum
 
 
-def sum_object(object_dict: dict, ignore_red):
+def sum_object(object_dict: dict, ignore_red: bool) -> int:
     object_sum = 0
     if ignore_red and "red" in object_dict.values():
         return object_sum
@@ -24,7 +24,7 @@ def sum_object(object_dict: dict, ignore_red):
     return object_sum
 
 
-def sum_string(string, ignore_red=False):
+def sum_string(string, ignore_red: bool = False) -> int:
     eval_string = eval(string)
     if type(eval_string) is list:
         return sum_array(eval_string, ignore_red)
@@ -34,33 +34,33 @@ def sum_string(string, ignore_red=False):
         return -1
 
 
-def sum_string_from_file(filename, ignore_red=False):
+def sum_string_from_file(filename: str, ignore_red: bool = False) -> int:
     with open(filename) as fh:
         file_string = fh.readline()
     return sum_string(file_string, ignore_red)
 
 
-def test_sum_array(array_string: str, expected_sum):
+def test_sum_array(array_string: str, expected_sum: int) -> None:
     array_list = eval(array_string)
     array_sum = sum_array(array_list, False)
     assert array_sum == expected_sum, \
         'Expected sum of array {0} to be {1} but was {2}'.format(array_string, expected_sum, array_sum)
 
 
-def test_sum_object(object_string: str, expected_sum):
+def test_sum_object(object_string: str, expected_sum: int) -> None:
     object_dict = eval(object_string)
     object_sum = sum_object(object_dict, False)
     assert object_sum == expected_sum, \
         'Expected sum of object {0} to be {1} but was {2}'.format(object_string, expected_sum, object_sum)
 
 
-def test_sum_string(string: str, expected_sum, ignore_red=False):
+def test_sum_string(string: str, expected_sum: int, ignore_red: bool = False) -> None:
     string_sum = sum_string(string, ignore_red)
     assert string_sum == expected_sum, \
         'Expected sum of string {0} to be {1} but was {2}'.format(string, expected_sum, string_sum)
 
 
-def main():
+def main() -> None:
     test_sum_array('[1,2,3]', 6)
     test_sum_array('[[[3]]]', 3)
     test_sum_array('[]', 0)
