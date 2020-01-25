@@ -1,4 +1,7 @@
-def parse_look(look):
+from typing import List
+
+
+def parse_look(look: str) -> List[str]:
     groups = []
     group = None
     for c in look:
@@ -13,7 +16,7 @@ def parse_look(look):
     return groups
 
 
-def look_and_say(look):
+def look_and_say(look: str) -> str:
     groups = parse_look(look)
     say = ''
     for group in groups:
@@ -22,7 +25,7 @@ def look_and_say(look):
     return say
 
 
-def iterate_look_and_say(look, iterations):
+def iterate_look_and_say(look: str, iterations: int) -> str:
     say = None
     for i in range(iterations):
         say = look_and_say(look)
@@ -30,25 +33,25 @@ def iterate_look_and_say(look, iterations):
     return say
 
 
-def test_look_and_say(look, expected_say):
+def test_look_and_say(look: str, expected_say: str) -> None:
     say = look_and_say(look)
     assert say == expected_say, \
         'Expected to say {0} for {1} but was {2}'.format(expected_say, look, say)
 
 
-def test_iterate_look_and_say(look, iterations, expected_say):
+def test_iterate_look_and_say(look: str, iterations: int, expected_say: str) -> None:
     say = iterate_look_and_say(look, iterations)
     assert say == expected_say, \
         'Expected to say {0} for {1} but was {2}'.format(expected_say, look, say)
 
 
-def length_after_iteration(step, look, iterations):
+def length_after_iteration(step: int, look: str, iterations: int) -> None:
     say_length = len(iterate_look_and_say(look, iterations))
     print('Day 10, Step {0} look {1} after {2} iterations is {3} characters long!'
           .format(step, look, iterations, say_length))
 
 
-def main():
+def main() -> None:
     test_look_and_say('1', '11')
     test_look_and_say('11', '21')
     test_look_and_say('21', '1211')
