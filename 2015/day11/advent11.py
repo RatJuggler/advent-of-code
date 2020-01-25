@@ -1,19 +1,19 @@
 import re
 
 
-def is_eight_letters(password):
+def is_eight_letters(password: str) -> bool:
     regex = r'^[a-z]{8}$'
     matches = re.match(regex, password)
     return matches is not None
 
 
-def contains_iol(password):
+def contains_iol(password: str) -> bool:
     regex = r'[iol]'
     matches = re.findall(regex, password)
     return len(matches) > 0
 
 
-def contains_sequence(password):
+def contains_sequence(password: str) -> bool:
     sequence = 1
     for i in range(len(password) - 1):
         if ord(password[i + 1]) != ord(password[i]) + 1:
@@ -25,7 +25,7 @@ def contains_sequence(password):
     return False
 
 
-def contains_pair(password):
+def contains_pair(password: str) -> bool:
     regex = r'(?P<pair>[a-z])\1'
     matches = re.findall(regex, password)
     if len(matches) < 2:
@@ -36,7 +36,7 @@ def contains_pair(password):
     return False
 
 
-def valid_password(password):
+def valid_password(password: str) -> bool:
     if not is_eight_letters(password):
         return False
     if contains_iol(password):
@@ -65,24 +65,24 @@ def generate_next_password(password):
     return password
 
 
-def test_valid_password(password, expected_valid):
+def test_valid_password(password: str, expected_valid: bool) -> None:
     valid = valid_password(password)
     assert valid == expected_valid, \
         'Expected password {0} validity to be {1} but was {2}'.format(password, expected_valid, valid)
 
 
-def test_next_password(password, expected_next_password):
+def test_next_password(password: str, expected_next_password: str) -> None:
     next_password = generate_next_password(password)
     assert next_password == expected_next_password, \
         'Expected next password for {0} to be {1} but was {2}'.format(password, expected_next_password, next_password)
 
 
-def generate_password(day, password):
+def generate_password(step: int, password: str) -> None:
     next_password = generate_next_password(password)
-    print('Day 11, Step {0} next valid password after {1} is {2}.'.format(day, password, next_password))
+    print('Day 11, Step {0} next valid password after {1} is {2}.'.format(step, password, next_password))
 
 
-def main():
+def main() -> None:
     test_valid_password('abcddee', False)
     test_valid_password('12345678', False)
     test_valid_password('hijklmmn', False)
