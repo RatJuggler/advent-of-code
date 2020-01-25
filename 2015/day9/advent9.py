@@ -26,37 +26,17 @@ class Distance:
         return "Distance({0} to {1} = {2})".format(self.from_location, self.to_location, self.distance)
 
 
-class Distances:
-
-    def __init__(self, distances: List[Distance]):
-        self.distances = distances
-
-    def get_distances(self) -> List[Distance]:
-        return self.distances
-
-    def add_distance(self, distance: Distance):
-        return self.distances.append(distance)
-
-    def __repr__(self) -> str:
-        to_string = ''
-        for distance in self.distances:
-            if len(to_string) > 0:
-                to_string += ', '
-            to_string += distance.__repr__()
-        return to_string
-
-
 class Locations:
 
-    def __init__(self, locations: Dict[str, Distances]) -> None:
+    def __init__(self, locations: Dict[str, List[Distance]]) -> None:
         self.locations = locations
 
     def add_location_distance(self, distance: Distance) -> None:
         distances = self.locations.get(distance.from_location)
         if distances is None:
-            distances = Distances([])
+            distances = []
             self.locations[distance.from_location] = distances
-        distances.add_distance(distance)
+        distances.append(distance)
 
     @classmethod
     def from_file(cls, filename):
@@ -76,8 +56,7 @@ class Locations:
     def total_distances(self, visited_locations: List[str], current_distance: int):
         results = []
         last_visited = visited_locations[-1]
-        from_distances = self.locations[last_visited]
-        for distance in from_distances.get_distances():
+        for distance in self.locations[last_visited]:
             if distance.to_location not in visited_locations:
                 visited_locations.append(distance.to_location)
                 current_distance += distance.distance
