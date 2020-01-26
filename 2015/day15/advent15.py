@@ -1,10 +1,39 @@
 from typing import List
+import re
+
+
+class Ingredient:
+
+    def __init__(self, name: str, capacity: int, durability: int, flavor: int, texture: int, calories: int) -> None:
+        self.name = name
+        self.capacity = capacity
+        self.durability = durability
+        self.flavor = flavor
+        self.texture = texture
+        self.calories = calories
+
+    @classmethod
+    def from_line(cls, line: str):
+        regex = r'(?P<name>\S+): capacity (?P<capacity>-?\d+), durability (?P<durability>-?\d+), ' \
+                r'flavor (?P<flavor>-?\d+), texture (?P<texture>-?\d+), calories (?P<calories>-?\d+)'
+        matches = re.match(regex, line)
+        name = matches.group('name')
+        capacity = int(matches.group('capacity'))
+        durability = int(matches.group('durability'))
+        flavor = int(matches.group('flavor'))
+        texture = int(matches.group('texture'))
+        calories = int(matches.group('calories'))
+        return Ingredient(name, capacity, durability, flavor, texture, calories)
+
+    def __repr__(self) -> str:
+        return "{0}(capacity: {1}, durability: {2}, flavor: {3}, texture: {4}, calories: {5})"\
+            .format(self.name, self.capacity, self.durability, self.flavor, self.texture, self.calories)
 
 
 def find_best_ingredient_score(filename: str):
     with open(filename) as fh:
         for line in fh:
-            print(line.strip())
+            print(Ingredient.from_line(line))
     return 0, []
 
 
