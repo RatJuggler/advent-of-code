@@ -34,7 +34,7 @@ def calculate_property_score(ingredients: List[Ingredient], teaspoons: List[int]
     property_score = 0
     for i in range(len(ingredients)):
         property_score += teaspoons[i] * getattr(ingredients[i], ingredient_property)
-    return property_score
+    return property_score if property_score > 0 else 0
 
 
 def calculate_score(ingredients: List[Ingredient], teaspoons: List[int]) -> int:
@@ -53,18 +53,26 @@ def find_best_ingredient_score(filename: str):
         for line in fh:
             ingredients.append(Ingredient.from_line(line))
     print(ingredients)
-    teaspoons = [44, 56]
-    score = calculate_score(ingredients, teaspoons)
-    print(teaspoons, score)
-    return score, teaspoons
+    best_score = 0
+    best_teaspoons = []
+    for i in range(99):
+        teaspoons = [i + 1, 99 - i]
+        score = calculate_score(ingredients, teaspoons)
+        if score > best_score:
+            best_score = score
+            best_teaspoons = []
+        if score == best_score:
+            best_teaspoons.append(teaspoons)
+        print(teaspoons, score)
+    return best_score, best_teaspoons[0]
 
 
 def test_find_best_ingredient_score(filename: str, expected_score: int, expected_teaspoons: List[int]) -> None:
-    best_score, teaspoons = find_best_ingredient_score(filename)
+    best_score, best_teaspoons = find_best_ingredient_score(filename)
     assert best_score == expected_score, \
         'Expected to get a best score of {0} but was {1}!'.format(expected_score, best_score)
-    assert teaspoons == expected_teaspoons, \
-        'Expected to use {0} teaspoons but was {1}!'.format(expected_teaspoons, teaspoons)
+    assert best_teaspoons == expected_teaspoons, \
+        'Expected to use {0} teaspoons but was {1}!'.format(expected_teaspoons, best_teaspoons)
 
 
 def main() -> None:
