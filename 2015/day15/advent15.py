@@ -30,41 +30,20 @@ class Ingredient:
             .format(self.name, self.capacity, self.durability, self.flavor, self.texture, self.calories)
 
 
-def calculate_capacity(ingredients: List[Ingredient], teaspoons: List[int]) -> int:
-    capacity = 0
+def calculate_property_score(ingredients: List[Ingredient], teaspoons: List[int], ingredient_property: str) -> int:
+    property_score = 0
     for i in range(len(ingredients)):
-        capacity += teaspoons[i] * ingredients[i].capacity
-    return capacity
-
-
-def calculate_durability(ingredients: List[Ingredient], teaspoons: List[int]) -> int:
-    durability = 0
-    for i in range(len(ingredients)):
-        durability += teaspoons[i] * ingredients[i].durability
-    return durability
-
-
-def calculate_flavour(ingredients: List[Ingredient], teaspoons: List[int]) -> int:
-    flavour = 0
-    for i in range(len(ingredients)):
-        flavour += teaspoons[i] * ingredients[i].flavor
-    return flavour
-
-
-def calculate_texture(ingredients: List[Ingredient], teaspoons: List[int]) -> int:
-    texture = 0
-    for i in range(len(ingredients)):
-        texture += teaspoons[i] * ingredients[i].texture
-    return texture
+        property_score += teaspoons[i] * getattr(ingredients[i], ingredient_property)
+    return property_score
 
 
 def calculate_score(ingredients: List[Ingredient], teaspoons: List[int]) -> int:
     assert len(ingredients) == len(teaspoons), \
         'There should be one teaspoon ({0}) of every ingredient ({1})!'.format(len(teaspoons), len(ingredients))
-    capacity = calculate_capacity(ingredients, teaspoons)
-    durability = calculate_durability(ingredients, teaspoons)
-    flavor = calculate_flavour(ingredients, teaspoons)
-    texture = calculate_texture(ingredients, teaspoons)
+    capacity = calculate_property_score(ingredients, teaspoons, 'capacity')
+    durability = calculate_property_score(ingredients, teaspoons, 'durability')
+    flavor = calculate_property_score(ingredients, teaspoons, 'flavor')
+    texture = calculate_property_score(ingredients, teaspoons, 'texture')
     return capacity * durability * flavor * texture
 
 
