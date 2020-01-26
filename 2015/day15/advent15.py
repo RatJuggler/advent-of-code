@@ -30,11 +30,54 @@ class Ingredient:
             .format(self.name, self.capacity, self.durability, self.flavor, self.texture, self.calories)
 
 
+def calculate_capacity(ingredients: List[Ingredient], teaspoons: List[int]) -> int:
+    capacity = 0
+    for i in range(len(ingredients)):
+        capacity += teaspoons[i] * ingredients[i].capacity
+    return capacity
+
+
+def calculate_durability(ingredients: List[Ingredient], teaspoons: List[int]) -> int:
+    durability = 0
+    for i in range(len(ingredients)):
+        durability += teaspoons[i] * ingredients[i].durability
+    return durability
+
+
+def calculate_flavour(ingredients: List[Ingredient], teaspoons: List[int]) -> int:
+    flavour = 0
+    for i in range(len(ingredients)):
+        flavour += teaspoons[i] * ingredients[i].flavor
+    return flavour
+
+
+def calculate_texture(ingredients: List[Ingredient], teaspoons: List[int]) -> int:
+    texture = 0
+    for i in range(len(ingredients)):
+        texture += teaspoons[i] * ingredients[i].texture
+    return texture
+
+
+def calculate_score(ingredients: List[Ingredient], teaspoons: List[int]) -> int:
+    assert len(ingredients) == len(teaspoons), \
+        'There should be one teaspoon ({0}) of every ingredient ({1})!'.format(len(teaspoons), len(ingredients))
+    capacity = calculate_capacity(ingredients, teaspoons)
+    durability = calculate_durability(ingredients, teaspoons)
+    flavor = calculate_flavour(ingredients, teaspoons)
+    texture = calculate_texture(ingredients, teaspoons)
+    return capacity * durability * flavor * texture
+
+
 def find_best_ingredient_score(filename: str):
+    ingredients = []
     with open(filename) as fh:
         for line in fh:
-            print(Ingredient.from_line(line))
-    return 0, []
+            ingredients.append(Ingredient.from_line(line))
+    print(ingredients)
+    teaspoons = [44, 56]
+    score = calculate_score(ingredients, teaspoons)
+    print(teaspoons, score)
+    return score, teaspoons
 
 
 def test_find_best_ingredient_score(filename: str, expected_score: int, expected_teaspoons: List[int]) -> None:
