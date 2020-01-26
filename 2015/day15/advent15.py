@@ -116,7 +116,11 @@ def main() -> None:
     test_find_best_ingredient_score('test15a.txt', 62842880, [44, 56])
     best_score, teaspoons = find_best_ingredient_score('input15.txt')
     print('Day 15, Step 1 best ingredient score is {0} using {1} teaspoons.'.format(best_score, teaspoons))
+    calorie_target = 500
     test_find_best_ingredient_score_with_calories_of('test15a.txt', 500, 57600000, [40, 60])
+    best_score, teaspoons = find_best_ingredient_score_with_calories_of('input15.txt', calorie_target)
+    print('Day 15, Step 2 best ingredient score with calories <= {0} is {1} using {2} teaspoons.'
+          .format(calorie_target, best_score, teaspoons))
 
 
 if __name__ == '__main__':
