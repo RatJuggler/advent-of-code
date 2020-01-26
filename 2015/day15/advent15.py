@@ -30,6 +30,14 @@ class Ingredient:
             .format(self.name, self.capacity, self.durability, self.flavor, self.texture, self.calories)
 
 
+def load_ingredients(filename: str) -> List[Ingredient]:
+    ingredients = []
+    with open(filename) as fh:
+        for line in fh:
+            ingredients.append(Ingredient.from_line(line))
+    return ingredients
+
+
 def calculate_property_score(ingredients: List[Ingredient], teaspoons: List[int], ingredient_property: str) -> int:
     property_score = 0
     for i in range(len(ingredients)):
@@ -48,11 +56,7 @@ def calculate_score(ingredients: List[Ingredient], teaspoons: List[int]) -> int:
 
 
 def find_best_ingredient_score(filename: str):
-    ingredients = []
-    with open(filename) as fh:
-        for line in fh:
-            ingredients.append(Ingredient.from_line(line))
-    print(ingredients)
+    ingredients = load_ingredients(filename)
     best_score = 0
     best_teaspoons = []
     for i in range(99):
