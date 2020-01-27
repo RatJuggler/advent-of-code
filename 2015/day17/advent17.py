@@ -1,5 +1,12 @@
+import itertools
+
+
 def container_combinations(to_store, containers):
-    pass
+    combinations = [seq for i in range(len(containers), 0, -1)
+                    for seq in itertools.combinations(containers, i)
+                    if sum(seq) == to_store]
+    print(combinations)
+    return len(combinations)
 
 
 def test_container_combination(to_store, containers, expected_combinations):
