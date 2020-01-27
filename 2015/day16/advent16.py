@@ -37,9 +37,16 @@ def load_sues(filename: str) -> List[Sue]:
 
 def determine_sue(filename: str, known: Dict[str, int]) -> int:
     sues = load_sues(filename)
+    sues_found = []
     for sue in sues:
         print(sue)
-    return len(sues)
+        for attribute in sue.attributes:
+            if sue.attributes[attribute] != known[attribute]:
+                break
+        else:
+            sues_found.append(sue)
+    print(sues_found)
+    return sues_found[0].number
 
 
 def main() -> None:
