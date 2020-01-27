@@ -4,7 +4,7 @@ import re
 
 class Sue:
 
-    def __init__(self, number: int, attributes: List[Tuple[str, int]]) -> None:
+    def __init__(self, number: int, attributes: Dict[str, int]) -> None:
         self.number = number
         self.attributes = attributes
 
@@ -13,14 +13,14 @@ class Sue:
         regex = r'Sue (?P<sue>\d+)|(?P<attr>\S+): (?P<qty>\d+)'
         matches = re.finditer(regex, line)
         number = 0
-        attributes = []
+        attributes = {}
         for match in matches:
             if match.group('sue'):
                 number = int(match.group('sue'))
             else:
                 attribute = match.group('attr')
                 quantity = int(match.group('qty'))
-                attributes.append((attribute, quantity))
+                attributes[attribute] = quantity
         return Sue(number, attributes)
 
     def __repr__(self) -> str:
