@@ -1,5 +1,45 @@
+from typing import List, Tuple
+import re
+
+
+class Sue:
+
+    def __init__(self, number: int, attributes: List[Tuple[str, int]]) -> None:
+        self.number = number
+        self.attributes = attributes
+
+    @classmethod
+    def from_line(cls, line: str):
+        regex = r'Sue (?P<sue>\d+)|(?P<attr>\S+): (?P<qty>\d+)'
+        matches = re.finditer(regex, line)
+        number = 0
+        attributes = []
+        for match in matches:
+            if match.group('sue'):
+                number = int(match.group('sue'))
+            else:
+                attribute = match.group('attr')
+                quantity = int(match.group('qty'))
+                attributes.append((attribute, quantity))
+        return Sue(number, attributes)
+
+    def __repr__(self) -> str:
+        return "Sue{0}{1}".format(self.number, self.attributes)
+
+
+def load_sues(filename: str) -> List[Sue]:
+    sues = []
+    with open(filename) as fh:
+        for line in fh:
+            sues.append(Sue.from_line(line))
+    return sues
+
+
 def determine_sue(filename: str) -> int:
-    return 0
+    sues = load_sues(filename)
+    for sue in sues:
+        print(sue)
+    return len(sues)
 
 
 def main() -> None:
