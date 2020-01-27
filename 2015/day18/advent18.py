@@ -74,6 +74,9 @@ def test_animate_light_grid(filename: str, steps: int, expected_lights_on: int) 
 
 def main() -> None:
     test_animate_light_grid('test18a.txt', 4, 4)
+    steps = 100
+    light_count = animate_light_grid('input18.txt', steps)
+    print('Day 18, Step 1 after {0} steps there are {1} lights on.'.format(steps, light_count))
 
 
 if __name__ == '__main__':
