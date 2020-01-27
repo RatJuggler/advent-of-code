@@ -27,7 +27,13 @@ def test_container_combination(to_store: int, filename: str, expected_combinatio
 
 
 def minimum_container_combinations(to_store: int, containers: List[int]) -> [int, int]:
-    return 0, 0
+    combinations = [seq for i in range(len(containers), 0, -1)
+                    for seq in itertools.combinations(containers, i)
+                    if sum(seq) == to_store]
+    minimum_containers = min([len(combination) for combination in combinations])
+    minimum_combinations = len([combination for combination in combinations if len(combination) == minimum_containers])
+    print(combinations)
+    return minimum_containers, minimum_combinations
 
 
 def test_minimum_container_combination(to_store: int, filename: str,
