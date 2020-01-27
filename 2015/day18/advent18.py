@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing import List
 
 
@@ -5,6 +6,14 @@ class LightGrid:
 
     def __init__(self, grid: List[List[int]]) -> None:
         self.grid = grid
+
+    @classmethod
+    def from_empty(cls, grid_size: int):
+        grid = []
+        for y in range(grid_size):
+            grid_row = [0] * grid_size
+            grid.append(grid_row)
+        return LightGrid(grid)
 
     @classmethod
     def from_file(cls, filename: str):
@@ -17,6 +26,12 @@ class LightGrid:
                 grid.append(grid_row)
         return LightGrid(grid)
 
+    def size(self) -> int:
+        return len(self.grid)
+
+    def animate(self, new_light_grid):
+        pass
+
     def count_lights_on(self) -> int:
         lights_lit = 0
         for grid_row in self.grid:
@@ -27,6 +42,10 @@ class LightGrid:
 
 def animate_light_grid(filename: str, steps: int) -> int:
     light_grid = LightGrid.from_file(filename)
+    for i in range(steps):
+        new_light_grid = LightGrid.from_empty(light_grid.size())
+        light_grid.animate(new_light_grid)
+        light_grid = new_light_grid
     return light_grid.count_lights_on()
 
 
