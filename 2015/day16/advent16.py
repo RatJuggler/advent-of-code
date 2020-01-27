@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 import re
 
 
@@ -35,7 +35,7 @@ def load_sues(filename: str) -> List[Sue]:
     return sues
 
 
-def determine_sue(filename: str) -> int:
+def determine_sue(filename: str, known: Dict[str, int]) -> int:
     sues = load_sues(filename)
     for sue in sues:
         print(sue)
@@ -43,7 +43,9 @@ def determine_sue(filename: str) -> int:
 
 
 def main() -> None:
-    sue_number = determine_sue('input16.txt')
+    known = {'children': 3, 'cats': 7, 'samoyeds': 2, 'pomeranians': 3, 'akitas': 0,
+             'vizslas': 0, 'goldfish': 5, 'trees': 3, 'cars': 2, 'perfumes': 1}
+    sue_number = determine_sue('input16.txt', known)
     print('Day 16, Step 1 Aunt Sue number {0} sent the gift.'.format(sue_number))
 
 
