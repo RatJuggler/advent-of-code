@@ -26,9 +26,6 @@ class LightGrid:
                 grid.append(grid_row)
         return LightGrid(grid)
 
-    def size(self) -> int:
-        return len(self.grid)
-
     def set_light(self, x: int, y: int, new_light) -> None:
         self.grid[y][x] = new_light
 
@@ -61,7 +58,7 @@ class LightGrid:
 def animate_light_grid(filename: str, steps: int) -> int:
     light_grid = LightGrid.from_file(filename)
     for i in range(steps):
-        new_light_grid = LightGrid.from_empty(light_grid.size())
+        new_light_grid = LightGrid.from_empty(light_grid.grid_size)
         for y in range(light_grid.grid_size):
             for x in range(light_grid.grid_size):
                 new_light_grid.set_light(x, y, light_grid.next_light_state(x, y))
@@ -69,14 +66,14 @@ def animate_light_grid(filename: str, steps: int) -> int:
     return light_grid.count_lights_on()
 
 
-def test_animate_lightgrid(filename: str, steps: int, expected_lights_on: int) -> None:
+def test_animate_light_grid(filename: str, steps: int, expected_lights_on: int) -> None:
     lights_on = animate_light_grid(filename, steps)
     assert lights_on == expected_lights_on, \
         'Expected to find {0} lights on after {1} steps but was {2}!'.format(expected_lights_on, steps, lights_on)
 
 
 def main() -> None:
-    test_animate_lightgrid('test18a.txt', 4, 4)
+    test_animate_light_grid('test18a.txt', 4, 4)
 
 
 if __name__ == '__main__':
