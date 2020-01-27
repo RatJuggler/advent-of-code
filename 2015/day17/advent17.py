@@ -28,6 +28,8 @@ def test_container_combination(to_store: int, filename: str, expected_combinatio
 
 def main() -> None:
     test_container_combination(25, 'test17a.txt', 4)
+    containers = load_containers('input17.txt')
+    print('Day 17, Step 1 container combinations found {0}.'.format(container_combinations(150, containers)))
 
 
 if __name__ == '__main__':
