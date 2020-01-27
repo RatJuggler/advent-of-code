@@ -1,4 +1,3 @@
-from copy import deepcopy
 from typing import List
 
 
@@ -29,8 +28,13 @@ class LightGrid:
     def size(self) -> int:
         return len(self.grid)
 
+    def set_light(self, x: int, y: int, new_light):
+        self.grid[y][x] = new_light
+
     def animate(self, new_light_grid):
-        pass
+        for y in range(len(self.grid)):
+            for x in range(len(self.grid[y])):
+                new_light_grid.set_light(x, y, 1)
 
     def count_lights_on(self) -> int:
         lights_lit = 0
