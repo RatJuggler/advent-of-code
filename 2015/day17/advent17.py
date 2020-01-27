@@ -53,6 +53,9 @@ def main() -> None:
     containers = load_containers('input17.txt')
     print('Day 17, Step 1 container combinations found {0}.'.format(container_combinations(150, containers)))
     test_minimum_container_combination(25, 'test17a.txt', 2, 3)
+    minimum_containers, minimum_combinations = minimum_container_combinations(150, containers)
+    print('Day 17, Step 2 minimum of {0} containers with {1} combinations found.'
+          .format(minimum_containers, minimum_combinations))
 
 
 if __name__ == '__main__':
