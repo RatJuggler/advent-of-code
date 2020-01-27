@@ -47,12 +47,25 @@ def test_find_distinct_molecules(filename: str, expected_distinct_molecules: int
         'Expected to find {0} distinct molecules but found {1}!'.format(expected_distinct_molecules, distinct_molecules)
 
 
+def minimum_steps_to_make_molecule(filename: str) -> int:
+    return 0
+
+
+def test_minimum_steps_to_make_molecule(filename: str, expected_minimum_steps: int) -> None:
+    minimum_steps = minimum_steps_to_make_molecule(filename)
+    assert minimum_steps == expected_minimum_steps, \
+        'Expected to take minimum of {0} steps to make molecule was {1}!'.format(expected_minimum_steps, minimum_steps)
+
+
 def main() -> None:
     test_find_distinct_molecules('test19a.txt', 4)
     test_find_distinct_molecules('test19b.txt', 7)
     test_find_distinct_molecules('test19c.txt', 2)
     distinct_molecules = find_distinct_molecules('input19.txt')
     print('Day 19, Step 1 found {0} distinct new molecules.'.format(distinct_molecules))
+    test_minimum_steps_to_make_molecule('test19a.txt', 3)
+    test_minimum_steps_to_make_molecule('test19b.txt', 6)
+    test_minimum_steps_to_make_molecule('test19c.txt', 2)
 
 
 if __name__ == '__main__':
