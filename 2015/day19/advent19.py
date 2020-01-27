@@ -34,7 +34,7 @@ def find_distinct_molecules(filename: str) -> int:
     for replacement in replacements:
         occurrence = molecule.find(replacement[0], 0)
         while occurrence != -1:
-            new_molecule = molecule[:occurrence] + replacement[1] + molecule[occurrence + 1:]
+            new_molecule = molecule[:occurrence] + replacement[1] + molecule[occurrence + len(replacement[0]):]
             new_molecules[new_molecule] = True
             print(molecule, replacement[0], occurrence, new_molecule)
             occurrence = molecule.find(replacement[0], occurrence + 1)
@@ -50,6 +50,7 @@ def test_find_distinct_molecules(filename: str, expected_distinct_molecules: int
 def main() -> None:
     test_find_distinct_molecules('test19a.txt', 4)
     test_find_distinct_molecules('test19b.txt', 7)
+    test_find_distinct_molecules('test19c.txt', 7)
     distinct_molecules = find_distinct_molecules('input19.txt')
     print('Day 19, Step 1 found {0} distinct new molecules.'.format(distinct_molecules))
 
