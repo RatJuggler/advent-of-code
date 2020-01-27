@@ -48,6 +48,11 @@ def test_find_distinct_molecules(filename: str, expected_distinct_molecules: int
 
 
 def minimum_steps_to_make_molecule(filename: str) -> int:
+    replacements, molecule = load_replacements_and_molecule(filename)
+    electrons = []
+    for replacement in replacements:
+        electrons.append(replacement[0])
+    print(electrons)
     return 0
 
 
