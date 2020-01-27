@@ -1,4 +1,4 @@
-from typing import Dict, List, Tuple
+from typing import Callable, Dict, List
 import re
 
 
@@ -35,13 +35,12 @@ def load_sues(filename: str) -> List[Sue]:
     return sues
 
 
-def determine_sue(filename: str, known: Dict[str, int]) -> int:
+def determine_sue(filename: str, known: Dict[str, int], conditions: Dict[str, Callable[[int, int], bool]]) -> int:
     sues = load_sues(filename)
     sues_found = []
     for sue in sues:
-        print(sue)
         for attribute in sue.attributes:
-            if sue.attributes[attribute] != known[attribute]:
+            if conditions[attribute](sue.attributes[attribute], known[attribute]):
                 break
         else:
             sues_found.append(sue)
@@ -52,8 +51,30 @@ def determine_sue(filename: str, known: Dict[str, int]) -> int:
 def main() -> None:
     known = {'children': 3, 'cats': 7, 'samoyeds': 2, 'pomeranians': 3, 'akitas': 0,
              'vizslas': 0, 'goldfish': 5, 'trees': 3, 'cars': 2, 'perfumes': 1}
-    sue_number = determine_sue('input16.txt', known)
+    conditions = {'children': lambda x, y: x != y,
+                  'cats': lambda x, y: x != y,
+                  'samoyeds': lambda x, y: x != y,
+                  'pomeranians': lambda x, y: x != y,
+                  'akitas': lambda x, y: x != y,
+                  'vizslas': lambda x, y: x != y,
+                  'goldfish': lambda x, y: x != y,
+                  'trees': lambda x, y: x != y,
+                  'cars': lambda x, y: x != y,
+                  'perfumes': lambda x, y: x != y}
+    sue_number = determine_sue('input16.txt', known, conditions)
     print('Day 16, Step 1 Aunt Sue number {0} sent the gift.'.format(sue_number))
+    conditions = {'children': lambda x, y: x != y,
+                  'cats': lambda x, y: x <= y,
+                  'samoyeds': lambda x, y: x != y,
+                  'pomeranians': lambda x, y: x >= y,
+                  'akitas': lambda x, y: x != y,
+                  'vizslas': lambda x, y: x != y,
+                  'goldfish': lambda x, y: x >= y,
+                  'trees': lambda x, y: x <= y,
+                  'cars': lambda x, y: x != y,
+                  'perfumes': lambda x, y: x != y}
+    sue_number = determine_sue('input16.txt', known, conditions)
+    print('Day 16, Step 2 Aunt Sue number {0} sent the gift.'.format(sue_number))
 
 
 if __name__ == '__main__':
