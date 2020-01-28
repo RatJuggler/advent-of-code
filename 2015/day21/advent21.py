@@ -58,12 +58,15 @@ def rings_for_sale() -> List[Item]:
 
 
 def fight(hero: Character, boss: Character) -> int:
+    print('{0} vs {1}'.format(hero, boss))
     hero_damage = 1 if boss.armour > hero.damage else hero.damage - boss.armour + 1
     boss_damage = 1 if hero.armour > boss.damage else boss.damage - hero.armour + 1
     while hero.hp > 0 and boss.hp > 0:
         hero.hp -= boss_damage
         boss.hp -= hero_damage
-    return 1 if boss.hp <= 0 else 2
+    winner = 1 if boss.hp <= 0 else 2
+    print('{0} wins!'.format(hero.name if winner == 1 else boss.name))
+    return winner
 
 
 def prepare_and_fight(outcome_cost_condition) -> int:
@@ -77,9 +80,7 @@ def prepare_and_fight(outcome_cost_condition) -> int:
                 hero.add_item(rings[0])
                 hero.add_item(rings[1])
                 boss = Character('Boss', 109, 8, 2)
-                print('{0} vs {1}'.format(hero, boss))
                 winner = fight(hero, boss)
-                print('{0} wins!'.format(hero.name if winner == 1 else boss.name))
                 if outcome_cost_condition(winner, hero.gold_spent, outcome_cost):
                     outcome_cost = hero.gold_spent
     return outcome_cost
