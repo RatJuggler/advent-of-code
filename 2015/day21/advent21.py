@@ -66,8 +66,8 @@ def fight(hero: Character, boss: Character) -> int:
     return 1 if boss.hp <= 0 else 2
 
 
-def prepare_and_fight() -> int:
-    lowest_cost_win = None
+def prepare_and_fight(outcome_cost_condition) -> int:
+    outcome_cost = None
     for weapon in weapons_for_sale():
         for armour in armour_for_sale():
             for rings in itertools.permutations(rings_for_sale(), 2):
@@ -80,9 +80,9 @@ def prepare_and_fight() -> int:
                 print('{0} vs {1}'.format(hero, boss))
                 winner = fight(hero, boss)
                 print('{0} wins!'.format(hero.name if winner == 1 else boss.name))
-                if winner == 1 and (not lowest_cost_win or hero.gold_spent < lowest_cost_win):
-                    lowest_cost_win = hero.gold_spent
-    return lowest_cost_win
+                if outcome_cost_condition(winner, hero.gold_spent, outcome_cost):
+                    outcome_cost = hero.gold_spent
+    return outcome_cost
 
 
 def test_fight():
@@ -94,8 +94,12 @@ def test_fight():
 
 def main() -> None:
     test_fight()
-    lowest_cost_win = prepare_and_fight()
+    lowest_cost_win = prepare_and_fight(
+        lambda winner, gold_spent, outcome_cost: winner == 1 and (not outcome_cost or gold_spent < outcome_cost))
     print('Day 21, Step 1 lowest cost win cost {0} gold.'.format(lowest_cost_win))
+    highest_cost_loss = prepare_and_fight(
+        lambda winner, gold_spent, outcome_cost: winner == 2 and (not outcome_cost or gold_spent > outcome_cost))
+    print('Day 21, Step 1 highest cost loss cost {0} gold.'.format(highest_cost_loss))
 
 
 if __name__ == '__main__':
