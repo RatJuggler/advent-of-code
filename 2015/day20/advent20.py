@@ -25,7 +25,7 @@ def infinite_delivery_step2(find_presents: int) -> int:
         if visits[house_number] < 50:
             house_presents += house_number * 11
             visits[house_number] += 1
-        print(house_number, house_presents)
+#        print(house_number, house_presents)
     return house_number
 
 
