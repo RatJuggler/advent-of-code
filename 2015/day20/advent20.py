@@ -3,8 +3,8 @@ def infinite_delivery(find_presents: int) -> int:
     house_presents = 0
     while house_presents < find_presents:
         house_number += 1
-        house_presents = 0
-        for elf in range(1, house_number + 1):
+        house_presents = 10 + (house_number * 10)
+        for elf in range(2, (house_number // 2) + 1):
             if house_number % elf == 0:
                 house_presents += elf * 10
         print(house_number, house_presents)
