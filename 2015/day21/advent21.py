@@ -1,4 +1,5 @@
 from typing import List
+import itertools
 
 
 class Item:
@@ -12,18 +13,20 @@ class Item:
 
 class Character:
 
-    def __init__(self, hp: int, damage: int, armour: int) -> None:
+    def __init__(self, name: str, hp: int, damage: int = 0, armour: int = 0) -> None:
+        self.name = name
         self.hp = hp
         self.damage = damage
         self.armour = armour
-
-    def new_items(self) -> None:
-        self.damage = 0
-        self.armour = 0
+        self.gold_spent = 0
 
     def add_item(self, item: Item):
         self.damage += item.damage
         self.armour += item.armour
+        self.gold_spent += item.cost
+
+    def __repr__(self) -> str:
+        return '{0}(HP:{1}, Damage:{2}, Armour:{3})'.format(self.name, self.hp, self.damage, self.armour)
 
 
 def weapons_for_sale() -> List[Item]:
@@ -55,32 +58,42 @@ def rings_for_sale() -> List[Item]:
 def fight(hero: Character, boss: Character) -> int:
     hero_damage = 1 if boss.armour > hero.damage else hero.damage - boss.armour + 1
     boss_damage = 1 if hero.armour > boss.damage else boss.damage - hero.armour + 1
-    while hero.hp > 0 and boss.hp > 0:
+    while hero.hp > 0 or boss.hp > 0:
         hero.hp -= boss_damage
         boss.hp -= hero_damage
-        print(hero.hp, boss.hp)
     return 1 if boss.hp <= 0 else 2
 
 
-def prepare_and_fight(hero: Character):
+def prepare_and_fight() -> int:
+    lowest_cost_win = None
     for weapon in weapons_for_sale():
         for armour in armour_for_sale():
-            for rings in rings_for_sale():
-                hero.new_items()
+            for rings in itertools.permutations(rings_for_sale(), 2):
+                hero = Character('Hero', 100)
                 hero.add_item(weapon)
                 hero.add_item(armour)
-                hero.add_item(rings)
+                hero.add_item(rings[0])
+                hero.add_item(rings[1])
+                boss = Character('Boss', 109, 8, 2)
+                print('{0} vs {1}'.format(hero, boss))
+                winner = fight(hero, boss)
+                print('{0} wins!'.format(hero.name if winner == 1 else boss.name))
+                if winner == 1 and (not lowest_cost_win or hero.gold_spent < lowest_cost_win):
+                    lowest_cost_win = hero.gold_spent
+    return lowest_cost_win
 
 
 def test_fight():
-    test_hero = Character(8, 5, 5)
-    test_boss = Character(12, 7, 2)
+    test_hero = Character('Hero', 8, 5, 5)
+    test_boss = Character('Boss', 12, 7, 2)
     winner = fight(test_hero, test_boss)
     assert winner == 1, 'Expected hero to win!'
 
 
 def main() -> None:
     test_fight()
+    lowest_cost_win = prepare_and_fight()
+    print('Day 21, Step 1 lowest cost win cost {0} gold.'.format(lowest_cost_win))
 
 
 if __name__ == '__main__':
