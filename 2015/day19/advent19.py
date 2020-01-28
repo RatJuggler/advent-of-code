@@ -52,8 +52,17 @@ def minimum_steps_to_make_molecule(filename: str) -> int:
     electrons = []
     for replacement in replacements:
         electrons.append(replacement[0])
-    print(electrons)
-    return 0
+    print(replacements, electrons, molecule)
+    steps = 1
+    while molecule not in electrons:
+        for replacement in replacements:
+            occurrence = molecule.find(replacement[1], 0)
+            while occurrence != -1:
+                molecule = molecule[:occurrence] + replacement[0] + molecule[occurrence + len(replacement[1]):]
+                print(replacement[1], occurrence, molecule)
+                steps += 1
+                occurrence = molecule.find(replacement[1], occurrence + 1)
+    return steps
 
 
 def test_minimum_steps_to_make_molecule(filename: str, expected_minimum_steps: int) -> None:
