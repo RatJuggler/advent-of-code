@@ -47,7 +47,9 @@ def armour_for_sale() -> List[Item]:
 
 
 def rings_for_sale() -> List[Item]:
-    return [Item('Damage +1',  25, 1, 0),
+    return [Item('None',        0, 0, 0),
+            Item('None',        0, 0, 0),
+            Item('Damage +1',  25, 1, 0),
             Item('Damage +2',  50, 2, 0),
             Item('Damage +3', 100, 3, 0),
             Item('Defense +1', 20, 0, 1),
@@ -58,7 +60,7 @@ def rings_for_sale() -> List[Item]:
 def fight(hero: Character, boss: Character) -> int:
     hero_damage = 1 if boss.armour > hero.damage else hero.damage - boss.armour + 1
     boss_damage = 1 if hero.armour > boss.damage else boss.damage - hero.armour + 1
-    while hero.hp > 0 or boss.hp > 0:
+    while hero.hp > 0 and boss.hp > 0:
         hero.hp -= boss_damage
         boss.hp -= hero_damage
     return 1 if boss.hp <= 0 else 2
