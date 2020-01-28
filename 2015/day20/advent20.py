@@ -19,10 +19,9 @@ def infinite_delivery_step2(find_presents: int) -> int:
         house_number += 1
         house_presents = 0
         for elf in range(1, (house_number // 2) + 1):
-            if house_number % elf == 0:
-                if visits[elf] < 50:
-                    house_presents += elf * 11
-                    visits[elf] += 1
+            if visits[elf] < 50 and house_number % elf == 0:
+                house_presents += elf * 11
+                visits[elf] += 1
         if visits[house_number] < 50:
             house_presents += house_number * 11
             visits[house_number] += 1
