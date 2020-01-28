@@ -80,6 +80,8 @@ def main() -> None:
     test_minimum_steps_to_make_molecule('test19a.txt', 3)
     test_minimum_steps_to_make_molecule('test19b.txt', 6)
     test_minimum_steps_to_make_molecule('test19c.txt', 2)
+    minimum_steps = minimum_steps_to_make_molecule('input19.txt')
+    print('Day 19, Step 2 requires {0} steps to make new molecules.'.format(minimum_steps))
 
 
 if __name__ == '__main__':
