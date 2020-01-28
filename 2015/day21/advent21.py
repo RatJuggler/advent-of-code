@@ -52,24 +52,24 @@ def rings_for_sale() -> List[Item]:
             Item('Defense +3', 80, 0, 3)]
 
 
-def fight(combatant1: Character, combatant2: Character) -> int:
-    cb1_damage = 1 if combatant2.armour > combatant1.damage else combatant1.damage - combatant2.armour + 1
-    cb2_damage = 1 if combatant1.armour > combatant2.damage else combatant2.damage - combatant1.armour + 1
-    while combatant1.hp > 0 and combatant2.hp > 0:
-        combatant1.hp -= cb2_damage
-        combatant2.hp -= cb1_damage
-        print(combatant1.hp, combatant2.hp)
-    return 1 if combatant2.hp <= 0 else 2
+def fight(hero: Character, boss: Character) -> int:
+    hero_damage = 1 if boss.armour > hero.damage else hero.damage - boss.armour + 1
+    boss_damage = 1 if hero.armour > boss.damage else boss.damage - hero.armour + 1
+    while hero.hp > 0 and boss.hp > 0:
+        hero.hp -= boss_damage
+        boss.hp -= hero_damage
+        print(hero.hp, boss.hp)
+    return 1 if boss.hp <= 0 else 2
 
 
-def prepare_and_fight(combatant1: Character):
+def prepare_and_fight(hero: Character):
     for weapon in weapons_for_sale():
         for armour in armour_for_sale():
             for rings in rings_for_sale():
-                combatant1.new_items()
-                combatant1.add_item(weapon)
-                combatant1.add_item(armour)
-                combatant1.add_item(rings)
+                hero.new_items()
+                hero.add_item(weapon)
+                hero.add_item(armour)
+                hero.add_item(rings)
 
 
 def test_fight():
