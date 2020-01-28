@@ -1,14 +1,6 @@
 from typing import List
 
 
-class Character:
-
-    def __init__(self, hp: int, damage: int, armour: int) -> None:
-        self.hp = hp
-        self.damage = damage
-        self.armour = armour
-
-
 class Item:
 
     def __init__(self, name: str, cost: int, damage: int, armour: int) -> None:
@@ -16,6 +8,22 @@ class Item:
         self.cost = cost
         self.damage = damage
         self.armour = armour
+
+
+class Character:
+
+    def __init__(self, hp: int, damage: int, armour: int) -> None:
+        self.hp = hp
+        self.damage = damage
+        self.armour = armour
+
+    def new_items(self) -> None:
+        self.damage = 0
+        self.armour = 0
+
+    def add_item(self, item: Item):
+        self.damage += item.damage
+        self.armour += item.armour
 
 
 def weapons_for_sale() -> List[Item]:
@@ -27,7 +35,8 @@ def weapons_for_sale() -> List[Item]:
 
 
 def armour_for_sale() -> List[Item]:
-    return [Item('Leather',    13, 0, 1),
+    return [Item('None',        0, 0, 0),
+            Item('Leather',    13, 0, 1),
             Item('Chainmail',  31, 0, 2),
             Item('Splintmail', 53, 0, 3),
             Item('Bandedmail', 75, 0, 4),
@@ -51,6 +60,16 @@ def fight(combatant1: Character, combatant2: Character) -> int:
         combatant2.hp -= cb1_damage
         print(combatant1.hp, combatant2.hp)
     return 1 if combatant2.hp <= 0 else 2
+
+
+def prepare_and_fight(combatant1: Character):
+    for weapon in weapons_for_sale():
+        for armour in armour_for_sale():
+            for rings in rings_for_sale():
+                combatant1.new_items()
+                combatant1.add_item(weapon)
+                combatant1.add_item(armour)
+                combatant1.add_item(rings)
 
 
 def test_fight():
