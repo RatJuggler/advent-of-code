@@ -1,27 +1,18 @@
-def infinite_delivery(presents: int) -> int:
-    elf_house_visits = [0]
-    house_presents = [0]
-    number_elves = 0
-    house_found = None
-    while not house_found:
-        for i in range(len(elf_house_visits)):
-            elf_house_visits[i] += i
-            while len(house_presents) < elf_house_visits[i] + 1:
-                house_presents.append(0)
-            house_presents[elf_house_visits[i]] += i * 10
-            if house_presents[i] >= presents:
-                house_found = i
-                break
-        number_elves += 1
-        elf_house_visits.append(number_elves)
-        house_presents.append(0)
-        house_presents[number_elves] += number_elves * 10
-        # print(elf_house_visits, house_presents)
-    return house_found
+def infinite_delivery(find_presents: int) -> int:
+    house_number = 0
+    house_presents = 0
+    while house_presents < find_presents:
+        house_number += 1
+        house_presents = 0
+        for elf in range(1, (house_number // 2) + 1):
+            if house_number % elf == 0:
+                house_presents += elf * 10
+        print(house_number, house_presents)
+    return house_number
 
 
-def test_infinite_delivery(presents: int, expected_house: int) -> None:
-    house = infinite_delivery(presents)
+def test_infinite_delivery(find_presents: int, expected_house: int) -> None:
+    house = infinite_delivery(find_presents)
     assert house == expected_house, \
         'Day 20, Step 1 expected to find house {0} but found {1}!'.format(expected_house, house)
 
