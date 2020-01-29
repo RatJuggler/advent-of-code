@@ -17,10 +17,31 @@ class Computer:
         return Computer(program)
 
     def list(self) -> None:
-        for line in self._program:
-            print(line)
+        for instruction in self._program:
+            print(instruction)
+
+    @staticmethod
+    def decode_instruction(instruction):
+        operation, parameters = instruction.split(' ', 1)
+        return operation, parameters.split(', ')
 
     def run(self) -> Tuple[int, int]:
+        for instruction in self._program:
+            operation, parameter = self.decode_instruction(instruction)
+            if operation == 'hlf':
+                pass
+            elif operation == 'tpl':
+                pass
+            elif operation == 'inc':
+                pass
+            elif operation == 'jmp':
+                pass
+            elif operation == 'jie':
+                pass
+            elif operation == 'jio':
+                pass
+            else:
+                raise Exception('Unknown operation {0}!'.format(operation))
         return self._a, self._b
 
 
