@@ -70,6 +70,9 @@ def test_computer(filename, expected_a, expected_b):
 
 def main() -> None:
     test_computer('test23a.txt', 2, 0)
+    computer = Computer.from_file('input23.txt')
+    a, b = computer.run()
+    print('Day 23, Step 1 registers after running input: a = {0}, b = {1}'.format(a, b))
 
 
 if __name__ == '__main__':
