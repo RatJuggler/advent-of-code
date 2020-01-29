@@ -1,9 +1,9 @@
-from typing import List, Tuple
+from typing import Callable, List, Tuple
 
 
 class Computer:
 
-    def __init__(self, program: List[str]):
+    def __init__(self, program: List[str]) -> None:
         self._program = program
         self._a = None
         self._b = None
@@ -21,9 +21,13 @@ class Computer:
             print(instruction)
 
     @staticmethod
-    def decode_instruction(instruction):
+    def decode_instruction(instruction) -> [str, List[str]]:
         operation, parameters = instruction.split(' ', 1)
         return operation, parameters.split(', ')
+
+    def register_update(self, register: str, update: Callable[[int], int]) -> None:
+        register = '_' + register
+        setattr(self, register, update(getattr(self, register)))
 
     def run(self, a_start: int, b_start: int) -> Tuple[int, int]:
         self._a = a_start
@@ -34,14 +38,11 @@ class Computer:
             instruction_pointer += 1
             operation, parameters = self.decode_instruction(instruction)
             if operation == 'hlf':
-                register = '_' + parameters[0]
-                setattr(self, register, getattr(self, register) // 2)
+                self.register_update(parameters[0], lambda x: x // 2)
             elif operation == 'tpl':
-                register = '_' + parameters[0]
-                setattr(self, register, getattr(self, register) * 3)
+                self.register_update(parameters[0], lambda x: x * 3)
             elif operation == 'inc':
-                register = '_' + parameters[0]
-                setattr(self, register, getattr(self, register) + 1)
+                self.register_update(parameters[0], lambda x: x + 1)
             elif operation == 'jmp':
                 instruction_pointer += int(parameters[0]) - 1
             elif operation == 'jie':
@@ -57,7 +58,7 @@ class Computer:
         return self._a, self._b
 
 
-def test_computer(filename, expected_a, expected_b):
+def test_computer(filename: str, expected_a: int, expected_b: int) -> None:
     computer = Computer.from_file(filename)
     a, b = computer.run(0, 0)
     assert a == expected_a, 'Expected register "a" to contain {0} but was {1}!'.format(expected_a, a)
