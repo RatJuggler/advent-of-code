@@ -26,7 +26,6 @@ class Computer:
         return operation, parameters.split(', ')
 
     def register_update(self, register: str, update: Callable[[int], int]) -> None:
-        register = '_' + register
         setattr(self, register, update(getattr(self, register)))
 
     def run(self, a_start: int, b_start: int) -> Tuple[int, int]:
@@ -37,20 +36,19 @@ class Computer:
             instruction = self._program[instruction_pointer]
             instruction_pointer += 1
             operation, parameters = self.decode_instruction(instruction)
+            register = None if operation == 'jmp' else '_' + parameters[0]
             if operation == 'hlf':
-                self.register_update(parameters[0], lambda x: x // 2)
+                self.register_update(register, lambda x: x // 2)
             elif operation == 'tpl':
-                self.register_update(parameters[0], lambda x: x * 3)
+                self.register_update(register, lambda x: x * 3)
             elif operation == 'inc':
-                self.register_update(parameters[0], lambda x: x + 1)
+                self.register_update(register, lambda x: x + 1)
             elif operation == 'jmp':
                 instruction_pointer += int(parameters[0]) - 1
             elif operation == 'jie':
-                register = '_' + parameters[0]
                 if getattr(self, register) % 2 == 0:
                     instruction_pointer += int(parameters[1]) - 1
             elif operation == 'jio':
-                register = '_' + parameters[0]
                 if getattr(self, register) == 1:
                     instruction_pointer += int(parameters[1]) - 1
             else:
