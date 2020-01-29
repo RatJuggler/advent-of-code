@@ -26,20 +26,36 @@ class Computer:
         return operation, parameters.split(', ')
 
     def run(self) -> Tuple[int, int]:
-        for instruction in self._program:
-            operation, parameter = self.decode_instruction(instruction)
+        instruction_pointer = 0
+        while instruction_pointer < len(self._program):
+            instruction = self._program[instruction_pointer]
+            operation, parameters = self.decode_instruction(instruction)
             if operation == 'hlf':
-                pass
+                register = '_' + parameters[0]
+                setattr(self, register, getattr(self, register) // 2)
+                instruction_pointer += 1
             elif operation == 'tpl':
-                pass
+                register = '_' + parameters[0]
+                setattr(self, register, getattr(self, register) * 3)
+                instruction_pointer += 1
             elif operation == 'inc':
-                pass
+                register = '_' + parameters[0]
+                setattr(self, register, getattr(self, register) + 1)
+                instruction_pointer += 1
             elif operation == 'jmp':
-                pass
+                instruction_pointer += int(parameters[0])
             elif operation == 'jie':
-                pass
+                register = '_' + parameters[0]
+                if getattr(self, register) % 2 == 0:
+                    instruction_pointer += int(parameters[1])
+                else:
+                    instruction_pointer += 1
             elif operation == 'jio':
-                pass
+                register = '_' + parameters[0]
+                if getattr(self, register) == 1:
+                    instruction_pointer += int(parameters[1])
+                else:
+                    instruction_pointer += 1
             else:
                 raise Exception('Unknown operation {0}!'.format(operation))
         return self._a, self._b
