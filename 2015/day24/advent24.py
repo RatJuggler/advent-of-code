@@ -56,6 +56,8 @@ def test_find_best_sleigh_loading(filename: str, expected_quantum_entanglement: 
 
 def main() -> None:
     test_find_best_sleigh_loading('test24a.txt', 99)
+    quantum_entanglement = find_best_sleigh_loading('input24.txt')
+    print('Day 24, Step 1 best quantum entanglement for Group 1 packages is {0}.'.format(quantum_entanglement))
 
 
 if __name__ == '__main__':
