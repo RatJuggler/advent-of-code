@@ -1,4 +1,5 @@
 from typing import List
+import itertools
 
 
 def load_package_weights(filename: str) -> List[int]:
@@ -11,8 +12,16 @@ def load_package_weights(filename: str) -> List[int]:
 
 def find_best_sleigh_loading(filename: str) -> int:
     packages = load_package_weights(filename)
-    for package in packages:
-        print(package)
+    # We must have three groups of packages with a minimum of one package per group.
+    for i in range(1, len(packages) - 1):
+        for group1 in itertools.combinations(packages, i):
+            sum_group1 = sum(group1)
+            group1_remainder = [package for package in packages if package not in group1]
+            for j in range(1, len(group1_remainder)):
+                for group2 in [group for group in itertools.combinations(group1_remainder, j) if sum(group) == sum_group1]:
+                    group3 = [package for package in packages if package not in group1 and package not in group2]
+                    if sum(group3) == sum_group1:
+                        print(group1, group2, group3)
     return 0
 
 
