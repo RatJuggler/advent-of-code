@@ -1,4 +1,18 @@
+from typing import List
+
+
+def load_package_weights(filename: str) -> List[int]:
+    packages = []
+    with open(filename) as fh:
+        for line in fh:
+            packages.append(int(line))
+    return packages
+
+
 def find_best_sleigh_loading(filename: str) -> int:
+    packages = load_package_weights(filename)
+    for package in packages:
+        print(package)
     return 0
 
 
