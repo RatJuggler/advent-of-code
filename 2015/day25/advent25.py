@@ -13,8 +13,6 @@ def build_blank_code_sheet(size: int) -> List[List[int]]:
 
 def test_code_sheet_layout(size: int) -> None:
     code_sheet = build_blank_code_sheet(size)
-    for sheet_row in code_sheet:
-        print(sheet_row)
     code_sequence = 1
     for i in range(1, size + 1):
         column = 0
@@ -24,6 +22,8 @@ def test_code_sheet_layout(size: int) -> None:
             column += 1
     for sheet_row in code_sheet:
         print(sheet_row)
+    assert code_sheet[3][1] == 12, 'Expect row 4, column 2 to be 12 but was {0}!'.format(code_sheet[3][1])
+    assert code_sheet[0][4] == 15, 'Expect row 1, column 5 to be 15 but was {0}!'.format(code_sheet[0][5])
 
 
 def main() -> None:
