@@ -26,8 +26,24 @@ def test_code_sheet_layout(size: int) -> None:
     assert code_sheet[0][4] == 15, 'Expect row 1, column 5 to be 15 but was {0}!'.format(code_sheet[0][5])
 
 
+def test_code_sheet_calculation(size: int ) -> None:
+    code_sheet = build_blank_code_sheet(size)
+    code_sequence = 20151125
+    for i in range(1, size + 1):
+        column = 0
+        for row in range(i, 0, -1):
+            code_sheet[row - 1][column] = code_sequence
+            code_sequence = (code_sequence * 252533) % 33554393
+            column += 1
+    for sheet_row in code_sheet:
+        print(sheet_row)
+    assert code_sheet[3][1] == 32451966, 'Expect row 4, column 2 to be 32451966 but was {0}!'.format(code_sheet[3][1])
+    assert code_sheet[0][4] == 10071777, 'Expect row 1, column 5 to be 10071777 but was {0}!'.format(code_sheet[0][5])
+
+
 def main() -> None:
     test_code_sheet_layout(6)
+    test_code_sheet_calculation(6)
 
 
 if __name__ == '__main__':
