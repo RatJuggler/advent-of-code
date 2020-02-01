@@ -49,19 +49,18 @@ def test_find_distinct_molecules(filename: str, expected_distinct_molecules: int
 
 def minimum_steps_to_make_molecule(filename: str) -> int:
     replacements, molecule = load_replacements_and_molecule(filename)
-    electrons = []
-    for replacement in replacements:
-        electrons.append(replacement[0])
-    print(replacements, electrons, molecule)
-    steps = 1
-    while molecule not in electrons:
+    print(replacements, molecule)
+    steps = 0
+    while molecule != 'e':
         for replacement in replacements:
             occurrence = molecule.find(replacement[1], 0)
-            while occurrence != -1:
-                molecule = molecule[:occurrence] + replacement[0] + molecule[occurrence + len(replacement[1]):]
-                print(replacement[1], occurrence, molecule)
-                steps += 1
-                occurrence = molecule.find(replacement[1], occurrence + 1)
+            if occurrence != -1:
+                while occurrence != -1:
+                    molecule = molecule[:occurrence] + replacement[0] + molecule[occurrence + len(replacement[1]):]
+                    print(replacement[1], occurrence, molecule)
+                    steps += 1
+                    occurrence = molecule.find(replacement[1], occurrence + 1)
+                break
     return steps
 
 

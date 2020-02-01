@@ -1,5 +1,7 @@
 foo => fooofoo
 foo => foobar
 bar => barbar
+e => foo
+e => bar
 
 foobar
