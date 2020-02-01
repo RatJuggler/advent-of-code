@@ -23,25 +23,19 @@ def determine_sleigh_loading_combinations(packages: List[int]) -> List[List[List
     group_sizes = range(1, len(packages) - 1)
     group_lengths = [lengths for lengths in itertools.combinations_with_replacement(group_sizes, 3)
                      if sum(lengths) == len(packages)]
-    max_group_length = max([max(group) for group in group_lengths])
-    group_sums = []
-    for i in range(1, max_group_length + 1):
-        print('Finding sums for group length {0}'.format(i))
-        group_sums.append(set([sum(group) for group in itertools.combinations(packages, i)]))
-    print(group_sums)
+    group_sum = sum(packages) // len(packages)
+    print('Each group must sum to {0}'.format(group_sum))
     for lengths in group_lengths:
         print(lengths)
-        for group_sum in group_sums[lengths[0] - 1].intersection(group_sums[lengths[1] - 1], group_sums[lengths[2] - 1]):
-            print(group_sum)
-            for group1 in [group for group in itertools.combinations(packages, lengths[0])
+        for group1 in [group for group in itertools.combinations(packages, lengths[0])
+                       if sum(group) == group_sum]:
+            group1_remainder = [package for package in packages if package not in group1]
+            for group2 in [group for group in itertools.combinations(group1_remainder, lengths[1])
                            if sum(group) == group_sum]:
-                group1_remainder = [package for package in packages if package not in group1]
-                for group2 in [group for group in itertools.combinations(group1_remainder, lengths[1])
-                               if sum(group) == group_sum]:
-                    group3 = [package for package in packages if package not in group1 and package not in group2]
-                    if sum(group3) == group_sum:
-                        sleigh_loadings.append([group1, group2, group3])
-                        print(group1, group2, group3)
+                group3 = [package for package in packages if package not in group1 and package not in group2]
+                if sum(group3) == group_sum:
+                    sleigh_loadings.append([group1, group2, group3])
+                    print(group1, group2, group3)
     return sleigh_loadings
 
 
