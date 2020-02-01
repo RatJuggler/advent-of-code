@@ -1,12 +1,20 @@
+import math
+
+
 def infinite_delivery_step1(find_presents: int) -> int:
-    house_number = 0
+    house_number = 1
     house_presents = 0
     while house_presents < find_presents:
         house_number += 1
+        # 1st Elf (10) plus <house_number>th Elf (n * 10)
         house_presents = 10 + (house_number * 10)
-        for elf in range(2, (house_number // 2) + 1):
+        for elf in range(2, int(math.sqrt(house_number)) + 1):
             if house_number % elf == 0:
+                # Factor!
                 house_presents += elf * 10
+                # And check for reverse.
+                if house_number // elf != elf:
+                    house_presents += (house_number // elf) * 10
         print(house_number, house_presents)
     return house_number
 
@@ -43,8 +51,8 @@ def test_infinite_delivery_step2(find_presents: int, expected_house: int) -> Non
 
 def main() -> None:
     test_infinite_delivery_step1(150, 8)
-    # house = infinite_delivery_step1(29000000)     # 665280
-    # print('Day 20, Step 1 first house to receive 29000000 presents is {0}.'.format(house))
+    house = infinite_delivery_step1(29000000)     # 665280
+    print('Day 20, Step 1 first house to receive 29000000 presents is {0}.'.format(house))
     # test_infinite_delivery_step2(160, 8)
     # house = infinite_delivery_step2(29000000)
     # print('Day 20, Step 2 first house to receive 29000000 presents is {0}.'.format(house))
