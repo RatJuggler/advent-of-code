@@ -10,38 +10,31 @@ def load_package_weights(filename: str) -> List[int]:
     return packages
 
 
-def group_overlap(group: Tuple[int], previous_group: Tuple[int]):
-    for package in group:
-        if package in previous_group:
-            return True
-    return False
-
-
-def groups_overlap(group: Tuple[int], previous_group1: Tuple[int], previous_group2: Tuple[int]):
-    for package in group:
-        if package in previous_group1 or package in previous_group2:
-            return True
-    return False
-
-
-def determine_sleigh_loading_combinations(packages: List[int]) -> List[List[Tuple[int]]]:
+def determine_sleigh_loading_combinations(packages: List[int], number_of_groups: int) -> List[List[Tuple[int]]]:
     # We must have three groups of packages with a minimum of one package per group.
-    max_group_size = len(packages) - 2
+    max_group_size = len(packages) - (number_of_groups - 1)
     # This gives us all the possible combinations of group sizes.
-    group_sizes = [lengths for lengths in itertools.combinations_with_replacement(range(1, max_group_size + 1), 3)
+    group_sizes = [lengths
+                   for lengths
+                   in itertools.combinations_with_replacement(range(1, max_group_size + 1), number_of_groups)
                    if sum(lengths) == len(packages)]
     # Each group must sum to a third of the total packages.
-    group_sum = sum(packages) // 3
+    group_sum = sum(packages) // number_of_groups
     print('Group sizes from 1-{0} must sum to {1}'.format(max_group_size, group_sum))
     groups = []
     for group_size in range(1, max_group_size + 1):
         # Every combination of presents which sums to the total.
-        group = [group for group in itertools.combinations(packages, group_size)
+        group = [group
+                 for group
+                 in itertools.combinations(packages, group_size)
                  if sum(group) == group_sum]
         groups.append(group)
         # If no groups of this size sum to the total remove any group combinations which contain it.
         if not group:
-            group_sizes = [sizes for sizes in group_sizes if group_size not in sizes]
+            group_sizes = [sizes
+                           for sizes
+                           in group_sizes
+                           if group_size not in sizes]
     valid_sizes = []
     sleigh_loadings = []
     for sizes in group_sizes:
@@ -72,23 +65,26 @@ def determine_quantum_entanglements(sleigh_loadings: List[List[Tuple[int]]]) -> 
     return quantum_entanglements
 
 
-def find_best_sleigh_loading(filename: str) -> int:
+def find_best_sleigh_loading(filename: str, number_of_groups: int) -> int:
     packages = load_package_weights(filename)
-    sleigh_loadings = determine_sleigh_loading_combinations(packages)
+    sleigh_loadings = determine_sleigh_loading_combinations(packages, number_of_groups)
     quantum_entanglements = determine_quantum_entanglements(sleigh_loadings)
     return min(quantum_entanglements)
 
 
-def test_find_best_sleigh_loading(filename: str, expected_quantum_entanglement: int) -> None:
-    quantum_entanglement = find_best_sleigh_loading(filename)
+def test_find_best_sleigh_loading(filename: str, number_of_groups: int, expected_quantum_entanglement: int) -> None:
+    quantum_entanglement = find_best_sleigh_loading(filename, number_of_groups)
     assert quantum_entanglement == expected_quantum_entanglement, \
         'Expect a quantum entanglement of {0} but was {1}!'.format(expected_quantum_entanglement, quantum_entanglement)
 
 
 def main() -> None:
-    test_find_best_sleigh_loading('test24a.txt', 99)
-    quantum_entanglement = find_best_sleigh_loading('input24.txt')
-    print('Day 24, Step 1 best quantum entanglement for Group 1 packages is {0}.'.format(quantum_entanglement))
+    test_find_best_sleigh_loading('test24a.txt', 3, 99)
+    # quantum_entanglement = find_best_sleigh_loading('input24.txt', 3)
+    # print('Day 24, Step 1 best quantum entanglement for Group 1 packages is {0}.'.format(quantum_entanglement))
+    test_find_best_sleigh_loading('test24a.txt', 4, 44)
+    # quantum_entanglement = find_best_sleigh_loading('input24.txt', 4)
+    # print('Day 24, Step 2 best quantum entanglement for Group 1 packages is {0}.'.format(quantum_entanglement))
 
 
 if __name__ == '__main__':
