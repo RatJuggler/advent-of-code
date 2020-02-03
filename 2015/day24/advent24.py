@@ -25,7 +25,6 @@ def groups_overlap(group: Tuple[int], previous_group1: Tuple[int], previous_grou
 
 
 def determine_sleigh_loading_combinations(packages: List[int]) -> List[List[Tuple[int]]]:
-    sleigh_loadings = []
     # We must have three groups of packages with a minimum of one package per group.
     max_group_size = len(packages) - 2
     # This gives us all the possible combinations of group sizes.
@@ -40,18 +39,19 @@ def determine_sleigh_loading_combinations(packages: List[int]) -> List[List[Tupl
         group = [group for group in itertools.combinations(packages, group_size)
                  if sum(group) == group_sum]
         groups.append(group)
+        # If no groups of this size sum to the total remove any group combinations which contain it.
         if not group:
             group_sizes = [sizes for sizes in group_sizes if group_size not in sizes]
+    valid_sizes = []
+    sleigh_loadings = []
     for sizes in group_sizes:
         for size in sizes:
             print(size, 'x', len(groups[size - 1]), ' ', end='')
         print('')
-        for group1 in [group for group in groups[sizes[0] - 1]]:
-            for group2 in [group for group in groups[sizes[1] - 1]
-                           if not group_overlap(group, group1)]:
-                for group3 in [group for group in groups[sizes[2] - 1]
-                               if not groups_overlap(group, group1, group2)]:
-                    sleigh_loadings.append([group1, group2, group3])
+        min_size = min(sizes)
+        if min_size not in valid_sizes:
+            valid_sizes.append(min_size)
+            sleigh_loadings.append(groups[min_size - 1])
     return sleigh_loadings
 
 
@@ -62,19 +62,20 @@ def calculate_quantum_entanglement(packages: Tuple[int]) -> int:
     return quantum_entanglement
 
 
-def determine_quantum_entanglements(sleigh_loadings: List[List[Tuple[int]]], minimum_group1: int) -> List[int]:
+def determine_quantum_entanglements(sleigh_loadings: List[List[Tuple[int]]]) -> List[int]:
     quantum_entanglements = []
+    min_group_size = min([len(loadings[0]) for loadings in sleigh_loadings])
     for loading in sleigh_loadings:
-        if len(loading[0]) == minimum_group1:
-            quantum_entanglements.append(calculate_quantum_entanglement(loading[0]))
+        if len(loading[0]) == min_group_size:
+            for load in loading:
+                quantum_entanglements.append(calculate_quantum_entanglement(load))
     return quantum_entanglements
 
 
 def find_best_sleigh_loading(filename: str) -> int:
     packages = load_package_weights(filename)
     sleigh_loadings = determine_sleigh_loading_combinations(packages)
-    minimum_group1 = min([len(loadings[0]) for loadings in sleigh_loadings])
-    quantum_entanglements = determine_quantum_entanglements(sleigh_loadings, minimum_group1)
+    quantum_entanglements = determine_quantum_entanglements(sleigh_loadings)
     return min(quantum_entanglements)
 
 
