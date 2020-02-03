@@ -11,40 +11,27 @@ def load_package_weights(filename: str) -> List[int]:
 
 
 def determine_sleigh_loading_combinations(packages: List[int], number_of_groups: int) -> List[List[Tuple[int]]]:
-    # We must have three groups of packages with a minimum of one package per group.
+    # We must have a number of groups of packages with a minimum of one package per group.
     max_group_size = len(packages) - (number_of_groups - 1)
-    # This gives us all the possible combinations of group sizes.
-    group_sizes = [lengths
-                   for lengths
-                   in itertools.combinations_with_replacement(range(1, max_group_size + 1), number_of_groups)
-                   if sum(lengths) == len(packages)]
-    # Each group must sum to a third of the total packages.
+    # Each group must sum to an equal fraction of the total packages.
     group_sum = sum(packages) // number_of_groups
     print('Group sizes from 1-{0} must sum to {1}'.format(max_group_size, group_sum))
-    groups = []
-    for group_size in range(1, max_group_size + 1):
-        # Every combination of presents which sums to the total.
-        group = [group
-                 for group
-                 in itertools.combinations(packages, group_size)
-                 if sum(group) == group_sum]
-        groups.append(group)
-        # If no groups of this size sum to the total remove any group combinations which contain it.
-        if not group:
-            group_sizes = [sizes
-                           for sizes
-                           in group_sizes
-                           if group_size not in sizes]
-    valid_sizes = []
+    # This gives us all the possible combinations of group sizes.
+    group_sizes = [lengths for lengths
+                   in itertools.combinations_with_replacement(range(1, max_group_size + 1), number_of_groups)
+                   if sum(lengths) == len(packages)]
+    # We just want the minimum size from each group (to go in the passenger compartment).
+    min_group_sizes = set([min(sizes) for sizes in group_sizes])
+    print('Minimum group sizes: ', min_group_sizes)
+    # Then we want the present combinations for each minimum size which sum to the required group total.
     sleigh_loadings = []
-    for sizes in group_sizes:
-        for size in sizes:
-            print(size, 'x', len(groups[size - 1]), ' ', end='')
-        print('')
-        min_size = min(sizes)
-        if min_size not in valid_sizes:
-            valid_sizes.append(min_size)
-            sleigh_loadings.append(groups[min_size - 1])
+    for size in min_group_sizes:
+        group = [group for group
+                 in itertools.combinations(packages, size)
+                 if sum(group) == group_sum]
+        print('Group size {0} has {1} package combinations.'.format(size, len(group)))
+        if group:
+            sleigh_loadings.append(group)
     return sleigh_loadings
 
 
@@ -80,11 +67,11 @@ def test_find_best_sleigh_loading(filename: str, number_of_groups: int, expected
 
 def main() -> None:
     test_find_best_sleigh_loading('test24a.txt', 3, 99)
-    # quantum_entanglement = find_best_sleigh_loading('input24.txt', 3)
-    # print('Day 24, Step 1 best quantum entanglement for Group 1 packages is {0}.'.format(quantum_entanglement))
+    quantum_entanglement = find_best_sleigh_loading('input24.txt', 3)
+    print('Day 24, Step 1 best quantum entanglement for Group 1 packages is {0}.'.format(quantum_entanglement))
     test_find_best_sleigh_loading('test24a.txt', 4, 44)
-    # quantum_entanglement = find_best_sleigh_loading('input24.txt', 4)
-    # print('Day 24, Step 2 best quantum entanglement for Group 1 packages is {0}.'.format(quantum_entanglement))
+    quantum_entanglement = find_best_sleigh_loading('input24.txt', 4)
+    print('Day 24, Step 2 best quantum entanglement for Group 1 packages is {0}.'.format(quantum_entanglement))
 
 
 if __name__ == '__main__':
