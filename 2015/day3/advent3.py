@@ -8,8 +8,7 @@ def move_and_visit(position: Position, direction: str, visited_houses: Dict[Posi
     x += 1 if direction == '>' else -1 if direction == '<' else 0
     y += 1 if direction == '^' else -1 if direction == 'v' else 0
     new_position = (x, y)
-    house_visited = visited_houses.get(new_position)
-    if house_visited is None:
+    if visited_houses.get(new_position) is None:
         visited_houses[new_position] = True
     return new_position
 
