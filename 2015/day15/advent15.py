@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 import re
 import itertools
 
@@ -39,14 +39,14 @@ def load_ingredients(filename: str) -> List[Ingredient]:
     return ingredients
 
 
-def calculate_property_score(ingredients: List[Ingredient], teaspoons: List[int], ingredient_property: str) -> int:
+def calculate_property_score(ingredients: List[Ingredient], teaspoons: Tuple[int], ingredient_property: str) -> int:
     property_score = 0
     for i in range(len(ingredients)):
         property_score += teaspoons[i] * getattr(ingredients[i], ingredient_property)
     return property_score if property_score > 0 else 0
 
 
-def calculate_score(ingredients: List[Ingredient], teaspoons: List[int]) -> int:
+def calculate_score(ingredients: List[Ingredient], teaspoons: Tuple[int]) -> int:
     assert len(ingredients) == len(teaspoons), \
         'There should be one teaspoon ({0}) of every ingredient ({1})!'.format(len(teaspoons), len(ingredients))
     capacity = calculate_property_score(ingredients, teaspoons, 'capacity')
@@ -56,31 +56,33 @@ def calculate_score(ingredients: List[Ingredient], teaspoons: List[int]) -> int:
     return capacity * durability * flavor * texture
 
 
-def calculate_calories(ingredients: List[Ingredient], teaspoons: List[int]) -> int:
+def calculate_calories(ingredients: List[Ingredient], teaspoons: Tuple[int]) -> int:
     assert len(ingredients) == len(teaspoons), \
         'There should be one teaspoon ({0}) of every ingredient ({1})!'.format(len(teaspoons), len(ingredients))
     calories = calculate_property_score(ingredients, teaspoons, 'calories')
     return calories
 
 
-def find_best_ingredient_score(filename: str, calorie_target: int = None) -> [int, List[int]]:
+def find_best_ingredient_score(filename: str, total_teaspoons: int = 100,
+                               calorie_target: int = None) -> [int, List[int]]:
     ingredients = load_ingredients(filename)
     best_score = 0
     best_teaspoons = []
-    teaspoon_sizes = [i + 1 for i in range(99)]
-    for teaspoons in [s for s in itertools.permutations(teaspoon_sizes, len(ingredients)) if sum(s) == 100]:
-        if calorie_target and calculate_calories(ingredients, list(teaspoons)) > calorie_target:
+    teaspoon_sizes = [i + 1 for i in range(total_teaspoons)]
+    for teaspoons in [s for s in itertools.permutations(teaspoon_sizes, len(ingredients))
+                      if sum(s) == total_teaspoons]:
+        if calorie_target and calculate_calories(ingredients, teaspoons) > calorie_target:
             continue
-        score = calculate_score(ingredients, list(teaspoons))
+        score = calculate_score(ingredients, teaspoons)
         if score > best_score:
             best_score = score
             best_teaspoons = []
         if score == best_score:
-            best_teaspoons.append(list(teaspoons))
+            best_teaspoons.append(teaspoons)
     return best_score, best_teaspoons[0]
 
 
-def test_find_best_ingredient_score(filename: str, expected_score: int, expected_teaspoons: List[int]) -> None:
+def test_find_best_ingredient_score(filename: str, expected_score: int, expected_teaspoons: Tuple[int, int]) -> None:
     best_score, best_teaspoons = find_best_ingredient_score(filename)
     assert best_score == expected_score, \
         'Expected to get a best score of {0} but was {1}!'.format(expected_score, best_score)
@@ -89,8 +91,8 @@ def test_find_best_ingredient_score(filename: str, expected_score: int, expected
 
 
 def test_find_best_ingredient_score_with_calories_of(filename: str, calorie_target: int,
-                                                     expected_score: int, expected_teaspoons: List[int]):
-    best_score, best_teaspoons = find_best_ingredient_score(filename, calorie_target)
+                                                     expected_score: int, expected_teaspoons: Tuple[int, int]):
+    best_score, best_teaspoons = find_best_ingredient_score(filename, calorie_target=calorie_target)
     assert best_score == expected_score, \
         'Expected to get a best score of {0} but was {1}!'.format(expected_score, best_score)
     assert best_teaspoons == expected_teaspoons, \
@@ -98,12 +100,12 @@ def test_find_best_ingredient_score_with_calories_of(filename: str, calorie_targ
 
 
 def main() -> None:
-    test_find_best_ingredient_score('test15a.txt', 62842880, [44, 56])
+    test_find_best_ingredient_score('test15a.txt', 62842880, (44, 56))
     best_score, teaspoons = find_best_ingredient_score('input15.txt')
     print('Day 15, Step 1 best ingredient score is {0} using {1} teaspoons.'.format(best_score, teaspoons))
     calorie_target = 500
-    test_find_best_ingredient_score_with_calories_of('test15a.txt', 500, 57600000, [40, 60])
-    best_score, teaspoons = find_best_ingredient_score('input15.txt', calorie_target)
+    test_find_best_ingredient_score_with_calories_of('test15a.txt', calorie_target, 57600000, (40, 60))
+    best_score, teaspoons = find_best_ingredient_score('input15.txt', calorie_target=calorie_target)
     print('Day 15, Step 2 best ingredient score with calories <= {0} is {1} using {2} teaspoons.'
           .format(calorie_target, best_score, teaspoons))
 
