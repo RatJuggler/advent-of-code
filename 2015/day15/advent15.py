@@ -63,28 +63,13 @@ def calculate_calories(ingredients: List[Ingredient], teaspoons: List[int]) -> i
     return calories
 
 
-def find_best_ingredient_score(filename: str) -> [int, List[int]]:
+def find_best_ingredient_score(filename: str, calorie_target: int = None) -> [int, List[int]]:
     ingredients = load_ingredients(filename)
     best_score = 0
     best_teaspoons = []
     teaspoon_sizes = [i + 1 for i in range(99)]
     for teaspoons in [s for s in itertools.permutations(teaspoon_sizes, len(ingredients)) if sum(s) == 100]:
-        score = calculate_score(ingredients, list(teaspoons))
-        if score > best_score:
-            best_score = score
-            best_teaspoons = []
-        if score == best_score:
-            best_teaspoons.append(list(teaspoons))
-    return best_score, best_teaspoons[0]
-
-
-def find_best_ingredient_score_with_calories_of(filename: str, calorie_target: int) -> [int, List[int]]:
-    ingredients = load_ingredients(filename)
-    best_score = 0
-    best_teaspoons = []
-    teaspoon_sizes = [i + 1 for i in range(99)]
-    for teaspoons in [s for s in itertools.permutations(teaspoon_sizes, len(ingredients)) if sum(s) == 100]:
-        if calculate_calories(ingredients, list(teaspoons)) > calorie_target:
+        if calorie_target and calculate_calories(ingredients, list(teaspoons)) > calorie_target:
             continue
         score = calculate_score(ingredients, list(teaspoons))
         if score > best_score:
@@ -105,7 +90,7 @@ def test_find_best_ingredient_score(filename: str, expected_score: int, expected
 
 def test_find_best_ingredient_score_with_calories_of(filename: str, calorie_target: int,
                                                      expected_score: int, expected_teaspoons: List[int]):
-    best_score, best_teaspoons = find_best_ingredient_score_with_calories_of(filename, calorie_target)
+    best_score, best_teaspoons = find_best_ingredient_score(filename, calorie_target)
     assert best_score == expected_score, \
         'Expected to get a best score of {0} but was {1}!'.format(expected_score, best_score)
     assert best_teaspoons == expected_teaspoons, \
@@ -118,7 +103,7 @@ def main() -> None:
     print('Day 15, Step 1 best ingredient score is {0} using {1} teaspoons.'.format(best_score, teaspoons))
     calorie_target = 500
     test_find_best_ingredient_score_with_calories_of('test15a.txt', 500, 57600000, [40, 60])
-    best_score, teaspoons = find_best_ingredient_score_with_calories_of('input15.txt', calorie_target)
+    best_score, teaspoons = find_best_ingredient_score('input15.txt', calorie_target)
     print('Day 15, Step 2 best ingredient score with calories <= {0} is {1} using {2} teaspoons.'
           .format(calorie_target, best_score, teaspoons))
 
