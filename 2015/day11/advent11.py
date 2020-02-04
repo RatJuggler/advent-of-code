@@ -37,13 +37,8 @@ def contains_pair(password: str) -> bool:
 
 
 def valid_password(password: str) -> bool:
-    if not is_eight_letters(password):
-        return False
-    if contains_iol(password):
-        return False
-    if not contains_sequence(password):
-        return False
-    return contains_pair(password)
+    return is_eight_letters(password) and not contains_iol(password) and \
+           contains_sequence(password) and contains_pair(password)
 
 
 def increment_character(c):
@@ -95,8 +90,8 @@ def main() -> None:
     test_valid_password('abcdffaa', True)
     test_valid_password('abccccaa', True)
     test_valid_password('ghjaabcc', True)
-#    test_next_password('abcdefgh', 'abcdffaa')
-#    test_next_password('ghijklmn', 'ghjaabcc')
+    test_next_password('abcdefgh', 'abcdffaa')
+    test_next_password('ghijklmn', 'ghjaabcc')
     generate_password(1, 'hepxcrrq')
     generate_password(2, 'hepxxyzz')
 
