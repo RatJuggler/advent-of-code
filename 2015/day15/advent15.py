@@ -67,7 +67,7 @@ def find_best_ingredient_score(filename: str, total_teaspoons: int = 100,
                                calorie_target: int = None) -> [int, List[int]]:
     ingredients = load_ingredients(filename)
     best_score = 0
-    best_teaspoons = []
+    best_teaspoons = []  # Allow for multiple solutions.
     teaspoon_sizes = [i + 1 for i in range(total_teaspoons)]
     for teaspoons in [s for s in itertools.permutations(teaspoon_sizes, len(ingredients))
                       if sum(s) == total_teaspoons]:
@@ -79,6 +79,7 @@ def find_best_ingredient_score(filename: str, total_teaspoons: int = 100,
             best_teaspoons = []
         if score == best_score:
             best_teaspoons.append(teaspoons)
+    print(best_teaspoons)
     return best_score, best_teaspoons[0]
 
 
