@@ -30,12 +30,12 @@ def load_replacements_and_molecule(filename: str) -> [List[Tuple[str, str]], str
 def find_distinct_molecules(filename: str) -> int:
     replacements, molecule = load_replacements_and_molecule(filename)
     print(replacements, molecule)
-    new_molecules = {}
+    new_molecules = set()
     for replacement in replacements:
         occurrence = molecule.find(replacement[0], 0)
         while occurrence != -1:
             new_molecule = molecule[:occurrence] + replacement[1] + molecule[occurrence + len(replacement[0]):]
-            new_molecules[new_molecule] = True
+            new_molecules.add(new_molecule)
             print(molecule, replacement[0], occurrence, new_molecule)
             occurrence = molecule.find(replacement[0], occurrence + 1)
     return len(new_molecules)
