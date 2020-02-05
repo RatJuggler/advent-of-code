@@ -88,6 +88,30 @@ class Fighter(Character):
         return super().__repr__() + ', Damage: {0}'.format(self.damage)
 
 
+def fight(hero: Character, boss: Character) -> int:
+    while True:
+        print('-- Hero turn --')
+        print('{0} vs {1}'.format(hero, boss))
+        hero.turn()
+        hero_damage = 1 if boss.armour >= hero.damage else hero.damage - boss.armour
+        boss.hp -= hero_damage
+        print('-- Boss turn --')
+        print('{0} vs {1}'.format(hero, boss))
+        hero.apply_current_effects()
+        hero_damage = 1 if boss.armour >= hero.damage else hero.damage - boss.armour
+        boss.hp -= hero_damage
+        if boss.hp <= 0:
+            break
+        boss.turn()
+        boss_damage = 1 if hero.armour >= boss.damage else boss.damage - hero.armour
+        hero.hp -= boss_damage
+        if hero.hp <= 0:
+            break
+    winner = 1 if boss.hp <= 0 else 2
+    print('{0} wins!'.format(hero.name if winner == 1 else boss.name))
+    return winner
+
+
 def spells_available() -> List[Spell]:
     return [Spell('Magic Missile', 53, 0, {'damage': 4}),
             Spell('Drain', 73, 0, {'damage': 2, 'hp': 2}),
@@ -96,40 +120,25 @@ def spells_available() -> List[Spell]:
             Spell('Recharge', 229, 5, {'mana': 101})]
 
 
-def fight(hero: Character, boss: Character) -> int:
-    print('{0} vs {1}'.format(hero, boss))
-    while True:
-        print('-- Hero turn --')
-        hero.turn()
-        hero_damage = 1 if boss.armour > hero.damage else hero.damage - boss.armour
-        boss.hp -= hero_damage
-        print('-- Boss turn --')
-        hero.apply_current_effects()
-        hero_damage = 1 if boss.armour > hero.damage else hero.damage - boss.armour
-        boss.hp -= hero_damage
-        print('{0} vs {1}'.format(hero, boss))
-        if boss.hp <= 0:
-            break
-        boss.turn()
-        boss_damage = 1 if hero.armour > boss.damage else boss.damage - hero.armour
-        hero.hp -= boss_damage
-        if hero.hp <= 0:
-            break
-        print('{0} vs {1}'.format(hero, boss))
-    winner = 1 if boss.hp <= 0 else 2
-    print('{0} wins!'.format(hero.name if winner == 1 else boss.name))
-    return winner
-
-
-def test_fight() -> None:
+def test_fight1() -> None:
+    # Hero casts: Poison, Magic Missile
     test_hero = Mage('Hero', 10, 250, spells_available(), [3, 0])
     test_boss = Fighter('Boss', 13, 8)
     winner = fight(test_hero, test_boss)
     assert winner == 1, 'Expected hero to win!'
 
 
+def test_fight2() -> None:
+    # Hero casts: Recharge, Shield, Drain, Poison, Magic Missile
+    test_hero = Mage('Hero', 10, 250, spells_available(), [4, 2, 1, 3, 0])
+    test_boss = Fighter('Boss', 14, 8)
+    winner = fight(test_hero, test_boss)
+    assert winner == 1, 'Expected hero to win!'
+
+
 def main() -> None:
-    test_fight()
+    test_fight1()
+    test_fight2()
 
 
 if __name__ == '__main__':
