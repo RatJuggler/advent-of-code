@@ -19,6 +19,10 @@ class Character(ABC):
         self.armour = 0
         self.damage = 0
 
+    def dead_after_damage(self, damage: int) -> bool:
+        self.hp -= 0 if damage == 0 else 1 if self.armour >= damage else damage - self.armour
+        return self.hp <= 0
+
     @abstractmethod
     def turn(self) -> None:
         pass
@@ -28,7 +32,7 @@ class Character(ABC):
         pass
 
     def __repr__(self) -> str:
-        return '{0} - HP:{1}, Armour:{2}'.format(self.name, self.hp, self.armour)
+        return '{0} - HP:{1}, Armour:{2}, Damage: {3}'.format(self.name, self.hp, self.armour, self.damage)
 
 
 class Mage(Character):
@@ -58,6 +62,11 @@ class Mage(Character):
         for attribute in spell_effects:
             setattr(self, attribute, getattr(self, attribute) + spell_effects[attribute])
 
+    def remove_effects(self, spell_effects: Dict[str, int]) -> None:
+        for attribute in spell_effects:
+            if attribute in ['damage', 'armour']:
+                setattr(self, attribute, getattr(self, attribute) - spell_effects[attribute])
+
     def apply_current_effects(self) -> None:
         self.damage = 0
         self.armour = 0
@@ -66,7 +75,15 @@ class Mage(Character):
             spell = effects[1]
             self.apply_effects(spell.effects)
             print('{0} applies {1}, duration is now {2}!'.format(spell.name, spell.effects, effects[0]))
-        self.current_effects = [effects for effects in self.current_effects if effects[0] > 0]
+        current_effects = []
+        for effects in self.current_effects:
+            if effects[0] > 0:
+                current_effects.append(effects)
+            else:
+                spell = effects[1]
+                self.remove_effects(spell.effects)
+                print('{0} wears off!'.format(spell.name))
+        self.current_effects = current_effects
 
     def __repr__(self) -> str:
         return super().__repr__() + ', Mana: {0}'.format(self.mana)
@@ -85,7 +102,7 @@ class Fighter(Character):
         pass
 
     def __repr__(self) -> str:
-        return super().__repr__() + ', Damage: {0}'.format(self.damage)
+        return super().__repr__()
 
 
 def fight(hero: Character, boss: Character) -> int:
@@ -93,19 +110,15 @@ def fight(hero: Character, boss: Character) -> int:
         print('-- Hero turn --')
         print('{0} vs {1}'.format(hero, boss))
         hero.turn()
-        hero_damage = 1 if boss.armour >= hero.damage else hero.damage - boss.armour
-        boss.hp -= hero_damage
+        if boss.dead_after_damage(hero.damage):
+            break
         print('-- Boss turn --')
         print('{0} vs {1}'.format(hero, boss))
         hero.apply_current_effects()
-        hero_damage = 1 if boss.armour >= hero.damage else hero.damage - boss.armour
-        boss.hp -= hero_damage
-        if boss.hp <= 0:
+        if boss.dead_after_damage(hero.damage):
             break
         boss.turn()
-        boss_damage = 1 if hero.armour >= boss.damage else boss.damage - hero.armour
-        hero.hp -= boss_damage
-        if hero.hp <= 0:
+        if hero.dead_after_damage(boss.damage):
             break
     winner = 1 if boss.hp <= 0 else 2
     print('{0} wins!'.format(hero.name if winner == 1 else boss.name))
@@ -139,6 +152,9 @@ def test_fight2() -> None:
 def main() -> None:
     test_fight1()
     test_fight2()
+    # hero = Mage('Hero', 50, 500, spells_available(), [???])
+    # boss = Fighter('Boss', 58, 9)
+    # winner = fight(hero, boss)
 
 
 if __name__ == '__main__':
