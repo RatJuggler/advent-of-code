@@ -26,12 +26,12 @@ Used classes again to represent the instructions and circuit. Does have a circul
 than Day 6.
 
 ##### Day 8
-Created Santa's list as class wrapping a plain Python *List* to encapsulate the functionality required on the list.
-Should also note use of *eval*.
+Created Santa's list as class wrapping a plain Python *List* to encapsulate the functionality required. Should also 
+note use of *eval*.
 
 ##### Day 9
-A variation on the traveling salesman problem but simple enough to brute force solutions and tack multiple variations
-the solutions. Room for improvement.
+A variation on the traveling salesman problem but simple enough to brute force solutions and track multiple variations
+of the solutions. Room for improvement though.
 
 ##### Day 10
 Straightforward parsing puzzle.
@@ -61,20 +61,32 @@ Used a class instance for each Aunt Sue with a *dict* of their variable attribut
 search condition lambda functions and a *for* *else* made the processing loop really neat.  
 
 ##### Day 17
-
+Another straightforward puzzle where *Itertools* does the heavy lifting. 
 
 ##### Day 18
+Better implementation of a light grid class but not happy with the way it's animated. Would be interesting to actually
+show the animation changes using a *curses* library or similar.
 
 ##### Day 19
+The first part of the puzzle if fairly straightforward using a *set* to determine the unique molecules but I'm stuck on
+the second part. **OUTSTANDING** 
 
 ##### Day 20
+This is about finding the factors of a number. I forgot to use the square root at first and so my solutions ran very
+slowly.
 
 ##### Day 21
+Had to go overboard and create classes for items and characters but resisted taking it further. Used a lambda to define
+the winning conditions for each part.
 
 ##### Day 22
+**TO BE COMPLETED**
 
 ##### Day 23
+A chance to build a small op-code interpreter.
 
 ##### Day 24
+I found this to be the hardest puzzle of all. I didn't think enough early on about cutting down the number of
+combinations.
 
 ##### Day 25
