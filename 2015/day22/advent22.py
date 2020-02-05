@@ -139,6 +139,7 @@ def test_fight1() -> None:
     test_boss = Fighter('Boss', 13, 8)
     winner = fight(test_hero, test_boss)
     assert winner == 1, 'Expected hero to win!'
+    assert test_hero.hp == 2 and test_hero.armour == 0 and test_hero.mana == 24
 
 
 def test_fight2() -> None:
@@ -147,6 +148,7 @@ def test_fight2() -> None:
     test_boss = Fighter('Boss', 14, 8)
     winner = fight(test_hero, test_boss)
     assert winner == 1, 'Expected hero to win!'
+    assert test_hero.hp == 1 and test_hero.armour == 0 and test_hero.mana == 114
 
 
 def main() -> None:
