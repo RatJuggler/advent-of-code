@@ -1,5 +1,11 @@
 from abc import ABC, abstractmethod
 from typing import Dict, List
+import itertools
+
+
+def log(message: str) -> None:
+    if False:
+        print(message)
 
 
 class Spell:
@@ -49,12 +55,15 @@ class Mage(Character):
     def turn(self) -> None:
         self.apply_current_effects()
         cast_spell = self.spell_book[self.spells_to_cast[self.current_cast]]
-        print('{0} casts {1}!'.format(self.name, cast_spell.name))
+        if cast_spell.cost > self.mana:
+            log('{0} fails to cast {1}, insufficient mana!'.format(self.name, cast_spell.name))
+            return
         self.mana -= cast_spell.cost
+        log('{0} casts {1}!'.format(self.name, cast_spell.name))
         if cast_spell.duration > 0:
             self.current_effects.append([cast_spell.duration, cast_spell])
         else:
-            print('{0} applies {1} instantly!'.format(cast_spell.name, cast_spell.effects))
+            log('{0} applies {1} instantly!'.format(cast_spell.name, cast_spell.effects))
             self.apply_effects(cast_spell.effects)
         self.current_cast += 1
 
@@ -74,7 +83,7 @@ class Mage(Character):
             effects[0] -= 1
             spell = effects[1]
             self.apply_effects(spell.effects)
-            print('{0} applies {1}, duration is now {2}!'.format(spell.name, spell.effects, effects[0]))
+            log('{0} applies {1}, duration is now {2}!'.format(spell.name, spell.effects, effects[0]))
         current_effects = []
         for effects in self.current_effects:
             if effects[0] > 0:
@@ -82,7 +91,7 @@ class Mage(Character):
             else:
                 spell = effects[1]
                 self.remove_effects(spell.effects)
-                print('{0} wears off!'.format(spell.name))
+                log('{0} wears off!'.format(spell.name))
         self.current_effects = current_effects
 
     def __repr__(self) -> str:
@@ -96,7 +105,7 @@ class Fighter(Character):
         self.damage = damage
 
     def turn(self) -> None:
-        print('{0} attacks with {1} damage!'.format(self.name, self.damage))
+        log('{0} attacks with {1} damage!'.format(self.name, self.damage))
 
     def apply_current_effects(self) -> None:
         pass
@@ -107,13 +116,13 @@ class Fighter(Character):
 
 def fight(hero: Character, boss: Character) -> int:
     while True:
-        print('-- Hero turn --')
-        print('{0} vs {1}'.format(hero, boss))
+        log('-- Hero turn --')
+        log('{0} vs {1}'.format(hero, boss))
         hero.turn()
         if boss.dead_after_damage(hero.damage):
             break
-        print('-- Boss turn --')
-        print('{0} vs {1}'.format(hero, boss))
+        log('-- Boss turn --')
+        log('{0} vs {1}'.format(hero, boss))
         hero.apply_current_effects()
         if boss.dead_after_damage(hero.damage):
             break
