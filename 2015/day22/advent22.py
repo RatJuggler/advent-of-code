@@ -54,6 +54,9 @@ class Mage(Character):
 
     def turn(self) -> None:
         self.apply_current_effects()
+        if self.current_cast >= len(self.spells_to_cast):
+            log('No more spells to cast!')
+            return
         cast_spell = self.spell_book[self.spells_to_cast[self.current_cast]]
         if cast_spell.cost > self.mana:
             log('{0} fails to cast {1}, insufficient mana!'.format(self.name, cast_spell.name))
@@ -163,9 +166,17 @@ def test_fight2() -> None:
 def main() -> None:
     test_fight1()
     test_fight2()
-    # hero = Mage('Hero', 50, 500, spells_available(), [???])
-    # boss = Fighter('Boss', 58, 9)
-    # winner = fight(hero, boss)
+    spell_indexes = [i for i in range(len(spells_available()))]
+    best_mana = 0
+    best_spells = None
+    for spells_to_cast in itertools.product(spell_indexes, repeat=7):
+        hero = Mage('Hero', 50, 500, spells_available(), list(spells_to_cast))
+        boss = Fighter('Boss', 58, 9)
+        winner = fight(hero, boss)
+        if winner == 1 and hero.mana > best_mana:
+            best_mana = hero.mana
+            best_spells = spells_to_cast
+    print('Best mana = {0} {1}'.format(best_mana, best_spells))
 
 
 if __name__ == '__main__':
