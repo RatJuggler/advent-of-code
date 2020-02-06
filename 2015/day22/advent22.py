@@ -54,24 +54,33 @@ class Mage(Character):
         self.cast_spells = []
         self.damage = 0
 
+    def spell_already_in_progress(self, spell_to_cast_nbr: int) -> bool:
+        for cast_spell in self.cast_spells:
+            if cast_spell.spell_nbr == spell_to_cast_nbr:
+                return True
+        return False
+
     def turn(self) -> None:
         self.apply_current_effects()
         if self.next_spell_to_cast >= len(self.spells_to_cast):
             log('{0} has no more spells to cast!'.format(self.name))
             return
-        cast_spell_nbr = self.spells_to_cast[self.next_spell_to_cast]
-        spell = self.spell_book[cast_spell_nbr]
-        if spell.cost > self.mana:
-            log('{0} fails to cast {1}, insufficient mana!'.format(self.name, spell.name))
+        spell_to_cast_nbr = self.spells_to_cast[self.next_spell_to_cast]
+        spell_to_cast = self.spell_book[spell_to_cast_nbr]
+        if self.spell_already_in_progress(spell_to_cast_nbr):
+            log('{0} already has spell {1} active!'.format(self.name, spell_to_cast.name))
+            return
+        if spell_to_cast.cost > self.mana:
+            log('{0} fails to cast {1}, insufficient mana!'.format(self.name, spell_to_cast.name))
             self.hp = 0  # If you cannot afford to cast any spell, you loose.
             return
-        self.mana -= spell.cost
-        log('{0} casts {1}!'.format(self.name, spell.name))
-        if spell.duration > 0:
-            self.cast_spells.append(CastSpell(spell.duration, cast_spell_nbr))
+        self.mana -= spell_to_cast.cost
+        log('{0} casts {1}!'.format(self.name, spell_to_cast.name))
+        if spell_to_cast.duration > 0:
+            self.cast_spells.append(CastSpell(spell_to_cast.duration, spell_to_cast_nbr))
         else:
-            log('{0} applies {1} instantly!'.format(spell.name, spell.effects))
-            self.apply_effects(spell.effects)
+            log('{0} applies {1} instantly!'.format(spell_to_cast.name, spell_to_cast.effects))
+            self.apply_effects(spell_to_cast.effects)
         self.next_spell_to_cast += 1
 
     def apply_effects(self, spell_effects: Dict[str, int]) -> None:
