@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
+from collections import namedtuple
 from typing import Dict, List
 import itertools
+CastSpell = namedtuple('CastSpell', 'duration spell_nbr')
 
 
 def log(message: str) -> None:
@@ -57,8 +59,8 @@ class Mage(Character):
         if self.next_spell_to_cast >= len(self.spells_to_cast):
             log('{0} has no more spells to cast!'.format(self.name))
             return
-        cast_spell = self.spells_to_cast[self.next_spell_to_cast]
-        spell = self.spell_book[cast_spell]
+        cast_spell_nbr = self.spells_to_cast[self.next_spell_to_cast]
+        spell = self.spell_book[cast_spell_nbr]
         if spell.cost > self.mana:
             log('{0} fails to cast {1}, insufficient mana!'.format(self.name, spell.name))
             self.hp = 0  # If you cannot afford to cast any spell, you loose.
@@ -66,7 +68,7 @@ class Mage(Character):
         self.mana -= spell.cost
         log('{0} casts {1}!'.format(self.name, spell.name))
         if spell.duration > 0:
-            self.cast_spells.append([spell.duration, cast_spell])
+            self.cast_spells.append(CastSpell(spell.duration, cast_spell_nbr))
         else:
             log('{0} applies {1} instantly!'.format(spell.name, spell.effects))
             self.apply_effects(spell.effects)
@@ -84,17 +86,15 @@ class Mage(Character):
     def apply_current_effects(self) -> None:
         self.damage = 0
         self.armour = 0
-        for cast_spell in self.cast_spells:
-            cast_spell[0] -= 1
-            spell = self.spell_book[cast_spell[1]]
-            self.apply_effects(spell.effects)
-            log('{0} applies {1}, duration is now {2}!'.format(spell.name, spell.effects, cast_spell[0]))
         cast_spells = []
         for cast_spell in self.cast_spells:
-            if cast_spell[0] > 0:
-                cast_spells.append(cast_spell)
+            duration = cast_spell.duration - 1
+            spell = self.spell_book[cast_spell.spell_nbr]
+            self.apply_effects(spell.effects)
+            log('{0} applies {1}, duration is now {2}!'.format(spell.name, spell.effects, cast_spell.duration))
+            if duration > 0:
+                cast_spells.append(CastSpell(duration, cast_spell.spell_nbr))
             else:
-                spell = self.spell_book[cast_spell[1]]
                 self.remove_effects(spell.effects)
                 log('{0} wears off!'.format(spell.name))
         self.cast_spells = cast_spells
