@@ -6,7 +6,7 @@ CastSpell = namedtuple('CastSpell', 'duration spell_nbr')
 
 
 def log(message: str) -> None:
-    if True:
+    if False:
         print(message)
 
 
@@ -177,17 +177,17 @@ def test_fight2() -> None:
 def main() -> None:
     test_fight1()
     test_fight2()
-    # spell_indexes = [i for i in range(len(spells_available()))]
-    # best_mana = 0
-    # best_spells = None
-    # for spells_to_cast in itertools.product(spell_indexes, repeat=7):
-    #     hero = Mage('Hero', 50, 500, spells_available(), list(spells_to_cast))
-    #     boss = Fighter('Boss', 58, 9)
-    #     winner = fight(hero, boss)
-    #     if winner == 1 and hero.mana > best_mana:
-    #         best_mana = hero.mana
-    #         best_spells = spells_to_cast
-    # print('Best mana = {0} {1}'.format(best_mana, best_spells))
+    spell_indexes = [i for i in range(len(spells_available()))]
+    best_mana = 0
+    best_spells = None
+    for spells_to_cast in itertools.product(spell_indexes, repeat=7):
+        hero = Mage('Hero', 50, 500, spells_available(), list(spells_to_cast))
+        boss = Fighter('Boss', 58, 9)
+        winner = fight(hero, boss)
+        if winner == 1 and hero.mana > best_mana:
+            best_mana = hero.mana
+            best_spells = spells_to_cast
+    print('Best mana = {0} {1}'.format(best_mana, best_spells))
 
 
 if __name__ == '__main__':
