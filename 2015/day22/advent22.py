@@ -6,7 +6,7 @@ CastSpell = namedtuple('CastSpell', 'duration spell_nbr')
 
 
 def log(message: str) -> None:
-    if True:
+    if False:
         print(message)
 
 
@@ -32,7 +32,7 @@ class Character(ABC):
         return self.hp <= 0
 
     @abstractmethod
-    def turn(self) -> None:
+    def turn(self) -> bool:
         pass
 
     @abstractmethod
@@ -48,6 +48,7 @@ class Mage(Character):
     def __init__(self, name: str, hp: int, mana: int, spell_book: List[Spell], spells_to_cast: List[int]) -> None:
         super().__init__(name, hp)
         self.mana = mana
+        self.mana_spent = 0
         self.spell_book = spell_book
         self.spells_to_cast = spells_to_cast
         self.next_spell_to_cast = 0
@@ -60,20 +61,21 @@ class Mage(Character):
                 return True
         return False
 
-    def turn(self) -> None:
+    def turn(self) -> bool:
         if self.next_spell_to_cast >= len(self.spells_to_cast):
             log('{0} has no more spells to cast!'.format(self.name))
-            return
+            return False
         spell_to_cast_nbr = self.spells_to_cast[self.next_spell_to_cast]
         spell_to_cast = self.spell_book[spell_to_cast_nbr]
         if self.spell_already_in_progress(spell_to_cast_nbr):
             log('{0} already has spell {1} active!'.format(self.name, spell_to_cast.name))
-            return
+            return False
         if spell_to_cast.cost > self.mana:
             log('{0} fails to cast {1}, insufficient mana!'.format(self.name, spell_to_cast.name))
             self.hp = 0  # If you cannot afford to cast any spell, you loose.
-            return
+            return False
         self.mana -= spell_to_cast.cost
+        self.mana_spent += spell_to_cast.cost
         log('{0} casts {1}!'.format(self.name, spell_to_cast.name))
         if spell_to_cast.duration > 0:
             self.cast_spells.append(CastSpell(spell_to_cast.duration, spell_to_cast_nbr))
@@ -81,6 +83,7 @@ class Mage(Character):
             log('{0} applies {1} instantly!'.format(spell_to_cast.name, spell_to_cast.effects))
             self.apply_effects(spell_to_cast.effects)
         self.next_spell_to_cast += 1
+        return True
 
     def apply_effects(self, spell_effects: Dict[str, int]) -> None:
         for attribute in spell_effects:
@@ -99,7 +102,7 @@ class Mage(Character):
             duration = cast_spell.duration - 1
             spell = self.spell_book[cast_spell.spell_nbr]
             self.apply_effects(spell.effects)
-            log('{0} applies {1}, duration is now {2}!'.format(spell.name, spell.effects, cast_spell.duration))
+            log('{0} applies {1}, duration is now {2}.'.format(spell.name, spell.effects, duration))
             if duration > 0:
                 cast_spells.append(CastSpell(duration, cast_spell.spell_nbr))
             else:
@@ -117,9 +120,10 @@ class Fighter(Character):
         super().__init__(name, hp)
         self.weapon_damage = weapon_damage
 
-    def turn(self) -> None:
+    def turn(self) -> bool:
         self.damage = self.weapon_damage
         log('{0} attacks with {1} damage!'.format(self.name, self.damage))
+        return True
 
     def apply_current_effects(self) -> None:
         # Fighter could inflict bleeding damage which lasts for several turns but currently has no such effects.
@@ -135,15 +139,13 @@ def fight(hero: Character, boss: Character) -> int:
         log('{0} vs {1}'.format(hero, boss))
         hero.apply_current_effects()
         boss.apply_current_effects()
-        hero.turn()
-        if boss.dead_after_damage(hero.damage) or hero.dead_after_damage(boss.damage):
+        if not hero.turn() or boss.dead_after_damage(hero.damage) or hero.dead_after_damage(boss.damage):
             break
         log('-- Boss turn --')
         log('{0} vs {1}'.format(hero, boss))
         hero.apply_current_effects()
         boss.apply_current_effects()
-        boss.turn()
-        if boss.dead_after_damage(hero.damage) or hero.dead_after_damage(boss.damage):
+        if not boss.turn() or boss.dead_after_damage(hero.damage) or hero.dead_after_damage(boss.damage):
             break
     winner = 1 if boss.hp <= 0 else 2
     log('{0} wins!'.format(hero.name if winner == 1 else boss.name))
