@@ -165,7 +165,6 @@ def spells_available() -> List[Spell]:
             Spell('Poison', 173, 6, {'damage': 3}),
             Spell('Recharge', 229, 5, {'mana': 101})]
 
-
 def test_fight1() -> None:
     # Hero casts: Poison, Magic Missile
     test_hero = Mage('Hero', 10, 250, spells_available(), [3, 0])
@@ -202,12 +201,12 @@ def main() -> None:
     # test_fight1()
     # test_fight2()
     # spells_to_cast = [-1]
-    spells_to_cast = [0, 3, 4, 2, 3, 4, 1, 2, 3, 0, 0] # 1435
-    spells_to_cast = [0, 3, 4, 2, 3, 4, 2, 3, 0, 0, 0] # 1415
-    # spell_idx = 0
+    spells_to_cast = [3, 1, 4, 3, 2, 4, 3, 0, 0]
     lowest_mana_spent = sys.maxsize
+    # spell_idx = 0
     # while True:
     #     spell_idx = next_spells_to_cast(spells_to_cast, spell_idx, len(spells_available()))
+    #     print(spells_to_cast)
     hero = Mage('Hero', 50, 500, spells_available(), spells_to_cast)
     boss = Fighter('Boss', 58, 9)
     winner = fight(hero, boss, lowest_mana_spent)
