@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from collections import namedtuple
 from typing import Dict, List
-import itertools
+import sys
 CastSpell = namedtuple('CastSpell', 'duration spell_nbr')
 
 
@@ -32,7 +32,7 @@ class Character(ABC):
         return self.hp <= 0
 
     @abstractmethod
-    def turn(self) -> bool:
+    def turn(self, lowest_mana_spent: int) -> bool:
         pass
 
     @abstractmethod
@@ -61,7 +61,9 @@ class Mage(Character):
                 return True
         return False
 
-    def turn(self) -> bool:
+    def turn(self, lowest_mana_spent: int) -> bool:
+        if self.mana_spent > lowest_mana_spent:
+            return False
         if self.next_spell_to_cast >= len(self.spells_to_cast):
             log('{0} has no more spells to cast!'.format(self.name))
             return False
@@ -120,7 +122,7 @@ class Fighter(Character):
         super().__init__(name, hp)
         self.weapon_damage = weapon_damage
 
-    def turn(self) -> bool:
+    def turn(self, lowest_mana_spent: int) -> bool:
         self.damage = self.weapon_damage
         log('{0} attacks with {1} damage!'.format(self.name, self.damage))
         return True
@@ -133,19 +135,23 @@ class Fighter(Character):
         return super().__repr__()
 
 
-def fight(hero: Character, boss: Character) -> int:
+def fight(hero: Character, boss: Character, lowest_mana_spent: int) -> int:
     while True:
         log('-- Hero turn --')
         log('{0} vs {1}'.format(hero, boss))
         hero.apply_current_effects()
         boss.apply_current_effects()
-        if not hero.turn() or boss.dead_after_damage(hero.damage) or hero.dead_after_damage(boss.damage):
+        if not hero.turn(lowest_mana_spent) or \
+                boss.dead_after_damage(hero.damage) or \
+                hero.dead_after_damage(boss.damage):
             break
         log('-- Boss turn --')
         log('{0} vs {1}'.format(hero, boss))
         hero.apply_current_effects()
         boss.apply_current_effects()
-        if not boss.turn() or boss.dead_after_damage(hero.damage) or hero.dead_after_damage(boss.damage):
+        if not boss.turn(lowest_mana_spent) or \
+                boss.dead_after_damage(hero.damage) or \
+                hero.dead_after_damage(boss.damage):
             break
     winner = 1 if boss.hp <= 0 else 2
     log('{0} wins!'.format(hero.name if winner == 1 else boss.name))
@@ -164,7 +170,7 @@ def test_fight1() -> None:
     # Hero casts: Poison, Magic Missile
     test_hero = Mage('Hero', 10, 250, spells_available(), [3, 0])
     test_boss = Fighter('Boss', 13, 8)
-    winner = fight(test_hero, test_boss)
+    winner = fight(test_hero, test_boss, sys.maxsize)
     assert winner == 1, 'Expected hero to win!'
     assert test_hero.hp == 2 and test_hero.armour == 0 and test_hero.mana == 24
 
@@ -173,7 +179,7 @@ def test_fight2() -> None:
     # Hero casts: Recharge, Shield, Drain, Poison, Magic Missile
     test_hero = Mage('Hero', 10, 250, spells_available(), [4, 2, 1, 3, 0])
     test_boss = Fighter('Boss', 14, 8)
-    winner = fight(test_hero, test_boss)
+    winner = fight(test_hero, test_boss, sys.maxsize)
     assert winner == 1, 'Expected hero to win!'
     assert test_hero.hp == 1 and test_hero.armour == 0 and test_hero.mana == 114
 
@@ -197,15 +203,15 @@ def main() -> None:
     # test_fight2()
     spells_to_cast = [-1]
     spell_idx = 0
-    best_mana_spent = None
+    lowest_mana_spent = sys.maxsize
     while True:
         spell_idx = next_spells_to_cast(spells_to_cast, spell_idx, len(spells_available()))
         hero = Mage('Hero', 50, 500, spells_available(), spells_to_cast)
         boss = Fighter('Boss', 58, 9)
-        winner = fight(hero, boss)
-        if winner == 1 and (best_mana_spent is None or hero.mana_spent < best_mana_spent):
-            best_mana_spent = hero.mana_spent
-            print('Best mana spent = {0} {1}'.format(best_mana_spent, spells_to_cast))
+        winner = fight(hero, boss, lowest_mana_spent)
+        if winner == 1 and hero.mana_spent < lowest_mana_spent:
+            lowest_mana_spent = hero.mana_spent
+            print('Lowest mana spent = {0} {1}'.format(lowest_mana_spent, spells_to_cast))
 
 
 if __name__ == '__main__':
