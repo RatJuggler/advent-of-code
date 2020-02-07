@@ -80,13 +80,15 @@ Had to go overboard and create classes for items and characters but resisted tak
 the winning conditions for each part.
 
 ##### Day 22
-**TO BE COMPLETED**
+Thought this one was going to be straightforward similar to Day 22 but I'm not finding the required solution. I used
+a solution on the [reddit thread.](https://www.reddit.com/r/adventofcode/comments/3xspyl/day_22_solutions/cy7mbfz/) to
+check what the solution should be and I need to revisit to find out where I went wrong.
 
 ##### Day 23
 A chance to build a small op-code interpreter.
 
 ##### Day 24
-I found this to be the hardest puzzle of all. I didn't think enough early on about cutting down the number of
+I found this to be one of the harder puzzles as I didn't think enough early on about cutting down the number of
 combinations.
 
 ##### Day 25
