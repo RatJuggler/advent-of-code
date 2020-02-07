@@ -178,18 +178,34 @@ def test_fight2() -> None:
     assert test_hero.hp == 1 and test_hero.armour == 0 and test_hero.mana == 114
 
 
+def next_spells_to_cast(spells_to_cast: List[int], spell_idx: int, nbr_of_spells: int) -> int:
+    spells_to_cast[spell_idx] += 1
+    if spells_to_cast[spell_idx] >= nbr_of_spells:
+        spells_to_cast[spell_idx] = 0
+        if spell_idx > 0:
+            return next_spells_to_cast(spells_to_cast, spell_idx - 1, nbr_of_spells)
+        spells_to_cast.append(0)
+        print('Now trying {0} permutations of spells!'.format(len(spells_to_cast)))
+        return len(spells_to_cast) - 1
+    if spell_idx < len(spells_to_cast) - 1:
+        return spell_idx + 1
+    return spell_idx
+
+
 def main() -> None:
-    test_fight1()
-    test_fight2()
-    spell_indexes = [i for i in range(len(spells_available()))]
-    best_mana = 0
-    for spells_to_cast in itertools.product(spell_indexes, repeat=9):
-        hero = Mage('Hero', 50, 500, spells_available(), list(spells_to_cast))
+    # test_fight1()
+    # test_fight2()
+    spells_to_cast = [-1]
+    spell_idx = 0
+    best_mana_spent = None
+    while True:
+        spell_idx = next_spells_to_cast(spells_to_cast, spell_idx, len(spells_available()))
+        hero = Mage('Hero', 50, 500, spells_available(), spells_to_cast)
         boss = Fighter('Boss', 58, 9)
         winner = fight(hero, boss)
-        if winner == 1 and hero.mana > best_mana:
-            best_mana = hero.mana
-            print('Best mana = {0} {1}'.format(500 - best_mana, spells_to_cast))
+        if winner == 1 and (best_mana_spent is None or hero.mana_spent < best_mana_spent):
+            best_mana_spent = hero.mana_spent
+            print('Best mana spent = {0} {1}'.format(best_mana_spent, spells_to_cast))
 
 
 if __name__ == '__main__':
