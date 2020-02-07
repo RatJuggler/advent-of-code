@@ -6,7 +6,7 @@ CastSpell = namedtuple('CastSpell', 'duration spell_nbr')
 
 
 def log(message: str) -> None:
-    if False:
+    if True:
         print(message)
 
 
@@ -61,7 +61,6 @@ class Mage(Character):
         return False
 
     def turn(self) -> None:
-        self.apply_current_effects()
         if self.next_spell_to_cast >= len(self.spells_to_cast):
             log('{0} has no more spells to cast!'.format(self.name))
             return
@@ -114,15 +113,17 @@ class Mage(Character):
 
 class Fighter(Character):
 
-    def __init__(self, name: str, hp: int, damage: int) -> None:
+    def __init__(self, name: str, hp: int, weapon_damage: int) -> None:
         super().__init__(name, hp)
-        self.damage = damage
+        self.weapon_damage = weapon_damage
 
     def turn(self) -> None:
+        self.damage = self.weapon_damage
         log('{0} attacks with {1} damage!'.format(self.name, self.damage))
 
     def apply_current_effects(self) -> None:
-        pass
+        # Fighter could inflict bleeding damage which lasts for several turns but currently has no such effects.
+        self.damage = 0
 
     def __repr__(self) -> str:
         return super().__repr__()
@@ -132,16 +133,17 @@ def fight(hero: Character, boss: Character) -> int:
     while True:
         log('-- Hero turn --')
         log('{0} vs {1}'.format(hero, boss))
+        hero.apply_current_effects()
+        boss.apply_current_effects()
         hero.turn()
-        if boss.dead_after_damage(hero.damage):
+        if boss.dead_after_damage(hero.damage) or hero.dead_after_damage(boss.damage):
             break
         log('-- Boss turn --')
         log('{0} vs {1}'.format(hero, boss))
         hero.apply_current_effects()
-        if boss.dead_after_damage(hero.damage):
-            break
+        boss.apply_current_effects()
         boss.turn()
-        if hero.dead_after_damage(boss.damage):
+        if boss.dead_after_damage(hero.damage) or hero.dead_after_damage(boss.damage):
             break
     winner = 1 if boss.hp <= 0 else 2
     log('{0} wins!'.format(hero.name if winner == 1 else boss.name))
@@ -179,15 +181,13 @@ def main() -> None:
     test_fight2()
     spell_indexes = [i for i in range(len(spells_available()))]
     best_mana = 0
-    best_spells = None
-    for spells_to_cast in itertools.product(spell_indexes, repeat=7):
+    for spells_to_cast in itertools.product(spell_indexes, repeat=9):
         hero = Mage('Hero', 50, 500, spells_available(), list(spells_to_cast))
         boss = Fighter('Boss', 58, 9)
         winner = fight(hero, boss)
         if winner == 1 and hero.mana > best_mana:
             best_mana = hero.mana
-            best_spells = spells_to_cast
-    print('Best mana = {0} {1}'.format(best_mana, best_spells))
+            print('Best mana = {0} {1}'.format(500 - best_mana, spells_to_cast))
 
 
 if __name__ == '__main__':
