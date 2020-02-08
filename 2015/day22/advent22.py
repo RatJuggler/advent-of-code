@@ -6,7 +6,7 @@ CastSpell = namedtuple('CastSpell', 'duration spell_nbr')
 
 
 def log(message: str) -> None:
-    if True:
+    if False:
         print(message)
 
 
@@ -164,6 +164,7 @@ def spells_available() -> List[Spell]:
             Spell('Shield', 113, 6, {'armour': 7}),
             Spell('Poison', 173, 6, {'damage': 3}),
             Spell('Recharge', 229, 5, {'mana': 101})]
+#
 
 def test_fight1() -> None:
     # Hero casts: Poison, Magic Missile
@@ -191,28 +192,24 @@ def next_spells_to_cast(spells_to_cast: List[int], spell_idx: int, nbr_of_spells
             return next_spells_to_cast(spells_to_cast, spell_idx - 1, nbr_of_spells)
         spells_to_cast.append(0)
         print('Now trying {0} permutations of spells!'.format(len(spells_to_cast)))
-        return len(spells_to_cast) - 1
-    if spell_idx < len(spells_to_cast) - 1:
-        return spell_idx + 1
-    return spell_idx
+    return len(spells_to_cast) - 1
 
 
 def main() -> None:
-    # test_fight1()
-    # test_fight2()
-    # spells_to_cast = [-1]
-    spells_to_cast = [3, 1, 4, 3, 2, 4, 3, 0, 0]
+    test_fight1()
+    test_fight2()
+    spells_to_cast = [-1]
     lowest_mana_spent = sys.maxsize
-    # spell_idx = 0
-    # while True:
-    #     spell_idx = next_spells_to_cast(spells_to_cast, spell_idx, len(spells_available()))
-    #     print(spells_to_cast)
-    hero = Mage('Hero', 50, 500, spells_available(), spells_to_cast)
-    boss = Fighter('Boss', 58, 9)
-    winner = fight(hero, boss, lowest_mana_spent)
-    if winner == 1 and hero.mana_spent < lowest_mana_spent:
-        lowest_mana_spent = hero.mana_spent
-        print('Lowest mana spent = {0} {1}'.format(lowest_mana_spent, spells_to_cast))
+    spell_idx = 0
+    while True:
+        spell_idx = next_spells_to_cast(spells_to_cast, spell_idx, len(spells_available()))
+        # print(spells_to_cast)
+        hero = Mage('Hero', 50, 500, spells_available(), spells_to_cast)
+        boss = Fighter('Boss', 58, 9)
+        winner = fight(hero, boss, lowest_mana_spent)
+        if winner == 1 and hero.mana_spent < lowest_mana_spent:
+            lowest_mana_spent = hero.mana_spent
+            print('Lowest mana spent = {0} {1}'.format(lowest_mana_spent, spells_to_cast))
 
 
 if __name__ == '__main__':
