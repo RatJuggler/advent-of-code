@@ -20,6 +20,13 @@ class Spell:
         self.effects = effects
 
 
+SPELL_BOOK = [Spell('Magic Missile', 53, 0, {'damage': 4}),
+              Spell('Drain', 73, 0, {'damage': 2, 'hp': 2}),
+              Spell('Shield', 113, 6, {'armour': 7}),
+              Spell('Poison', 173, 6, {'damage': 3}),
+              Spell('Recharge', 229, 5, {'mana': 101})]
+
+
 class Character(ABC):
 
     def __init__(self, name: str, hp: int) -> None:
@@ -46,11 +53,10 @@ class Character(ABC):
 
 class Mage(Character):
 
-    def __init__(self, name: str, hp: int, mana: int, spell_book: List[Spell]) -> None:
+    def __init__(self, name: str, hp: int, mana: int) -> None:
         super().__init__(name, hp)
         self.mana = mana
         self.mana_spent = 0
-        self.spell_book = spell_book
         self.spells_cast_history = []
         self.next_spell_to_cast = 0
         self.spells_in_effect = []
@@ -63,7 +69,7 @@ class Mage(Character):
         return False
 
     def turn(self) -> None:
-        spell_to_cast = self.spell_book[self.next_spell_to_cast]
+        spell_to_cast = SPELL_BOOK[self.next_spell_to_cast]
         self.mana -= spell_to_cast.cost
         self.mana_spent += spell_to_cast.cost
         self.spells_cast_history.append(spell_to_cast.name)
@@ -89,7 +95,7 @@ class Mage(Character):
         spells_in_effect = []
         for spell_in_effect in self.spells_in_effect:
             duration = spell_in_effect.duration - 1
-            spell = self.spell_book[spell_in_effect.spell_nbr]
+            spell = SPELL_BOOK[spell_in_effect.spell_nbr]
             self.apply_effects(spell.effects)
             log('{0} applies {1}, duration is now {2}.'.format(spell.name, spell.effects, duration))
             if duration > 0:
@@ -140,17 +146,9 @@ def fight(hero: Character, boss: Character) -> bool:
     return False
 
 
-def spells_available() -> List[Spell]:
-    return [Spell('Magic Missile', 53, 0, {'damage': 4}),
-            Spell('Drain', 73, 0, {'damage': 2, 'hp': 2}),
-            Spell('Shield', 113, 6, {'armour': 7}),
-            Spell('Poison', 173, 6, {'damage': 3}),
-            Spell('Recharge', 229, 5, {'mana': 101})]
-
-
 def test_fight1() -> None:
     # Hero casts: Poison, Magic Missile
-    test_hero = Mage('Hero', 10, 250, spells_available())
+    test_hero = Mage('Hero', 10, 250)
     test_boss = Fighter('Boss', 13, 8)
     for spell_to_cast_nbr in [3, 0]:
         test_hero.next_spell_to_cast = spell_to_cast_nbr
@@ -162,7 +160,7 @@ def test_fight1() -> None:
 
 def test_fight2() -> None:
     # Hero casts: Recharge, Shield, Drain, Poison, Magic Missile
-    test_hero = Mage('Hero', 10, 250, spells_available())
+    test_hero = Mage('Hero', 10, 250)
     test_boss = Fighter('Boss', 14, 8)
     for spell_to_cast_nbr in [4, 2, 1, 3, 0]:
         test_hero.next_spell_to_cast = spell_to_cast_nbr
@@ -173,8 +171,8 @@ def test_fight2() -> None:
 
 
 def next_round(hero, boss, lowest_mana_spent: int) -> int:
-    for spell_to_cast_nbr in range(len(hero.spell_book)):
-        spell_to_cast = hero.spell_book[spell_to_cast_nbr]
+    for spell_to_cast_nbr in range(len(SPELL_BOOK)):
+        spell_to_cast = SPELL_BOOK[spell_to_cast_nbr]
         if hero.spell_already_in_progress(spell_to_cast_nbr):
             log('{0} already has spell {1} active!'.format(hero.name, spell_to_cast.name))
             continue
@@ -201,7 +199,7 @@ def next_round(hero, boss, lowest_mana_spent: int) -> int:
 
 
 def search_fights():
-    hero = Mage('Hero', 50, 500, spells_available())
+    hero = Mage('Hero', 50, 500)
     boss = Fighter('Boss', 58, 9)
     least_mana_spent = next_round(hero, boss, sys.maxsize)
     print('Least mana spent = {0}'.format(least_mana_spent))
