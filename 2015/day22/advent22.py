@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from collections import namedtuple
+from copy import deepcopy
 from typing import Dict, List
 import sys
 CastSpell = namedtuple('CastSpell', 'duration spell_nbr')
@@ -32,7 +33,7 @@ class Character(ABC):
         return self.hp <= 0
 
     @abstractmethod
-    def turn(self, lowest_mana_spent: int) -> bool:
+    def turn(self) -> bool:
         pass
 
     @abstractmethod
@@ -45,47 +46,33 @@ class Character(ABC):
 
 class Mage(Character):
 
-    def __init__(self, name: str, hp: int, mana: int, spell_book: List[Spell], spells_to_cast: List[int]) -> None:
+    def __init__(self, name: str, hp: int, mana: int, spell_book: List[Spell]) -> None:
         super().__init__(name, hp)
         self.mana = mana
         self.mana_spent = 0
         self.spell_book = spell_book
-        self.spells_to_cast = spells_to_cast
+        self.spells_cast_history = []
         self.next_spell_to_cast = 0
-        self.cast_spells = []
+        self.spells_in_effect = []
         self.damage = 0
 
     def spell_already_in_progress(self, spell_to_cast_nbr: int) -> bool:
-        for cast_spell in self.cast_spells:
-            if cast_spell.spell_nbr == spell_to_cast_nbr:
+        for spell_in_effect in self.spells_in_effect:
+            if spell_in_effect.spell_nbr == spell_to_cast_nbr:
                 return True
         return False
 
-    def turn(self, lowest_mana_spent: int) -> bool:
-        if self.mana_spent > lowest_mana_spent:
-            return False
-        if self.next_spell_to_cast >= len(self.spells_to_cast):
-            log('{0} has no more spells to cast!'.format(self.name))
-            return False
-        spell_to_cast_nbr = self.spells_to_cast[self.next_spell_to_cast]
-        spell_to_cast = self.spell_book[spell_to_cast_nbr]
-        if self.spell_already_in_progress(spell_to_cast_nbr):
-            log('{0} already has spell {1} active!'.format(self.name, spell_to_cast.name))
-            return False
-        if spell_to_cast.cost > self.mana:
-            log('{0} fails to cast {1}, insufficient mana!'.format(self.name, spell_to_cast.name))
-            self.hp = 0  # If you cannot afford to cast any spell, you loose.
-            return False
+    def turn(self) -> None:
+        spell_to_cast = self.spell_book[self.next_spell_to_cast]
         self.mana -= spell_to_cast.cost
         self.mana_spent += spell_to_cast.cost
+        self.spells_cast_history.append(spell_to_cast.name)
         log('{0} casts {1}!'.format(self.name, spell_to_cast.name))
         if spell_to_cast.duration > 0:
-            self.cast_spells.append(CastSpell(spell_to_cast.duration, spell_to_cast_nbr))
+            self.spells_in_effect.append(CastSpell(spell_to_cast.duration, self.next_spell_to_cast))
         else:
             log('{0} applies {1} instantly!'.format(spell_to_cast.name, spell_to_cast.effects))
             self.apply_effects(spell_to_cast.effects)
-        self.next_spell_to_cast += 1
-        return True
 
     def apply_effects(self, spell_effects: Dict[str, int]) -> None:
         for attribute in spell_effects:
@@ -99,18 +86,18 @@ class Mage(Character):
     def apply_current_effects(self) -> None:
         self.damage = 0
         self.armour = 0
-        cast_spells = []
-        for cast_spell in self.cast_spells:
-            duration = cast_spell.duration - 1
-            spell = self.spell_book[cast_spell.spell_nbr]
+        spells_in_effect = []
+        for spell_in_effect in self.spells_in_effect:
+            duration = spell_in_effect.duration - 1
+            spell = self.spell_book[spell_in_effect.spell_nbr]
             self.apply_effects(spell.effects)
             log('{0} applies {1}, duration is now {2}.'.format(spell.name, spell.effects, duration))
             if duration > 0:
-                cast_spells.append(CastSpell(duration, cast_spell.spell_nbr))
+                spells_in_effect.append(CastSpell(duration, spell_in_effect.spell_nbr))
             else:
                 self.remove_effects(spell.effects)
                 log('{0} wears off!'.format(spell.name))
-        self.cast_spells = cast_spells
+        self.spells_in_effect = spells_in_effect
 
     def __repr__(self) -> str:
         return super().__repr__() + ', Mana: {0}'.format(self.mana)
@@ -122,7 +109,7 @@ class Fighter(Character):
         super().__init__(name, hp)
         self.weapon_damage = weapon_damage
 
-    def turn(self, lowest_mana_spent: int) -> bool:
+    def turn(self) -> bool:
         self.damage = self.weapon_damage
         log('{0} attacks with {1} damage!'.format(self.name, self.damage))
         return True
@@ -135,27 +122,22 @@ class Fighter(Character):
         return super().__repr__()
 
 
-def fight(hero: Character, boss: Character, lowest_mana_spent: int) -> int:
-    while True:
-        log('-- Hero turn --')
-        log('{0} vs {1}'.format(hero, boss))
-        hero.apply_current_effects()
-        boss.apply_current_effects()
-        if not hero.turn(lowest_mana_spent) or \
-                boss.dead_after_damage(hero.damage) or \
-                hero.dead_after_damage(boss.damage):
-            break
-        log('-- Boss turn --')
-        log('{0} vs {1}'.format(hero, boss))
-        hero.apply_current_effects()
-        boss.apply_current_effects()
-        if not boss.turn(lowest_mana_spent) or \
-                boss.dead_after_damage(hero.damage) or \
-                hero.dead_after_damage(boss.damage):
-            break
-    winner = 1 if boss.hp <= 0 else 2
-    log('{0} wins!'.format(hero.name if winner == 1 else boss.name))
-    return winner
+def fight(hero: Character, boss: Character) -> bool:
+    log('-- Hero turn --')
+    log('{0} vs {1}'.format(hero, boss))
+    hero.apply_current_effects()
+    boss.apply_current_effects()
+    hero.turn()
+    if boss.dead_after_damage(hero.damage) or hero.dead_after_damage(boss.damage):
+        return True
+    log('-- Boss turn --')
+    log('{0} vs {1}'.format(hero, boss))
+    hero.apply_current_effects()
+    boss.apply_current_effects()
+    boss.turn()
+    if boss.dead_after_damage(hero.damage) or hero.dead_after_damage(boss.damage):
+        return True
+    return False
 
 
 def spells_available() -> List[Spell]:
@@ -164,52 +146,71 @@ def spells_available() -> List[Spell]:
             Spell('Shield', 113, 6, {'armour': 7}),
             Spell('Poison', 173, 6, {'damage': 3}),
             Spell('Recharge', 229, 5, {'mana': 101})]
-#
+
 
 def test_fight1() -> None:
     # Hero casts: Poison, Magic Missile
-    test_hero = Mage('Hero', 10, 250, spells_available(), [3, 0])
+    test_hero = Mage('Hero', 10, 250, spells_available())
     test_boss = Fighter('Boss', 13, 8)
-    winner = fight(test_hero, test_boss, sys.maxsize)
-    assert winner == 1, 'Expected hero to win!'
+    for spell_to_cast_nbr in [3, 0]:
+        test_hero.next_spell_to_cast = spell_to_cast_nbr
+        fight_completed = fight(test_hero, test_boss)
+    assert fight_completed, 'Expected fight to complete!'
+    assert test_boss.hp <= 0, 'Expected hero to win!'
     assert test_hero.hp == 2 and test_hero.armour == 0 and test_hero.mana == 24
 
 
 def test_fight2() -> None:
     # Hero casts: Recharge, Shield, Drain, Poison, Magic Missile
-    test_hero = Mage('Hero', 10, 250, spells_available(), [4, 2, 1, 3, 0])
+    test_hero = Mage('Hero', 10, 250, spells_available())
     test_boss = Fighter('Boss', 14, 8)
-    winner = fight(test_hero, test_boss, sys.maxsize)
-    assert winner == 1, 'Expected hero to win!'
+    for spell_to_cast_nbr in [4, 2, 1, 3, 0]:
+        test_hero.next_spell_to_cast = spell_to_cast_nbr
+        fight_completed = fight(test_hero, test_boss)
+    assert fight_completed, 'Expected fight to complete!'
+    assert test_boss.hp <= 0, 'Expected hero to win!'
     assert test_hero.hp == 1 and test_hero.armour == 0 and test_hero.mana == 114
 
 
-def next_spells_to_cast(spells_to_cast: List[int], spell_idx: int, nbr_of_spells: int) -> int:
-    spells_to_cast[spell_idx] += 1
-    if spells_to_cast[spell_idx] >= nbr_of_spells:
-        spells_to_cast[spell_idx] = 0
-        if spell_idx > 0:
-            return next_spells_to_cast(spells_to_cast, spell_idx - 1, nbr_of_spells)
-        spells_to_cast.append(0)
-        print('Now trying {0} permutations of spells!'.format(len(spells_to_cast)))
-    return len(spells_to_cast) - 1
+def next_round(hero, boss, lowest_mana_spent: int) -> int:
+    for spell_to_cast_nbr in range(len(hero.spell_book)):
+        spell_to_cast = hero.spell_book[spell_to_cast_nbr]
+        if hero.spell_already_in_progress(spell_to_cast_nbr):
+            log('{0} already has spell {1} active!'.format(hero.name, spell_to_cast.name))
+            continue
+        if spell_to_cast.cost > hero.mana:
+            log('{0} is unable to cast {1}, insufficient mana!'.format(hero.name, spell_to_cast.name))
+            continue
+        clone_hero = deepcopy(hero)
+        clone_boss = deepcopy(boss)
+        clone_hero.next_spell_to_cast = spell_to_cast_nbr
+        fight_completed = fight(clone_hero, clone_boss)
+        if not fight_completed:
+            log('Subtree down from: {0} {1}'.format(lowest_mana_spent, hero.spells_cast_history))
+            mana_spent = next_round(clone_hero, clone_boss, lowest_mana_spent)
+            if mana_spent < lowest_mana_spent:
+                lowest_mana_spent = mana_spent
+            log('Returned to tree: {0} {1}'.format(lowest_mana_spent, hero.spells_cast_history))
+        else:
+            if clone_boss.hp <= 0:
+                print('{0} wins with mana spent = {1} {2}'
+                      .format(clone_hero.name, clone_hero.mana_spent, clone_hero.spells_cast_history))
+                if clone_hero.mana_spent < lowest_mana_spent:
+                    lowest_mana_spent = clone_hero.mana_spent
+    return lowest_mana_spent
+
+
+def search_fights():
+    hero = Mage('Hero', 50, 500, spells_available())
+    boss = Fighter('Boss', 58, 9)
+    least_mana_spent = next_round(hero, boss, sys.maxsize)
+    print('Least mana spent = {0}'.format(least_mana_spent))
 
 
 def main() -> None:
     test_fight1()
     test_fight2()
-    spells_to_cast = [-1]
-    lowest_mana_spent = sys.maxsize
-    spell_idx = 0
-    while True:
-        spell_idx = next_spells_to_cast(spells_to_cast, spell_idx, len(spells_available()))
-        # print(spells_to_cast)
-        hero = Mage('Hero', 50, 500, spells_available(), spells_to_cast)
-        boss = Fighter('Boss', 58, 9)
-        winner = fight(hero, boss, lowest_mana_spent)
-        if winner == 1 and hero.mana_spent < lowest_mana_spent:
-            lowest_mana_spent = hero.mana_spent
-            print('Lowest mana spent = {0} {1}'.format(lowest_mana_spent, spells_to_cast))
+    search_fights()
 
 
 if __name__ == '__main__':
