@@ -90,7 +90,11 @@ simulator rather than just a bare bones solution.
 A chance to build a small op-code interpreter.
 
 ##### Day 24
-I found this to be one of the harder puzzles as I didn't think enough early on about cutting down the number of
-combinations.
+I found this hard going to begin with because I didn't think enough early on about cutting down the number of 
+combinations. Also, as a variation on the knapsack problem it would likely have been easier to use something like 
+[Google OR-Tools](https://developers.google.com/optimization/bin/multiple_knapsack) to solve it
 
 ##### Day 25
+The first part is straight-forward once you've worked out an algorithm on how the codes are placed in the sheet. I 
+implemented a generic solution to better illustrate this. The second part can't be attempted until all of the other 
+previous days are complete.
