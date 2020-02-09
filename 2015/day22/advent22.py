@@ -7,7 +7,7 @@ CastSpell = namedtuple('CastSpell', 'duration spell_nbr')
 
 
 def log(message: str) -> None:
-    if True:
+    if False:
         print(message)
 
 
@@ -68,8 +68,14 @@ class Mage(Character):
                 return True
         return False
 
-    def turn(self) -> None:
+    def turn(self) -> bool:
         spell_to_cast = SPELL_BOOK[self.next_spell_to_cast]
+        if self.spell_already_in_progress(self.next_spell_to_cast):
+            log('{0} already has spell {1} active!'.format(self.name, spell_to_cast.name))
+            return True
+        if spell_to_cast.cost > self.mana:
+            log('{0} is unable to cast {1}, insufficient mana!'.format(self.name, spell_to_cast.name))
+            return True
         self.mana -= spell_to_cast.cost
         self.mana_spent += spell_to_cast.cost
         self.spells_cast_history.append(spell_to_cast.name)
@@ -79,6 +85,7 @@ class Mage(Character):
         else:
             log('{0} casts {1}!'.format(self.name, spell_to_cast.name))
             self.spells_in_effect.append(CastSpell(spell_to_cast.duration, self.next_spell_to_cast))
+        return False
 
     def apply_effects(self, spell_effects: Dict[str, int]) -> None:
         for attribute in spell_effects:
@@ -113,7 +120,7 @@ class Fighter(Character):
     def turn(self) -> bool:
         self.damage = self.weapon_damage
         log('{0} attacks with {1} damage!'.format(self.name, self.damage))
-        return True
+        return False
 
     def apply_current_effects(self) -> None:
         # Fighter could inflict bleeding damage which lasts for several turns but currently has no such effects.
@@ -128,15 +135,13 @@ def fight(hero: Character, boss: Character) -> bool:
     log('{0} vs {1}'.format(hero, boss))
     hero.apply_current_effects()
     boss.apply_current_effects()
-    hero.turn()
-    if boss.dead_after_damage(hero.damage) or hero.dead_after_damage(boss.damage):
+    if hero.turn() or boss.dead_after_damage(hero.damage) or hero.dead_after_damage(boss.damage):
         return True
     log('-- Boss turn --')
     log('{0} vs {1}'.format(hero, boss))
     hero.apply_current_effects()
     boss.apply_current_effects()
-    boss.turn()
-    if boss.dead_after_damage(hero.damage) or hero.dead_after_damage(boss.damage):
+    if boss.turn() or boss.dead_after_damage(hero.damage) or hero.dead_after_damage(boss.damage):
         return True
     return False
 
@@ -173,26 +178,17 @@ def test_fight3() -> None:
         test_hero.next_spell_to_cast = spell_to_cast_nbr
         fight_completed = fight(test_hero, test_boss)
     assert fight_completed, 'Expected fight to complete!'
-    assert test_boss.hp <= 0, 'Expected hero to win!'
+    assert test_boss.hp == 0, 'Expected hero to win!'
     assert test_hero.hp == 1 and test_hero.armour == 0 and test_hero.mana == 241 and test_hero.mana_spent == 1269
 
 
-def next_round(hero, boss, lowest_mana_spent: int) -> int:
+def next_round(hero: Mage, boss: Character, lowest_mana_spent: int) -> int:
     for spell_to_cast_nbr in range(len(SPELL_BOOK)):
         clone_hero = deepcopy(hero)
         clone_boss = deepcopy(boss)
-        spell_to_cast = SPELL_BOOK[spell_to_cast_nbr]
-        if clone_hero.spell_already_in_progress(spell_to_cast_nbr):
-            log('{0} already has spell {1} active!'.format(clone_hero.name, spell_to_cast.name))
-            continue
-        if spell_to_cast.cost > clone_hero.mana:
-            log('{0} is unable to cast {1}, insufficient mana!'.format(clone_hero.name, spell_to_cast.name))
-            continue
-        if len(clone_hero.spells_cast_history) == 0:
-            print('Starting from top: ', spell_to_cast_nbr)
         clone_hero.next_spell_to_cast = spell_to_cast_nbr
         fight_completed = fight(clone_hero, clone_boss)
-        if not fight_completed:
+        if not fight_completed and clone_hero.mana_spent < lowest_mana_spent:
             log('Subtree down from: {0} {1}'.format(lowest_mana_spent, hero.spells_cast_history))
             mana_spent = next_round(clone_hero, clone_boss, lowest_mana_spent)
             if mana_spent < lowest_mana_spent:
@@ -217,8 +213,8 @@ def search_fights():
 def main() -> None:
     # test_fight1()
     # test_fight2()
-    test_fight3()
-    # search_fights()
+    # test_fight3()
+    search_fights()
 
 
 if __name__ == '__main__':
