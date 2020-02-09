@@ -1,13 +1,13 @@
 from abc import ABC, abstractmethod
 from collections import namedtuple
 from copy import deepcopy
-from typing import Dict, List
+from typing import Dict
 import sys
 CastSpell = namedtuple('CastSpell', 'duration spell_nbr')
 
 
 def log(message: str) -> None:
-    if False:
+    if True:
         print(message)
 
 
@@ -73,40 +73,35 @@ class Mage(Character):
         self.mana -= spell_to_cast.cost
         self.mana_spent += spell_to_cast.cost
         self.spells_cast_history.append(spell_to_cast.name)
-        log('{0} casts {1}!'.format(self.name, spell_to_cast.name))
-        if spell_to_cast.duration > 0:
-            self.spells_in_effect.append(CastSpell(spell_to_cast.duration, self.next_spell_to_cast))
-        else:
+        if spell_to_cast.duration == 0:
             log('{0} applies {1} instantly!'.format(spell_to_cast.name, spell_to_cast.effects))
             self.apply_effects(spell_to_cast.effects)
+        else:
+            log('{0} casts {1}!'.format(self.name, spell_to_cast.name))
+            self.spells_in_effect.append(CastSpell(spell_to_cast.duration, self.next_spell_to_cast))
 
     def apply_effects(self, spell_effects: Dict[str, int]) -> None:
         for attribute in spell_effects:
             setattr(self, attribute, getattr(self, attribute) + spell_effects[attribute])
 
-    def remove_effects(self, spell_effects: Dict[str, int]) -> None:
-        for attribute in spell_effects:
-            if attribute in ['damage', 'armour']:
-                setattr(self, attribute, getattr(self, attribute) - spell_effects[attribute])
-
     def apply_current_effects(self) -> None:
-        self.damage = 0
+        # Reset before determining effects.
         self.armour = 0
+        self.damage = 0
         spells_in_effect = []
         for spell_in_effect in self.spells_in_effect:
-            duration = spell_in_effect.duration - 1
             spell = SPELL_BOOK[spell_in_effect.spell_nbr]
             self.apply_effects(spell.effects)
+            duration = spell_in_effect.duration - 1
             log('{0} applies {1}, duration is now {2}.'.format(spell.name, spell.effects, duration))
-            if duration > 0:
-                spells_in_effect.append(CastSpell(duration, spell_in_effect.spell_nbr))
-            else:
-                self.remove_effects(spell.effects)
+            if duration == 0:
                 log('{0} wears off!'.format(spell.name))
+            else:
+                spells_in_effect.append(CastSpell(duration, spell_in_effect.spell_nbr))
         self.spells_in_effect = spells_in_effect
 
     def __repr__(self) -> str:
-        return super().__repr__() + ', Mana: {0}'.format(self.mana)
+        return super().__repr__() + ', Mana: {0} {1}'.format(self.mana, self.mana_spent)
 
 
 class Fighter(Character):
@@ -170,17 +165,31 @@ def test_fight2() -> None:
     assert test_hero.hp == 1 and test_hero.armour == 0 and test_hero.mana == 114
 
 
+def test_fight3() -> None:
+    # Hero casts: Poison, Drain, Recharge, Poison, Shield, Recharge, Poison, Magic Missile, Magic Missile
+    test_hero = Mage('Hero', 50, 500)
+    test_boss = Fighter('Boss', 58, 9)
+    for spell_to_cast_nbr in [3, 1, 4, 3, 2, 4, 3, 0, 0]:
+        test_hero.next_spell_to_cast = spell_to_cast_nbr
+        fight_completed = fight(test_hero, test_boss)
+    assert fight_completed, 'Expected fight to complete!'
+    assert test_boss.hp <= 0, 'Expected hero to win!'
+    assert test_hero.hp == 1 and test_hero.armour == 0 and test_hero.mana == 241 and test_hero.mana_spent == 1269
+
+
 def next_round(hero, boss, lowest_mana_spent: int) -> int:
     for spell_to_cast_nbr in range(len(SPELL_BOOK)):
-        spell_to_cast = SPELL_BOOK[spell_to_cast_nbr]
-        if hero.spell_already_in_progress(spell_to_cast_nbr):
-            log('{0} already has spell {1} active!'.format(hero.name, spell_to_cast.name))
-            continue
-        if spell_to_cast.cost > hero.mana:
-            log('{0} is unable to cast {1}, insufficient mana!'.format(hero.name, spell_to_cast.name))
-            continue
         clone_hero = deepcopy(hero)
         clone_boss = deepcopy(boss)
+        spell_to_cast = SPELL_BOOK[spell_to_cast_nbr]
+        if clone_hero.spell_already_in_progress(spell_to_cast_nbr):
+            log('{0} already has spell {1} active!'.format(clone_hero.name, spell_to_cast.name))
+            continue
+        if spell_to_cast.cost > clone_hero.mana:
+            log('{0} is unable to cast {1}, insufficient mana!'.format(clone_hero.name, spell_to_cast.name))
+            continue
+        if len(clone_hero.spells_cast_history) == 0:
+            print('Starting from top: ', spell_to_cast_nbr)
         clone_hero.next_spell_to_cast = spell_to_cast_nbr
         fight_completed = fight(clone_hero, clone_boss)
         if not fight_completed:
@@ -206,9 +215,10 @@ def search_fights():
 
 
 def main() -> None:
-    test_fight1()
-    test_fight2()
-    search_fights()
+    # test_fight1()
+    # test_fight2()
+    test_fight3()
+    # search_fights()
 
 
 if __name__ == '__main__':
