@@ -70,15 +70,15 @@ show the animation changes using a *curses* library or similar.
 ##### Day 19: Medicine for Rudolph
 The first part of the puzzle if fairly straightforward using a *set* to determine the unique molecules but I got really
 stuck on the second part. In the end I had to look on the support [reddit thread](https://www.reddit.com/r/adventofcode/comments/3xflz8/day_19_solutions/)
-for hints on how to solve it. **OUTSTANDING**
+for hints on how to solve it.
 
 ##### Day 20: Infinite Elves and Infinite Houses
 This is about finding the factors of a number. I forgot to use the square root at first and so my solutions ran very
 slowly.
 
 ##### Day 21: RPG Simulator 20XX
-Had to go overboard and create classes for items and characters but resisted taking it further. Used a lambda to define
-the winning conditions for each part.
+Had to go overboard and create classes for items and characters but managed to resist taking it further. Used a lambda
+to define the winning conditions for each part.
 
 ##### Day 22: Wizard Simulator 20XX
 Thought this one was going to be straightforward, similar to Day 21, but took me ages to get the code right for the
@@ -96,6 +96,5 @@ combinations. Also, as a variation on the knapsack problem it would likely have 
 [Google OR-Tools](https://developers.google.com/optimization/bin/multiple_knapsack) to solve it
 
 ##### Day 25: Let It Snow
-The first part is straight-forward once you've worked out an algorithm on how the codes are placed in the sheet. I 
-implemented a generic solution to better illustrate this. The second part can't be attempted until all of the other 
-previous days are complete.
+Straight-forward once you've worked out an algorithm on how the codes are placed in the sheet. I implemented a generic 
+solution to better illustrate this.
