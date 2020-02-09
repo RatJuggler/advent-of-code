@@ -10,7 +10,9 @@ I've started doing 2016 but this time using Java 11.
 
 ##### Some general points about my solutions:
 
-- I always like to have the odd test or two rather than going straight for the answer to prove I'm on the right track.  
+- I always like to have the odd test or two rather than going straight for the answer to prove I'm on the right track. 
+But these will be mostly simple test methods using *assert* statements rather than complete separate tests (Note: For
+Java this means turning on asserts in the JVM with -ea).
 
 - I've probably overused regular expressions for parsing instead of simple string splits.
 
