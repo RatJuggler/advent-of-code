@@ -130,11 +130,13 @@ class Fighter(Character):
         return super().__repr__()
 
 
-def fight(hero: Character, boss: Character) -> bool:
+def fight(hero: Character, boss: Character, hard: bool = False) -> bool:
     log('-- Hero turn --')
     log('{0} vs {1}'.format(hero, boss))
     hero.apply_current_effects()
     boss.apply_current_effects()
+    if hard:
+        hero.hp -= 1
     if hero.turn() or boss.dead_after_damage(hero.damage) or hero.dead_after_damage(boss.damage):
         return True
     log('-- Boss turn --')
@@ -182,15 +184,15 @@ def test_fight3() -> None:
     assert test_hero.hp == 1 and test_hero.armour == 0 and test_hero.mana == 241 and test_hero.mana_spent == 1269
 
 
-def next_round(hero: Mage, boss: Character, lowest_mana_spent: int) -> int:
+def next_round(hero: Mage, boss: Character, lowest_mana_spent: int, hard: bool) -> int:
     for spell_to_cast_nbr in range(len(SPELL_BOOK)):
         clone_hero = deepcopy(hero)
         clone_boss = deepcopy(boss)
         clone_hero.next_spell_to_cast = spell_to_cast_nbr
-        fight_completed = fight(clone_hero, clone_boss)
+        fight_completed = fight(clone_hero, clone_boss, hard)
         if not fight_completed and clone_hero.mana_spent < lowest_mana_spent:
             log('Subtree down from: {0} {1}'.format(lowest_mana_spent, hero.spells_cast_history))
-            mana_spent = next_round(clone_hero, clone_boss, lowest_mana_spent)
+            mana_spent = next_round(clone_hero, clone_boss, lowest_mana_spent, hard)
             if mana_spent < lowest_mana_spent:
                 lowest_mana_spent = mana_spent
             log('Returned to tree: {0} {1}'.format(lowest_mana_spent, hero.spells_cast_history))
@@ -203,10 +205,10 @@ def next_round(hero: Mage, boss: Character, lowest_mana_spent: int) -> int:
     return lowest_mana_spent
 
 
-def search_fights():
+def search_fights(hard: bool = False) -> None:
     hero = Mage('Hero', 50, 500)
     boss = Fighter('Boss', 58, 9)
-    least_mana_spent = next_round(hero, boss, sys.maxsize)
+    least_mana_spent = next_round(hero, boss, sys.maxsize, hard)
     print('Least mana spent = {0}'.format(least_mana_spent))
 
 
@@ -214,7 +216,8 @@ def main() -> None:
     # test_fight1()
     # test_fight2()
     # test_fight3()
-    search_fights()
+    # search_fights()
+    search_fights(True)
 
 
 if __name__ == '__main__':
