@@ -80,9 +80,11 @@ Had to go overboard and create classes for items and characters but resisted tak
 the winning conditions for each part.
 
 ##### Day 22
-Thought this one was going to be straightforward similar to Day 22 but I'm not finding the required solution. I used
-a solution on the [reddit thread.](https://www.reddit.com/r/adventofcode/comments/3xspyl/day_22_solutions/cy7mbfz/) to
-check what the solution should be and I need to revisit to find out where I went wrong.
+Thought this one was going to be straightforward, similar to Day 21, but took me ages to get the code right for the
+correct solutions. In the end I had to use a solution from the support [reddit thread](https://www.reddit.com/r/adventofcode/comments/3xspyl/day_22_solutions/cy7mbfz/)
+to check what the answer should be and use that to work through where my code was going wrong. I think my main problem
+was insisting on duplicating the output shown in the examples as part of the test and trying to produce a generic fight
+simulator rather than just a bare bones solution.
 
 ##### Day 23
 A chance to build a small op-code interpreter.
