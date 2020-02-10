@@ -96,11 +96,11 @@ final class Advent1 {
         test_blocks_away("R2, R2, R2", 2);
         test_blocks_away("R5, L5, R5, R3", 12);
         String directions = readInputFile();
-        int distance = blocks_away(directions, false);
-        System.out.println(String.format("Day 1, Part 1 the Easter Bunny HQ is %d blocks away.", distance));
+        int distance1 = blocks_away(directions, false);
+        System.out.println(String.format("Day 1, Part 1 the Easter Bunny HQ is %d blocks away.", distance1));
         test_blocks_away("R8, R4, R4, R8", 4, true);
-        distance = blocks_away(directions, true);
-        System.out.println(String.format("Day 1, Part 2 the Easter Bunny HQ is %d blocks away.", distance));
+        int distance2 = blocks_away(directions, true);
+        System.out.println(String.format("Day 1, Part 2 the Easter Bunny HQ is %d blocks away.", distance2));
     }
 
 }
