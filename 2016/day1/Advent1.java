@@ -51,6 +51,7 @@ final class Position {
     private Location location = new Location(0, 0);
     private char heading = 'N';
     private Map<Location, Integer> history = new HashMap<>();
+    private Location revisited;
 
     Position() {
         update_history();
@@ -58,6 +59,9 @@ final class Position {
 
     private void update_history() {
         this.history.merge(this.location, 1, Integer::sum);
+        if (this.revisited == null && this.history.get(this.location) == 2) {
+            this.revisited = this.location;
+        }
     }
 
     private void move_x(final char new_heading, final int distance_change) {
@@ -107,10 +111,9 @@ final class Position {
 
     int getDistance(final boolean visited_twice) {
         if (visited_twice) {
-            Object[] visited = history.entrySet().stream().filter(entry -> entry.getValue() > 1).map(Map.Entry::getKey).toArray();
-            return ((Location) visited[0]).absDistance();
+            return this.revisited.absDistance();
         } else {
-            return location.absDistance();
+            return this.location.absDistance();
         }
     }
 
