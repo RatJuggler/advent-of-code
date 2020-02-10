@@ -8,16 +8,19 @@ import java.util.StringTokenizer;
 
 final class Position {
 
+    private boolean visited_twice;
     // Always start at origin facing North.
     private int x = 0;
     private int y = 0;
     private char heading = 'N';
 
-    Position() {}
+    Position(final boolean visited_twice) {
+        this.visited_twice = visited_twice;
+    }
 
     void move(final char turn, final int distance) {
         assert turn == 'R' || turn == 'L': String.format("Cannot turn %s!", turn);
-        switch (heading) {
+        switch (this.heading) {
             case 'N':
                 if (turn == 'R') {
                     heading = 'E';
@@ -76,8 +79,8 @@ final class Advent1 {
         return Files.readString(filePath);
     }
 
-    private static int blocks_away(final String directions) {
-        Position position = new Position();
+    private static int blocks_away(final String directions, final boolean visited_twice) {
+        Position position = new Position(visited_twice);
         StringTokenizer tokenizer = new StringTokenizer(directions, ", ");
         while (tokenizer.hasMoreElements()) {
             String direction = tokenizer.nextToken();
@@ -89,10 +92,14 @@ final class Advent1 {
         return position.getDistance();
     }
 
-    private static void test_blocks_away(final String directions, final int expected_distance) {
-        int distance = blocks_away(directions);
+    private static void test_blocks_away(final String directions, final int expected_distance, final boolean visited_twice) {
+        int distance = blocks_away(directions, visited_twice);
         assert distance == expected_distance:
                 String.format("Expected a distance of %d but was %d!", expected_distance, distance);
+    }
+
+    private static void test_blocks_away(final String directions, final int expected_distance) {
+        test_blocks_away(directions, expected_distance, false);
     }
 
     public static void main(final String[] args) throws IOException {
@@ -100,8 +107,11 @@ final class Advent1 {
         test_blocks_away("R2, R2, R2", 2);
         test_blocks_away("R5, L5, R5, R3", 12);
         String directions = readInputFile();
-        int distance = blocks_away(directions);
+        int distance = blocks_away(directions, false);
         System.out.println(String.format("Day 1, Part 1 the Easter Bunny HQ is %d blocks away.", distance));
+        test_blocks_away("R8, R4, R4, R8", 4, true);
+        distance = blocks_away(directions, true);
+        System.out.println(String.format("Day 1, Part 2 the Easter Bunny HQ is %d blocks away.", distance));
     }
 
 }
