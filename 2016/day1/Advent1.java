@@ -4,30 +4,78 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.StringTokenizer;
+
+
+final class Location {
+
+    final int x;
+    final int y;
+
+    Location(final int x, final int y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    int absDistance() {
+        return Math.abs(this.x) + Math.abs(this.y);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Location location = (Location) o;
+        return this.x == location.x &&
+                this.y == location.y;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.x, this.y);
+    }
+
+    @Override
+    public String toString() {
+        return "{x: " + this.x + ", y: " + this.y + '}';
+    }
+}
+
 
 final class Position {
 
-    private boolean visited_twice;
     // Always start at origin facing North.
-    private int x = 0;
-    private int y = 0;
+    private Location location = new Location(0, 0);
     private char heading = 'N';
+    private Map<Location, Integer> history = new HashMap<>();
 
-    Position(final boolean visited_twice) {
-        this.visited_twice = visited_twice;
+    Position() {
+        update_history();
+    }
+
+    private void update_history() {
+        this.history.merge(this.location, 1, Integer::sum);
     }
 
     private void move_x(final char new_heading, final int distance_change) {
         assert new_heading == 'E' || new_heading == 'W': String.format("Cannot move %s!", new_heading);
         this.heading = new_heading;
-        this.x += new_heading == 'E' ? distance_change : -distance_change;
+        for (int i = 0; i < distance_change; i++) {
+            this.location = new Location(this.location.x + (new_heading == 'E' ? 1 : -1), this.location.y);
+            update_history();
+        }
     }
 
     private void move_y(final char new_heading, final int distance_change) {
         assert new_heading == 'N' || new_heading == 'S': String.format("Cannot move %s!", new_heading);
         this.heading = new_heading;
-        this.y += new_heading == 'N' ? distance_change : -distance_change;
+        for (int i = 0; i < distance_change; i++) {
+            this.location = new Location(this.location.x, this.location.y + (new_heading == 'N' ? 1 : -1));
+            update_history();
+        }
     }
 
     private void move(final char turn, final int distance) {
@@ -57,15 +105,21 @@ final class Position {
         System.out.println(String.format("Turn: %s, Distance: %d -> %s", turn, distance, this));
     }
 
-    int getDistance() {
-        return Math.abs(this.x) + Math.abs(this.y);
+    int getDistance(final boolean visited_twice) {
+        if (visited_twice) {
+            Object[] visited = history.entrySet().stream().filter(entry -> entry.getValue() > 1).map(Map.Entry::getKey).toArray();
+            return ((Location) visited[0]).absDistance();
+        } else {
+            return location.absDistance();
+        }
     }
 
     @Override
     public String toString() {
-        return String.format("Position(x: %d, y: %d, heading: %s)", this.x, this.y, this.heading);
+        return String.format("Position(location: %s, heading: %s)", this.location, this.heading);
     }
 }
+
 
 final class Advent1 {
 
@@ -75,10 +129,10 @@ final class Advent1 {
     }
 
     private static int blocks_away(final String directions, final boolean visited_twice) {
-        Position position = new Position(visited_twice);
+        Position position = new Position();
         StringTokenizer tokenizer = new StringTokenizer(directions, ", ");
         tokenizer.asIterator().forEachRemaining(token -> position.update((String) token));
-        return position.getDistance();
+        return position.getDistance(visited_twice);
     }
 
     private static void test_blocks_away(final String directions, final int expected_distance, final boolean visited_twice) {
