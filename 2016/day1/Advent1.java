@@ -16,6 +16,7 @@ final class Position {
     Position() {}
 
     void move(final char turn, final int distance) {
+        assert turn == 'R' || turn == 'L': String.format("Cannot turn %s!", turn);
         switch (heading) {
             case 'N':
                 if (turn == 'R') {
@@ -64,7 +65,7 @@ final class Position {
 
     @Override
     public String toString() {
-        return "Position(x:" + x + ", y:" + y + ", heading:" + heading + ')';
+        return String.format("Position(x: %d, y: %d, heading: %s)", x, y, heading);
     }
 }
 
