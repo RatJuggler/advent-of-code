@@ -1,4 +1,6 @@
 # advent-of-code 2016
 
 ##### Day 1: No Time for a Taxicab
-Just started...
+First part is straightforward as we are just updating the current location. For the second part I didn't want to mess around with
+trying to find the intersection points of all the direction vectors so I built a history of every point visited and used a stream 
+with lambdas to filter and reduce it.
