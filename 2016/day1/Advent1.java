@@ -23,42 +23,42 @@ final class Position {
         switch (this.heading) {
             case 'N':
                 if (turn == 'R') {
-                    heading = 'E';
-                    x += distance;
+                    this.heading = 'E';
+                    this.x += distance;
                 } else {
-                    heading = 'W';
-                    x -= distance;
+                    this.heading = 'W';
+                    this.x -= distance;
                 }
                 break;
             case 'E':
                 if (turn == 'R') {
-                    heading = 'S';
-                    y -= distance;
+                    this.heading = 'S';
+                    this.y -= distance;
                 } else {
-                    heading = 'N';
-                    y += distance;
+                    this.heading = 'N';
+                    this.y += distance;
                 }
                 break;
             case 'S':
                 if (turn == 'R') {
-                    heading = 'W';
-                    x -= distance;
+                    this.heading = 'W';
+                    this.x -= distance;
                 } else {
-                    heading = 'E';
-                    x += distance;
+                    this.heading = 'E';
+                    this.x += distance;
                 }
                 break;
             case 'W':
                 if (turn == 'R') {
-                    heading = 'N';
-                    y += distance;
+                    this.heading = 'N';
+                    this.y += distance;
                 } else {
-                    heading = 'S';
-                    y -= distance;
+                    this.heading = 'S';
+                    this.y -= distance;
                 }
                 break;
             default:
-                throw new IllegalStateException(String.format("Impossible heading found %s!", heading));
+                throw new IllegalStateException(String.format("Impossible heading found %s!", this.heading));
         }
     }
 
@@ -68,7 +68,7 @@ final class Position {
 
     @Override
     public String toString() {
-        return String.format("Position(x: %d, y: %d, heading: %s)", x, y, heading);
+        return String.format("Position(x: %d, y: %d, heading: %s)", this.x, this.y, this.heading);
     }
 }
 
