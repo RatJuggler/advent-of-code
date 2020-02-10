@@ -18,44 +18,32 @@ final class Position {
         this.visited_twice = visited_twice;
     }
 
+    private void move_x(final char new_heading, final int distance_change) {
+        assert new_heading == 'E' || new_heading == 'W': String.format("Cannot move %s!", new_heading);
+        this.heading = new_heading;
+        this.x += new_heading == 'E' ? distance_change : -distance_change;
+    }
+
+    private void move_y(final char new_heading, final int distance_change) {
+        assert new_heading == 'N' || new_heading == 'S': String.format("Cannot move %s!", new_heading);
+        this.heading = new_heading;
+        this.y += new_heading == 'N' ? distance_change : -distance_change;
+    }
+
     void move(final char turn, final int distance) {
         assert turn == 'R' || turn == 'L': String.format("Cannot turn %s!", turn);
         switch (this.heading) {
             case 'N':
-                if (turn == 'R') {
-                    this.heading = 'E';
-                    this.x += distance;
-                } else {
-                    this.heading = 'W';
-                    this.x -= distance;
-                }
+                move_x(turn == 'R' ? 'E' : 'W', distance);
                 break;
             case 'E':
-                if (turn == 'R') {
-                    this.heading = 'S';
-                    this.y -= distance;
-                } else {
-                    this.heading = 'N';
-                    this.y += distance;
-                }
+                move_y(turn == 'R' ? 'S' : 'N', distance);
                 break;
             case 'S':
-                if (turn == 'R') {
-                    this.heading = 'W';
-                    this.x -= distance;
-                } else {
-                    this.heading = 'E';
-                    this.x += distance;
-                }
+                move_x(turn == 'R' ? 'W' : 'E', distance);
                 break;
             case 'W':
-                if (turn == 'R') {
-                    this.heading = 'N';
-                    this.y += distance;
-                } else {
-                    this.heading = 'S';
-                    this.y -= distance;
-                }
+                move_y(turn == 'R' ? 'N' : 'S', distance);
                 break;
             default:
                 throw new IllegalStateException(String.format("Impossible heading found %s!", this.heading));
