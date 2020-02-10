@@ -30,7 +30,7 @@ final class Position {
         this.y += new_heading == 'N' ? distance_change : -distance_change;
     }
 
-    void move(final char turn, final int distance) {
+    private void move(final char turn, final int distance) {
         assert turn == 'R' || turn == 'L': String.format("Cannot turn %s!", turn);
         switch (this.heading) {
             case 'N':
@@ -48,6 +48,13 @@ final class Position {
             default:
                 throw new IllegalStateException(String.format("Impossible heading found %s!", this.heading));
         }
+    }
+
+    void update(final String direction) {
+        char turn = direction.charAt(0);
+        int distance = Integer.parseInt(direction.substring(1));
+        this.move(turn, distance);
+        System.out.println(String.format("Turn: %s, Distance: %d -> %s", turn, distance, this));
     }
 
     int getDistance() {
@@ -70,13 +77,7 @@ final class Advent1 {
     private static int blocks_away(final String directions, final boolean visited_twice) {
         Position position = new Position(visited_twice);
         StringTokenizer tokenizer = new StringTokenizer(directions, ", ");
-        while (tokenizer.hasMoreElements()) {
-            String direction = tokenizer.nextToken();
-            char turn = direction.charAt(0);
-            int distance = Integer.parseInt(direction.substring(1));
-            position.move(turn, distance);
-            System.out.println(String.format("Turn: %s, Distance: %d -> %s", turn, distance, position));
-        }
+        tokenizer.asIterator().forEachRemaining(token -> position.update((String) token));
         return position.getDistance();
     }
 
