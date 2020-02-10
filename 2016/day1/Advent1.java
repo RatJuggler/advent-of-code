@@ -47,38 +47,38 @@ final class Location {
 
 final class Position {
 
-    // Always start at origin facing North.
-    private Location location = new Location(0, 0);
-    private char heading = 'N';
+    private Location location;
+    private char heading;
     private Map<Location, Integer> history = new HashMap<>();
     private Location revisited;
 
     Position() {
-        update_history();
+        // Always start at origin facing North.
+        newLocation(0, 0);
+        this.heading = 'N';
     }
 
-    private void update_history() {
+    private void newLocation(final int x, final int y) {
+        this.location = new Location(x, y);
         this.history.merge(this.location, 1, Integer::sum);
         if (this.revisited == null && this.history.get(this.location) == 2) {
             this.revisited = this.location;
         }
     }
 
-    private void move_x(final char new_heading, final int distance_change) {
-        assert new_heading == 'E' || new_heading == 'W': String.format("Cannot move %s!", new_heading);
-        this.heading = new_heading;
-        for (int i = 0; i < distance_change; i++) {
-            this.location = new Location(this.location.x + (new_heading == 'E' ? 1 : -1), this.location.y);
-            update_history();
+    private void moveX(final char newHeading, final int distance) {
+        assert newHeading == 'E' || newHeading == 'W': String.format("Cannot move %s!", newHeading);
+        this.heading = newHeading;
+        for (int i = 0; i < distance; i++) {
+            newLocation(this.location.x + (newHeading == 'E' ? 1 : -1), this.location.y);
         }
     }
 
-    private void move_y(final char new_heading, final int distance_change) {
-        assert new_heading == 'N' || new_heading == 'S': String.format("Cannot move %s!", new_heading);
-        this.heading = new_heading;
-        for (int i = 0; i < distance_change; i++) {
-            this.location = new Location(this.location.x, this.location.y + (new_heading == 'N' ? 1 : -1));
-            update_history();
+    private void moveY(final char newHeading, final int distance) {
+        assert newHeading == 'N' || newHeading == 'S': String.format("Cannot move %s!", newHeading);
+        this.heading = newHeading;
+        for (int i = 0; i < distance; i++) {
+            newLocation(this.location.x, this.location.y + (newHeading == 'N' ? 1 : -1));
         }
     }
 
@@ -86,16 +86,16 @@ final class Position {
         assert turn == 'R' || turn == 'L': String.format("Cannot turn %s!", turn);
         switch (this.heading) {
             case 'N':
-                move_x(turn == 'R' ? 'E' : 'W', distance);
+                moveX(turn == 'R' ? 'E' : 'W', distance);
                 break;
             case 'E':
-                move_y(turn == 'R' ? 'S' : 'N', distance);
+                moveY(turn == 'R' ? 'S' : 'N', distance);
                 break;
             case 'S':
-                move_x(turn == 'R' ? 'W' : 'E', distance);
+                moveX(turn == 'R' ? 'W' : 'E', distance);
                 break;
             case 'W':
-                move_y(turn == 'R' ? 'N' : 'S', distance);
+                moveY(turn == 'R' ? 'N' : 'S', distance);
                 break;
             default:
                 throw new IllegalStateException(String.format("Impossible heading found %s!", this.heading));
@@ -109,8 +109,8 @@ final class Position {
         System.out.println(String.format("Turn: %s, Distance: %d -> %s", turn, distance, this));
     }
 
-    int getDistance(final boolean visited_twice) {
-        if (visited_twice) {
+    int getDistance(final boolean visitedTwice) {
+        if (visitedTwice) {
             return this.revisited.absDistance();
         } else {
             return this.location.absDistance();
@@ -131,32 +131,32 @@ final class Advent1 {
         return Files.readString(filePath);
     }
 
-    private static int blocks_away(final String directions, final boolean visited_twice) {
+    private static int blocksAway(final String directions, final boolean visitedTwice) {
         Position position = new Position();
         StringTokenizer tokenizer = new StringTokenizer(directions, ", ");
         tokenizer.asIterator().forEachRemaining(token -> position.update((String) token));
-        return position.getDistance(visited_twice);
+        return position.getDistance(visitedTwice);
     }
 
-    private static void test_blocks_away(final String directions, final int expected_distance, final boolean visited_twice) {
-        int distance = blocks_away(directions, visited_twice);
-        assert distance == expected_distance:
-                String.format("Expected a distance of %d but was %d!", expected_distance, distance);
+    private static void testBlocksAway(final String directions, final int expectedDistance, final boolean visitedTwice) {
+        int distance = blocksAway(directions, visitedTwice);
+        assert distance == expectedDistance:
+                String.format("Expected a distance of %d but was %d!", expectedDistance, distance);
     }
 
-    private static void test_blocks_away(final String directions, final int expected_distance) {
-        test_blocks_away(directions, expected_distance, false);
+    private static void testBlocksAway(final String directions, final int expectedDistance) {
+        testBlocksAway(directions, expectedDistance, false);
     }
 
     public static void main(final String[] args) throws IOException {
-        test_blocks_away("R2, L3", 5);
-        test_blocks_away("R2, R2, R2", 2);
-        test_blocks_away("R5, L5, R5, R3", 12);
+        testBlocksAway("R2, L3", 5);
+        testBlocksAway("R2, R2, R2", 2);
+        testBlocksAway("R5, L5, R5, R3", 12);
         String directions = readInputFile();
-        int distance1 = blocks_away(directions, false);
+        int distance1 = blocksAway(directions, false);
         System.out.println(String.format("Day 1, Part 1 the Easter Bunny HQ is %d blocks away.", distance1));
-        test_blocks_away("R8, R4, R4, R8", 4, true);
-        int distance2 = blocks_away(directions, true);
+        testBlocksAway("R8, R4, R4, R8", 4, true);
+        int distance2 = blocksAway(directions, true);
         System.out.println(String.format("Day 1, Part 2 the Easter Bunny HQ is %d blocks away.", distance2));
     }
 
