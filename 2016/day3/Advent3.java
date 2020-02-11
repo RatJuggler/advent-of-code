@@ -3,6 +3,7 @@ package day3;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Scanner;
 import java.util.stream.Stream;
 
 
@@ -15,6 +16,13 @@ final class TriangleDataValidator {
 
     void validateData(final String triangleData) {
         this.dataValidations++;
+        Scanner scan = new Scanner(triangleData);
+        int a = scan.nextInt();
+        int b = scan.nextInt();
+        int c = scan.nextInt();
+        if (a + b > c && a + c > b && b + c > a) {
+            this.validTriangles++;
+        }
     }
 
     int getDataValidations() {
