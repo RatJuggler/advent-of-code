@@ -1,10 +1,8 @@
 package day3;
 
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Scanner;
-import java.util.stream.Stream;
 
 
 final class TriangleDataValidator {
@@ -13,6 +11,15 @@ final class TriangleDataValidator {
 
     TriangleDataValidator() {}
 
+    private int[] parseRowData(final String row) {
+        int[] rowData = new int[3];
+        Scanner scan = new Scanner(row);
+        rowData[0] = scan.nextInt();
+        rowData[1] = scan.nextInt();
+        rowData[2] = scan.nextInt();
+        return rowData;
+    }
+
     private void validateTriangle(final int a, final int b, final int c) {
         if (a + b > c && a + c > b && b + c > a) {
             this.validTriangles++;
@@ -20,21 +27,27 @@ final class TriangleDataValidator {
     }
 
     void validateDataByRow(final String filename) throws IOException {
-        try (Stream<String> stream = Files.lines(Paths.get(filename))) {
-            stream.forEach(this::validateData);
+        Scanner scanner = new Scanner(new File(filename));
+        while (scanner.hasNextLine()) {
+            String row = scanner.nextLine();
+            int[] rowData = parseRowData(row);
+            validateTriangle(rowData[0], rowData[1], rowData[2]);
         }
     }
 
-    void validateDataByColumn(final String filename) {
-
-    }
-
-    void validateData(final String triangleData) {
-        Scanner scan = new Scanner(triangleData);
-        int a = scan.nextInt();
-        int b = scan.nextInt();
-        int c = scan.nextInt();
-        validateTriangle(a, b, c);
+    void validateDataByColumn(final String filename) throws IOException {
+        Scanner scanner = new Scanner(new File(filename));
+        while (scanner.hasNextLine()) {
+            String row1 = scanner.nextLine();
+            int[] rowData1 = parseRowData(row1);
+            String row2 = scanner.nextLine();
+            int[] rowData2 = parseRowData(row2);
+            String row3 = scanner.nextLine();
+            int[] rowData3 = parseRowData(row3);
+            validateTriangle(rowData1[0], rowData2[0], rowData3[0]);
+            validateTriangle(rowData1[1], rowData2[1], rowData3[1]);
+            validateTriangle(rowData1[2], rowData2[2], rowData3[2]);
+        }
     }
 
     int getValidTriangles() {

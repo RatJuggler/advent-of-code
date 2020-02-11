@@ -26,3 +26,5 @@ For example, given the following specification, numbers with the same hundreds d
 203 403 603
 ```
 In your puzzle input, and instead reading by columns, how many of the listed triangles are possible?
+
+Your puzzle answer was 1836.
