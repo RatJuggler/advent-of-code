@@ -53,8 +53,8 @@ final class Keypad {
         this.buttons.put(id, new Button(id, moveToButton));
     }
 
-    void reset(final char startButton) {
-        this.button = this.buttons.get(startButton);
+    void reset() {
+        this.button = this.buttons.get('5');
         this.code = "";
     }
 
@@ -70,7 +70,7 @@ final class Keypad {
 
     void followInstructions(final String instructions) {
         assert !this.buttons.isEmpty(): "This keypad has no buttons!";
-        assert this.button != null: "This keypad has no start button!";
+        assert this.button != null: "Reset this keypad to use it!";
         for (char instruction: instructions.toCharArray()) {
             followInstruction(instruction);
         }
@@ -101,6 +101,24 @@ final class KeypadFactory {
         keypad.addButton('9', new char[][]{{'U', '6'}, {'R', '9'}, {'D', '9'}, {'L', '8'}});
         return keypad;
     }
+
+    static Keypad buildDiamondKeypad() {
+        Keypad keypad = new Keypad();
+        keypad.addButton('1', new char[][]{{'U', '1'}, {'R', '1'}, {'D', '3'}, {'L', '1'}});
+        keypad.addButton('2', new char[][]{{'U', '2'}, {'R', '3'}, {'D', '6'}, {'L', '2'}});
+        keypad.addButton('3', new char[][]{{'U', '1'}, {'R', '4'}, {'D', '7'}, {'L', '2'}});
+        keypad.addButton('4', new char[][]{{'U', '4'}, {'R', '4'}, {'D', '8'}, {'L', '3'}});
+        keypad.addButton('5', new char[][]{{'U', '5'}, {'R', '6'}, {'D', '5'}, {'L', '5'}});
+        keypad.addButton('6', new char[][]{{'U', '2'}, {'R', '7'}, {'D', 'A'}, {'L', '5'}});
+        keypad.addButton('7', new char[][]{{'U', '3'}, {'R', '8'}, {'D', 'B'}, {'L', '6'}});
+        keypad.addButton('8', new char[][]{{'U', '4'}, {'R', '9'}, {'D', 'C'}, {'L', '7'}});
+        keypad.addButton('9', new char[][]{{'U', '9'}, {'R', '9'}, {'D', '9'}, {'L', '8'}});
+        keypad.addButton('A', new char[][]{{'U', '6'}, {'R', 'B'}, {'D', 'A'}, {'L', 'A'}});
+        keypad.addButton('B', new char[][]{{'U', '7'}, {'R', 'C'}, {'D', 'D'}, {'L', 'A'}});
+        keypad.addButton('C', new char[][]{{'U', '8'}, {'R', 'C'}, {'D', 'C'}, {'L', 'B'}});
+        keypad.addButton('D', new char[][]{{'U', 'B'}, {'R', 'D'}, {'D', 'D'}, {'L', 'D'}});
+        return keypad;
+    }
 }
 
 
@@ -113,20 +131,26 @@ final class Advent2 {
         return keypad.codeFound();
     }
 
-    private static void testDetermineCode(final String filename, final String expectedCode, final Keypad keypad)
+    private static void testDetermineCode(final String expectedCode, final Keypad keypad)
             throws IOException {
-        String code = determineCode(filename, keypad);
+        String code = determineCode("2016/day2/test2a.txt", keypad);
         assert code.equals(expectedCode):
                 String.format("Expected code '%s' but was '%s'!", expectedCode, code);
     }
 
     public static void main(final String[] args) throws IOException {
-        Keypad keypad = KeypadFactory.buildSquareKeypad();
-        keypad.reset('5');
-        testDetermineCode("2016/day2/test2a.txt", "1985", keypad);
-        keypad.reset('5');
-        String code = determineCode("2016/day2/input2.txt", keypad);
-        System.out.println(String.format("Day 2, Part 1 the bathroom code is '%s'.", code));
+        Keypad keypad1 = KeypadFactory.buildSquareKeypad();
+        keypad1.reset();
+        testDetermineCode("1985", keypad1);
+        keypad1.reset();
+        String code1 = determineCode("2016/day2/input2.txt", keypad1);
+        System.out.println(String.format("Day 2, Part 1 the bathroom code is '%s'.", code1));
+        Keypad keypad2 = KeypadFactory.buildDiamondKeypad();
+        keypad2.reset();
+        testDetermineCode("5DB3", keypad2);
+        keypad2.reset();
+        String code2 = determineCode("2016/day2/input2.txt", keypad2);
+        System.out.println(String.format("Day 2, Part 2 the bathroom code is '%s'.", code2));
     }
 
 }
