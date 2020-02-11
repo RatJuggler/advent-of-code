@@ -7,7 +7,6 @@ import java.nio.file.Paths;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.StringTokenizer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -135,8 +134,9 @@ final class Advent1 {
                                   final Function<Map.Entry<Location, Integer>, Boolean> filter,
                                   final BiFunction<Map.Entry<Location, Integer>, Map.Entry<Location, Integer>, Map.Entry<Location, Integer>> select) {
         Position position = new Position();
-        StringTokenizer tokenizer = new StringTokenizer(directions, ", ");
-        tokenizer.asIterator().forEachRemaining(token -> position.update((String) token));
+        for (String direction: directions.split(", ")) {
+            position.update(direction);
+        }
         return position.getDistance(filter, select);
     }
 
