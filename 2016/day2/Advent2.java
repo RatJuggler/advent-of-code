@@ -3,20 +3,21 @@ package day2;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
 final class Button {
 
     private final char id;
-    private final char[] moveToButton;
+    private final Map<Character, Character> moveToButton;
 
-    Button(final char id, final char[] moveToButton) {
+    Button(final char id, final char[][] moveToButton) {
         this.id = id;
-        this.moveToButton = moveToButton;
+        this.moveToButton = Stream.of(moveToButton)
+                .collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 
     char getId() {
@@ -24,23 +25,18 @@ final class Button {
     }
 
     char move(final char direction) {
-        switch (direction) {
-            case 'U':
-                return this.moveToButton[0];
-            case 'R':
-                return this.moveToButton[1];
-            case 'D':
-                return this.moveToButton[2];
-            case 'L':
-                return this.moveToButton[3];
-            default:
-                throw new IllegalStateException(String.format("Impossible direction found '%s'!", direction));
+        if (this.moveToButton.get(direction) == null) {
+            throw new IllegalStateException(String.format("Direction '%s' not supported in %s!", direction, this));
         }
+        return this.moveToButton.get(direction);
     }
 
     @Override
     public String toString() {
-        return String.format("Button(id:%s, moveToButton:%s)", this.id, Arrays.toString(this.moveToButton));
+        String mapAsString = this.moveToButton.keySet().stream()
+                .map(key -> key + "=" + this.moveToButton.get(key))
+                .collect(Collectors.joining(", ", "{", "}"));
+        return String.format("Button(id:%s, moveToButton:%s)", this.id, mapAsString);
     }
 }
 
@@ -51,25 +47,17 @@ final class Keypad {
     private Button button;
     private String code = "";
 
-    Keypad() {
-        // U, R, D, L
-        addButton('1', new char[]{'1', '2', '4', '1'});
-        addButton('2', new char[]{'2', '3', '5', '1'});
-        addButton('3', new char[]{'3', '3', '6', '2'});
-        addButton('4', new char[]{'1', '5', '7', '4'});
-        addButton('5', new char[]{'2', '6', '8', '4'});
-        addButton('6', new char[]{'3', '6', '9', '5'});
-        addButton('7', new char[]{'4', '8', '7', '7'});
-        addButton('8', new char[]{'5', '9', '8', '7'});
-        addButton('9', new char[]{'6', '9', '9', '8'});
-        this.button = this.buttons.get('5');
-    }
+    Keypad() {}
 
-    private void addButton(final char id, final char[] moveToButton) {
+    void addButton(final char id, final char[][] moveToButton) {
         this.buttons.put(id, new Button(id, moveToButton));
     }
 
-    void followInstruction(final char instruction) {
+    void setStartButton(final char startButton) {
+        this.button = this.buttons.get(startButton);
+    }
+
+    private void followInstruction(final char instruction) {
         char newButton = this.button.move(instruction);
         if (this.buttons.get(newButton) == null) {
             throw new IllegalStateException(String.format("Button not found for instruction '%s' from button '%s'!", instruction, this.button));
@@ -92,10 +80,31 @@ final class Keypad {
 }
 
 
+final class KeypadFactory {
+
+    KeypadFactory() {}
+
+    static Keypad buildSquareKeypad() {
+        Keypad keypad = new Keypad();
+        keypad.addButton('1', new char[][]{{'U', '1'}, {'R', '2'}, {'D', '4'}, {'L', '1'}});
+        keypad.addButton('2', new char[][]{{'U', '2'}, {'R', '3'}, {'D', '5'}, {'L', '1'}});
+        keypad.addButton('3', new char[][]{{'U', '3'}, {'R', '3'}, {'D', '6'}, {'L', '2'}});
+        keypad.addButton('4', new char[][]{{'U', '1'}, {'R', '5'}, {'D', '7'}, {'L', '4'}});
+        keypad.addButton('5', new char[][]{{'U', '2'}, {'R', '6'}, {'D', '8'}, {'L', '4'}});
+        keypad.addButton('6', new char[][]{{'U', '3'}, {'R', '6'}, {'D', '9'}, {'L', '5'}});
+        keypad.addButton('7', new char[][]{{'U', '4'}, {'R', '8'}, {'D', '7'}, {'L', '7'}});
+        keypad.addButton('8', new char[][]{{'U', '5'}, {'R', '9'}, {'D', '8'}, {'L', '7'}});
+        keypad.addButton('9', new char[][]{{'U', '6'}, {'R', '9'}, {'D', '9'}, {'L', '8'}});
+        keypad.setStartButton('5');
+        return keypad;
+    }
+}
+
+
 final class Advent2 {
 
     private static String determineCode(final String filename) throws IOException {
-        Keypad keypad = new Keypad();
+        Keypad keypad = KeypadFactory.buildSquareKeypad();
         try (Stream<String> stream = Files.lines(Paths.get(filename))) {
             stream.forEach(keypad::followInstructions);
         }
