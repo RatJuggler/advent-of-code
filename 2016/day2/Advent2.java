@@ -45,7 +45,7 @@ final class Keypad {
 
     private Map<Character, Button> buttons = new HashMap<>();
     private Button button;
-    private String code = "";
+    private String code;
 
     Keypad() {}
 
@@ -53,20 +53,24 @@ final class Keypad {
         this.buttons.put(id, new Button(id, moveToButton));
     }
 
-    void setStartButton(final char startButton) {
+    void reset(final char startButton) {
         this.button = this.buttons.get(startButton);
+        this.code = "";
     }
 
     private void followInstruction(final char instruction) {
         char newButton = this.button.move(instruction);
         if (this.buttons.get(newButton) == null) {
-            throw new IllegalStateException(String.format("Button not found for instruction '%s' from button '%s'!", instruction, this.button));
+            throw new IllegalStateException(
+                    String.format("Button not found for instruction '%s' from button '%s'!", instruction, this.button));
         }
         this.button = this.buttons.get(newButton);
         System.out.println(String.format("%s -> %s", instruction, this.button));
     }
 
     void followInstructions(final String instructions) {
+        assert !this.buttons.isEmpty(): "This keypad has no buttons!";
+        assert this.button != null: "This keypad has no start button!";
         for (char instruction: instructions.toCharArray()) {
             followInstruction(instruction);
         }
@@ -95,7 +99,6 @@ final class KeypadFactory {
         keypad.addButton('7', new char[][]{{'U', '4'}, {'R', '8'}, {'D', '7'}, {'L', '7'}});
         keypad.addButton('8', new char[][]{{'U', '5'}, {'R', '9'}, {'D', '8'}, {'L', '7'}});
         keypad.addButton('9', new char[][]{{'U', '6'}, {'R', '9'}, {'D', '9'}, {'L', '8'}});
-        keypad.setStartButton('5');
         return keypad;
     }
 }
@@ -103,23 +106,26 @@ final class KeypadFactory {
 
 final class Advent2 {
 
-    private static String determineCode(final String filename) throws IOException {
-        Keypad keypad = KeypadFactory.buildSquareKeypad();
+    private static String determineCode(final String filename, final Keypad keypad) throws IOException {
         try (Stream<String> stream = Files.lines(Paths.get(filename))) {
             stream.forEach(keypad::followInstructions);
         }
         return keypad.codeFound();
     }
 
-    private static void testDetermineCode(final String filename, final String expectedCode) throws IOException {
-        String code = determineCode(filename);
+    private static void testDetermineCode(final String filename, final String expectedCode, final Keypad keypad)
+            throws IOException {
+        String code = determineCode(filename, keypad);
         assert code.equals(expectedCode):
                 String.format("Expected code '%s' but was '%s'!", expectedCode, code);
     }
 
     public static void main(final String[] args) throws IOException {
-        testDetermineCode("2016/day2/test2a.txt", "1985");
-        String code = determineCode("2016/day2/input2.txt");
+        Keypad keypad = KeypadFactory.buildSquareKeypad();
+        keypad.reset('5');
+        testDetermineCode("2016/day2/test2a.txt", "1985", keypad);
+        keypad.reset('5');
+        String code = determineCode("2016/day2/input2.txt", keypad);
         System.out.println(String.format("Day 2, Part 1 the bathroom code is '%s'.", code));
     }
 
