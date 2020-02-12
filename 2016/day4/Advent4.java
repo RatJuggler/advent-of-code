@@ -3,6 +3,7 @@ package day4;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -56,7 +57,16 @@ class RoomValidator {
     }
 
     String decryptName() {
-        return "xxx";
+        char[] decryptedName = this.name.toCharArray();
+        long rotate = sectorIdValue() % 26;
+        for (long i = 0; i < rotate; i++) {
+            for (int j = 0; j < decryptedName.length; j++) {
+                if (decryptedName[j] != '-') {
+                    decryptedName[j] = decryptedName[j] == 'z' ? 'a' : (char) (decryptedName[j] + 1);
+                }
+            }
+        }
+        return String.valueOf(decryptedName);
     }
 
     @Override
@@ -81,22 +91,22 @@ public class Advent4 {
         RoomValidator roomValidator = new RoomValidator(room);
         System.out.println(String.format("%s -> %s", room, roomValidator));
         boolean realRoom = roomValidator.isARealRoom();
-        assert realRoom == expectedRealRoom: String.format("Expected result %s but was %s!", expectedRealRoom, realRoom);
+        assert realRoom == expectedRealRoom: String.format("Expected result '%s' but was '%s'!", expectedRealRoom, realRoom);
     }
 
     private static void testSumRealRoomSectorIds() throws IOException {
         long expectedSectorIdSum = 1514;
         long sectorIdSum = sumRealRoomSectorIds("2016/day4/test4a.txt");
-        assert sectorIdSum == expectedSectorIdSum: String.format("Expected result %s but was %s!", expectedSectorIdSum, sectorIdSum);
+        assert sectorIdSum == expectedSectorIdSum: String.format("Expected result '%s' but was '%s'!", expectedSectorIdSum, sectorIdSum);
     }
 
     private static void testDecryptName() {
         String room = "qzmt-zixmtkozy-ivhz-343[zimth]";
-        String expectedName = "very encrypted name";
+        String expectedName = "very-encrypted-name";
         RoomValidator roomValidator = new RoomValidator(room);
         System.out.println(String.format("%s -> %s", room, roomValidator));
         String name = roomValidator.decryptName();
-        assert name.equals(expectedName) : String.format("Expect name to be %s but was %s!", expectedName, name);
+        assert name.equals(expectedName) : String.format("Expect name to be '%s' but was '%s'!", expectedName, name);
     }
 
     public static void main(final String[] args) throws IOException {
