@@ -4,20 +4,40 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-public class Advent4 {
+class RoomValidator {
 
-    private static boolean isARealRoom(String room) {
+    final String name;
+    final String sectorId;
+    final String checksum;
+
+    RoomValidator(final String room) {
         String pattern = "(?<name>[a-z\\-]+)-(?<sectorid>\\d+)\\[(?<checksum>[a-z]+)]";
         Pattern r = Pattern.compile(pattern);
         Matcher m = r.matcher(room);
         if (!m.find()) {
             throw new IllegalStateException("Unable to parse room: " + room);
         }
-        String name = m.group("name");
-        String sectorId = m.group("sectorid");
-        String checksum = m.group("checksum");
-        System.out.println(String.format("%s -> %s %s %s", room, name, sectorId, checksum));
+        this.name = m.group("name");
+        this.sectorId = m.group("sectorid");
+        this.checksum = m.group("checksum");
+    }
+
+    boolean isARealRoom() {
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("RoomValidator{name='%s', sectorId='%s', checksum='%s'}", this.name, this.sectorId, this.checksum);
+    }
+}
+
+public class Advent4 {
+
+    private static boolean isARealRoom(String room) {
+        RoomValidator roomValidator = new RoomValidator(room);
+        System.out.println(String.format("%s -> %s", room, roomValidator));
+        return roomValidator.isARealRoom();
     }
 
     private static void testIsARealRoom(final String room, final boolean expectedRealRoom) {
