@@ -3,7 +3,6 @@ package day4;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -78,12 +77,21 @@ class RoomValidator {
 
 public class Advent4 {
 
-    private static Long sumRealRoomSectorIds(final String filenae) throws IOException {
-        try (Stream<String> stream = Files.lines(Paths.get(filenae))) {
+    private static Long sumRealRoomSectorIds(final String filename) throws IOException {
+        try (Stream<String> stream = Files.lines(Paths.get(filename))) {
             return stream.map(RoomValidator::new)
                     .filter(RoomValidator::isARealRoom)
                     .map(RoomValidator::sectorIdValue)
                     .reduce(0L, Long::sum);
+        }
+    }
+
+    private static void findRoom(final String filename, final String name) throws IOException {
+        try (Stream<String> stream = Files.lines(Paths.get(filename))) {
+            stream.map(RoomValidator::new)
+                    .filter(RoomValidator::isARealRoom)
+                    .filter(rv -> rv.decryptName().equals(name))
+                    .forEach(System.out::println);
         }
     }
 
@@ -118,6 +126,7 @@ public class Advent4 {
         System.out.println(String.format("Day 4, Step 1, sum of sector id's for real rooms is %d.",
                 sumRealRoomSectorIds("2016/day4/input4.txt")));
         testDecryptName();
+        findRoom("2016/day4/input4.txt", "northpole-object-storage");
     }
 
 }

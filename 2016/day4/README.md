@@ -28,3 +28,5 @@ To decrypt a room name, rotate each letter forward through the alphabet a number
 For example, the real name for qzmt-zixmtkozy-ivhz-343 is very encrypted name.
 
 What is the sector ID of the room where North Pole objects are stored?
+
+Your puzzle answer was 324.
