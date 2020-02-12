@@ -55,6 +55,10 @@ class RoomValidator {
         return Long.parseLong(this.sectorId);
     }
 
+    String decryptName() {
+        return "xxx";
+    }
+
     @Override
     public String toString() {
         return String.format("RoomValidator{name='%s', sectorId='%s', checksum='%s'}", this.name, this.sectorId, this.checksum);
@@ -63,12 +67,6 @@ class RoomValidator {
 
 
 public class Advent4 {
-
-    private static boolean isARealRoom(String room) {
-        RoomValidator roomValidator = new RoomValidator(room);
-        System.out.println(String.format("%s -> %s", room, roomValidator));
-        return roomValidator.isARealRoom();
-    }
 
     private static Long sumRealRoomSectorIds(final String filenae) throws IOException {
         try (Stream<String> stream = Files.lines(Paths.get(filenae))) {
@@ -80,7 +78,9 @@ public class Advent4 {
     }
 
     private static void testIsARealRoom(final String room, final boolean expectedRealRoom) {
-        boolean realRoom = isARealRoom(room);
+        RoomValidator roomValidator = new RoomValidator(room);
+        System.out.println(String.format("%s -> %s", room, roomValidator));
+        boolean realRoom = roomValidator.isARealRoom();
         assert realRoom == expectedRealRoom: String.format("Expected result %s but was %s!", expectedRealRoom, realRoom);
     }
 
@@ -88,6 +88,15 @@ public class Advent4 {
         long expectedSectorIdSum = 1514;
         long sectorIdSum = sumRealRoomSectorIds("2016/day4/test4a.txt");
         assert sectorIdSum == expectedSectorIdSum: String.format("Expected result %s but was %s!", expectedSectorIdSum, sectorIdSum);
+    }
+
+    private static void testDecryptName() {
+        String room = "qzmt-zixmtkozy-ivhz-343[zimth]";
+        String expectedName = "very encrypted name";
+        RoomValidator roomValidator = new RoomValidator(room);
+        System.out.println(String.format("%s -> %s", room, roomValidator));
+        String name = roomValidator.decryptName();
+        assert name.equals(expectedName) : String.format("Expect name to be %s but was %s!", expectedName, name);
     }
 
     public static void main(final String[] args) throws IOException {
@@ -98,6 +107,7 @@ public class Advent4 {
         testSumRealRoomSectorIds();
         System.out.println(String.format("Day 4, Step 1, sum of sector id's for real rooms is %d.",
                 sumRealRoomSectorIds("2016/day4/input4.txt")));
+        testDecryptName();
     }
 
 }
