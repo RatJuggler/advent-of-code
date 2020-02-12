@@ -22,7 +22,7 @@ public class Advent5 {
         MessageDigest md = MessageDigest.getInstance("MD5");
         StringBuilder password = new StringBuilder();
         int index = 0;
-        String hash = null;
+        String hash;
         for (int i = 0; i < 8; i++) {
             do {
                 String toHash = doorId + index;
@@ -46,6 +46,8 @@ public class Advent5 {
 
     public static void main(String[] args) throws NoSuchAlgorithmException {
         testHackPassword();
+        String password = hackPassword("abbhdwsy");
+        System.out.println(String.format("Day 5, Part 1 the password is '%s'.", password));
     }
 
 }
