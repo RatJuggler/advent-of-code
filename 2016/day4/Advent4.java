@@ -3,6 +3,7 @@ package day4;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -16,9 +17,9 @@ import static java.util.stream.Collectors.groupingBy;
 
 class RoomValidator {
 
-    final String name;
-    final String sectorId;
-    final String checksum;
+    private final String name;
+    private final String sectorId;
+    private final String checksum;
 
     RoomValidator(final String room) {
         String pattern = "(?<name>[a-z\\-]+)-(?<sectorid>\\d+)\\[(?<checksum>[a-z]+)]";
@@ -56,16 +57,12 @@ class RoomValidator {
     }
 
     String decryptName() {
-        char[] decryptedName = this.name.toCharArray();
-        long rotate = sectorIdValue() % 26;
-        for (long i = 0; i < rotate; i++) {
-            for (int j = 0; j < decryptedName.length; j++) {
-                if (decryptedName[j] != '-') {
-                    decryptedName[j] = decryptedName[j] == 'z' ? 'a' : (char) (decryptedName[j] + 1);
-                }
-            }
-        }
-        return String.valueOf(decryptedName);
+        long rotate = sectorIdValue() % 26 - 'a';
+        return this.name.codePoints()
+                .mapToObj(c -> (char) c)
+                .map(c -> c == '-' ? ' ' : (char) ('a' + (c + rotate) % 26))
+                .map(String::valueOf)
+                .collect(Collectors.joining(""));
     }
 
     @Override
@@ -86,12 +83,12 @@ public class Advent4 {
         }
     }
 
-    private static void findRoom(final String filename, final String name) throws IOException {
+    private static RoomValidator[] findRoom(final String filename, final String name) throws IOException {
         try (Stream<String> stream = Files.lines(Paths.get(filename))) {
-            stream.map(RoomValidator::new)
+            return stream.map(RoomValidator::new)
                     .filter(RoomValidator::isARealRoom)
                     .filter(rv -> rv.decryptName().equals(name))
-                    .forEach(System.out::println);
+                    .toArray(RoomValidator[]::new);
         }
     }
 
@@ -110,7 +107,7 @@ public class Advent4 {
 
     private static void testDecryptName() {
         String room = "qzmt-zixmtkozy-ivhz-343[zimth]";
-        String expectedName = "very-encrypted-name";
+        String expectedName = "very encrypted name";
         RoomValidator roomValidator = new RoomValidator(room);
         System.out.println(String.format("%s -> %s", room, roomValidator));
         String name = roomValidator.decryptName();
@@ -126,7 +123,8 @@ public class Advent4 {
         System.out.println(String.format("Day 4, Step 1, sum of sector id's for real rooms is %d.",
                 sumRealRoomSectorIds("2016/day4/input4.txt")));
         testDecryptName();
-        findRoom("2016/day4/input4.txt", "northpole-object-storage");
+        RoomValidator[] found = findRoom("2016/day4/input4.txt", "northpole object storage");
+        System.out.println(String.format("Day 4, Step 1, rooms found: %s", Arrays.toString(found)));
     }
 
 }
