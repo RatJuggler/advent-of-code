@@ -74,9 +74,11 @@ public class Advent5 {
 
     public static void main(String[] args) throws NoSuchAlgorithmException {
         testHackPasswordSequential();
-        String password = hackPasswordSequential("abbhdwsy");
-        System.out.println(String.format("Day 5, Part 1 the password is '%s'.", password));
+        String password1 = hackPasswordSequential("abbhdwsy");
+        System.out.println(String.format("Day 5, Part 1 the password is '%s'.", password1));
         testHackPasswordPositional();
+        String password2 = hackPasswordPositional("abbhdwsy");
+        System.out.println(String.format("Day 5, Part 2 the password is '%s'.", password2));
     }
 
 }
