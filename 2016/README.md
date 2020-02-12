@@ -10,3 +10,7 @@ I started off by coding all the state changes explicitly and then refactored thi
 
 ##### Day 3: Squares With Three Sides
 Simple to do in a long handed way but couldn't think of a more elegant/generic approach for Part 2.
+
+##### Day 4: Security Through Obscurity
+Problem lends itself to using streams for much of the processing.
+ 
