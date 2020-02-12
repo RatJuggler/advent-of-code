@@ -46,7 +46,9 @@ class RoomValidator {
 
     boolean isARealRoom() {
         Map<Character, Long> occurrences = countLetterOccurrences(this.name, this.checksum.length());
-        return this.checksum.codePoints().mapToObj(c -> (char) c).allMatch(occurrences::containsKey);
+        return this.checksum.codePoints()
+                .mapToObj(c -> (char) c)
+                .allMatch(occurrences::containsKey);
     }
 
     long sectorIdValue() {
@@ -68,9 +70,12 @@ public class Advent4 {
         return roomValidator.isARealRoom();
     }
 
-    private static Long sumRealRoomSectorIds() throws IOException {
-        try (Stream<String> stream = Files.lines(Paths.get("2016/day4/input4.txt"))) {
-            return stream.map(RoomValidator::new).filter(RoomValidator::isARealRoom).map(RoomValidator::sectorIdValue).reduce(0L, Long::sum);
+    private static Long sumRealRoomSectorIds(final String filenae) throws IOException {
+        try (Stream<String> stream = Files.lines(Paths.get(filenae))) {
+            return stream.map(RoomValidator::new)
+                    .filter(RoomValidator::isARealRoom)
+                    .map(RoomValidator::sectorIdValue)
+                    .reduce(0L, Long::sum);
         }
     }
 
@@ -79,12 +84,20 @@ public class Advent4 {
         assert realRoom == expectedRealRoom: String.format("Expected result %s but was %s!", expectedRealRoom, realRoom);
     }
 
+    private static void testSumRealRoomSectorIds() throws IOException {
+        long expectedSectorIdSum = 1514;
+        long sectorIdSum = sumRealRoomSectorIds("2016/day4/test4a.txt");
+        assert sectorIdSum == expectedSectorIdSum: String.format("Expected result %s but was %s!", expectedSectorIdSum, sectorIdSum);
+    }
+
     public static void main(final String[] args) throws IOException {
         testIsARealRoom("aaaaa-bbb-z-y-x-123[abxyz]", true);
         testIsARealRoom("a-b-c-d-e-f-g-h-987[abcde]", true);
         testIsARealRoom("not-a-real-room-404[oarel]", true);
         testIsARealRoom("totally-real-room-200[decoy]", false);
-        System.out.println(String.format("Day 4, Step 1, sum of sector id's for real rooms is %d.", sumRealRoomSectorIds()));
+        testSumRealRoomSectorIds();
+        System.out.println(String.format("Day 4, Step 1, sum of sector id's for real rooms is %d.",
+                sumRealRoomSectorIds("2016/day4/input4.txt")));
     }
 
 }
