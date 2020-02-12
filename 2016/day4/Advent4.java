@@ -1,7 +1,13 @@
 package day4;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.counting;
+import static java.util.stream.Collectors.groupingBy;
 
 
 class RoomValidator {
@@ -22,8 +28,21 @@ class RoomValidator {
         this.checksum = m.group("checksum");
     }
 
+    private Map<Character, Long> countLetterOccurrences(final String string, final int limit) {
+        return string.codePoints()
+                .mapToObj(c -> (char) c)
+                .filter(c -> String.valueOf(c).matches("[a-z]"))
+                .collect(groupingBy(c -> c, counting()))
+                .entrySet()
+                .stream()
+                .sorted(Map.Entry.<Character, Long>comparingByValue().reversed().thenComparing(Map.Entry.comparingByKey()))
+                .limit(limit)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+    }
+
     boolean isARealRoom() {
-        return false;
+        Map<Character, Long> occurrences = countLetterOccurrences(this.name, this.checksum.length());
+        return true;
     }
 
     @Override
