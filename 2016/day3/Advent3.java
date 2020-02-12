@@ -2,7 +2,10 @@ package day3;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Scanner;
+import java.util.stream.Stream;
 
 
 final class TriangleDataValidator {
@@ -12,12 +15,8 @@ final class TriangleDataValidator {
     TriangleDataValidator() {}
 
     private int[] parseRowData(final String row) {
-        int[] rowData = new int[3];
         Scanner scan = new Scanner(row);
-        rowData[0] = scan.nextInt();
-        rowData[1] = scan.nextInt();
-        rowData[2] = scan.nextInt();
-        return rowData;
+        return new int[] {scan.nextInt(), scan.nextInt(), scan.nextInt()};
     }
 
     private void validateTriangle(final int a, final int b, final int c) {
@@ -58,6 +57,15 @@ final class TriangleDataValidator {
 
 final class Advent3 {
 
+    static long countByRowCondensed(final String filename) throws IOException {
+        try (Stream<String> stream = Files.lines(Paths.get(filename))) {
+            return stream
+                    .map(row -> {Scanner scan = new Scanner(row); return new int[] {scan.nextInt(), scan.nextInt(), scan.nextInt()};})
+                    .filter(rowData -> rowData[0] + rowData[1] > rowData[2] && rowData[0] + rowData[2] > rowData[1] && rowData[1] + rowData[2] > rowData[0])
+                    .count();
+        }
+    }
+
     static int countValidTrianglesByRow(final String filename) throws IOException {
         TriangleDataValidator validator = new TriangleDataValidator();
         validator.validateDataByRow(filename);
@@ -68,7 +76,10 @@ final class Advent3 {
         final int expectedValidTriangles = 3;
         int validTriangles = countValidTrianglesByRow(testFileName);
         assert validTriangles == expectedValidTriangles:
-                String.format("Expect to find %d valid triangles but was %d!", expectedValidTriangles, validTriangles);
+                String.format("Expected to find %d valid triangles but was %d!", expectedValidTriangles, validTriangles);
+        long altValidTriangles = countByRowCondensed(testFileName);
+        assert altValidTriangles == expectedValidTriangles:
+                String.format("Expected to find %d valid triangles using alt but was %d!", expectedValidTriangles, altValidTriangles);
     }
 
     static int countValidTrianglesByColumn(final String filename) throws IOException {
