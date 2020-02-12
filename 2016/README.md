@@ -7,3 +7,6 @@ with lambdas to filter and reduce it.
 
 ##### Day 2: Bathroom Security
 I started off by coding all the state changes explicitly and then refactored this into a more generic solution for defining keypads. 
+
+##### Day 3: Squares With Three Sides
+Simple to do in a long handed way but couldn't think of a more elegant/generic approach for Part 2.
