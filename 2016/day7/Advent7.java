@@ -22,8 +22,22 @@ class IPValidator {
         this.postnet = m.group("postnet");
     }
 
+    private boolean hasABBA(final String segment) {
+        assert segment.length() > 3: "ABBA only supported for segments of >= 4 characters.";
+        for (int i = 0; i < segment.length() - 3; i++) {
+            char[] pair = segment.substring(i, i + 2).toCharArray();
+            if (pair[0] != pair[1]) {
+                String reversePair = String.valueOf(pair[1]) + pair[0];
+                if (segment.substring(i + 2, i + 4).equals(reversePair)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     boolean supportsTLS() {
-        return true;
+        return !hasABBA(this.hypernet) && (hasABBA(this.prenet) || hasABBA(this.postnet));
     }
 
     @Override
