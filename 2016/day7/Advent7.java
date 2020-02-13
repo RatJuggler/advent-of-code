@@ -103,6 +103,14 @@ public class Advent7 {
         }
     }
 
+    private static Long countSSLSupportedIPs(final String filename) throws IOException {
+        try (Stream<String> stream = Files.lines(Paths.get(filename))) {
+            return stream.map(IPValidator::new)
+                    .filter(IPValidator::supportsSSL)
+                    .count();
+        }
+    }
+
     private static void testSupportsTLS(final String ip, final boolean expectedSupports) {
         IPValidator validator = new IPValidator(ip);
         System.out.println(validator);
@@ -131,6 +139,8 @@ public class Advent7 {
         testSupportsSSL("xyx[xyx]xyx", false);
         testSupportsSSL("aaa[kek]eke", true);
         testSupportsSSL("zazbz[bzb]cdb", true);
+        long sslSupportedIPs = countSSLSupportedIPs("2016/day7/input7.txt");
+        System.out.println(String.format("Day 7, Part 2 number of IPs support SSL is %d.", sslSupportedIPs));
     }
 
 }

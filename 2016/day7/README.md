@@ -29,3 +29,5 @@ For example:
 - zazbz[bzb]cdb supports SSL (zaz has no corresponding aza, but zbz has a corresponding bzb, even though zaz and zbz overlap).
 
 How many IPs in your puzzle input support SSL?
+
+Your puzzle answer was 260.
