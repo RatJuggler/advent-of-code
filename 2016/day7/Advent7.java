@@ -12,17 +12,17 @@ import java.util.stream.Stream;
 
 class IPValidator {
 
-    private final List<String> net = new ArrayList<>();
+    private final List<String> supernet = new ArrayList<>();
     private final List<String> hypernet = new ArrayList<>();
 
     IPValidator(final String ip) {
-        String pattern = "((?<net>[a-z]+)|\\[(?<hypernet>[a-z]+)])";
+        String pattern = "((?<supernet>[a-z]+)|\\[(?<hypernet>[a-z]+)])";
         Pattern r = Pattern.compile(pattern);
         Matcher m = r.matcher(ip);
         while (m.find()) {
-            String net = m.group("net");
-            if (net != null) {
-                this.net.add(net);
+            String supernet = m.group("supernet");
+            if (supernet != null) {
+                this.supernet.add(supernet);
             }
             String hypernet = m.group("hypernet");
             if (hypernet != null) {
@@ -38,7 +38,6 @@ class IPValidator {
             if (pair[0] != pair[1]) {
                 String reversePair = String.valueOf(pair[1]) + pair[0];
                 if (segment.substring(i + 2, i + 4).equals(reversePair)) {
-                    System.out.println(segment);
                     return true;
                 }
             }
@@ -52,7 +51,7 @@ class IPValidator {
                 return false;
             }
         }
-        for (String net: this.net) {
+        for (String net: this.supernet) {
             if (hasABBA(net)) {
                 return true;
             }
@@ -60,9 +59,13 @@ class IPValidator {
         return false;
     }
 
+    boolean supportsSSL() {
+        return false;
+    }
+
     @Override
     public String toString() {
-        return String.format("IPValidator{net='%s', hypernet='%s'}", this.net, this.hypernet);
+        return String.format("IPValidator{supernet='%s', hypernet='%s'}", this.supernet, this.hypernet);
     }
 }
 
@@ -85,6 +88,14 @@ public class Advent7 {
                 String.format("Expected support to be '%s' but was '%s'!", expectedSupports, supports);
     }
 
+    private static void testSupportsSSL(final String ip, final boolean expectedSupports) {
+        IPValidator validator = new IPValidator(ip);
+        System.out.println(validator);
+        boolean supports = validator.supportsSSL();
+        assert supports == expectedSupports:
+                String.format("Expected support to be '%s' but was '%s'!", expectedSupports, supports);
+    }
+
     public static void main(final String[] args) throws IOException {
         testSupportsTLS("abba[mnop]qrst", true);
         testSupportsTLS("abcd[bddb]xyyx", false);
@@ -93,6 +104,10 @@ public class Advent7 {
         testSupportsTLS("tyui[asdfgh]abcd[bddb]ioxxoj", false);
         long tlsSupportedIPs = countTLSSupportedIPs("2016/day7/input7.txt");
         System.out.println(String.format("Day 7, Part 1 number of IPs support TLS is %d.", tlsSupportedIPs));
+        testSupportsSSL("aba[bab]xyz", true);
+        testSupportsSSL("xyx[xyx]xyx", false);
+        testSupportsSSL("aaa[kek]eke", true);
+        testSupportsSSL("zazbz[bzb]cdb", true);
     }
 
 }
