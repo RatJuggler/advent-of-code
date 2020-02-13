@@ -13,4 +13,8 @@ Simple to do in a long handed way but couldn't think of a more elegant/generic a
 
 ##### Day 4: Security Through Obscurity
 Problem lends itself to using streams for much of the processing.
- 
+
+##### Day 5: How About a Nice Game of Chess?
+The core solution code was straightforward but required a but of rework to get a single method showing the password being filled in. 
+Java doesn't have a nice Curses type library so I didn't animate the output in the end. The bytes-to-hex-string method was pulled 
+from StackOverflow just because.
