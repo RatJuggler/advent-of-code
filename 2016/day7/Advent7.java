@@ -3,6 +3,8 @@ package day7;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -10,20 +12,23 @@ import java.util.stream.Stream;
 
 class IPValidator {
 
-    private final String prenet;
-    private final String hypernet;
-    private final String postnet;
+    private final List<String> net = new ArrayList<>();
+    private final List<String> hypernet = new ArrayList<>();
 
     IPValidator(final String ip) {
-        String pattern = "(?<prenet>[a-z]+)\\[(?<hypernet>[a-z]+)](?<postnet>[a-z]+)";
+        String pattern = "((?<net>[a-z]+)|\\[(?<hypernet>[a-z]+)])";
         Pattern r = Pattern.compile(pattern);
         Matcher m = r.matcher(ip);
-        if (!m.find()) {
-            throw new IllegalStateException("Unable to parse IP: " + ip);
+        while (m.find()) {
+            String net = m.group("net");
+            if (net != null) {
+                this.net.add(net);
+            }
+            String hypernet = m.group("hypernet");
+            if (hypernet != null) {
+                this.hypernet.add(hypernet);
+            }
         }
-        this.prenet = m.group("prenet");
-        this.hypernet = m.group("hypernet");
-        this.postnet = m.group("postnet");
     }
 
     private boolean hasABBA(final String segment) {
@@ -42,12 +47,22 @@ class IPValidator {
     }
 
     boolean supportsTLS() {
-        return !hasABBA(this.hypernet) && (hasABBA(this.prenet) || hasABBA(this.postnet));
+        for (String hypernet: this.hypernet) {
+            if (hasABBA(hypernet)) {
+                return false;
+            }
+        }
+        for (String net: this.net) {
+            if (hasABBA(net)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
     public String toString() {
-        return String.format("IPValidator{prenet='%s', hypernet='%s', postnet='%s'}", this.prenet, this.hypernet, this.postnet);
+        return String.format("IPValidator{net='%s', hypernet='%s'}", this.net, this.hypernet);
     }
 }
 
@@ -75,7 +90,7 @@ public class Advent7 {
         testSupportsTLS("abcd[bddb]xyyx", false);
         testSupportsTLS("aaaa[qwer]tyui", false);
         testSupportsTLS("ioxxoj[asdfgh]zxcvbn", true);
-        testSupportsTLS("tyui[asdfgh]abcd[bddb]ioxxoj", true);
+        testSupportsTLS("tyui[asdfgh]abcd[bddb]ioxxoj", false);
         long tlsSupportedIPs = countTLSSupportedIPs("2016/day7/input7.txt");
         System.out.println(String.format("Day 7, Part 1 number of IPs support TLS is %d.", tlsSupportedIPs));
     }
