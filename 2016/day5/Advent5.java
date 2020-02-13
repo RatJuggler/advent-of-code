@@ -18,11 +18,12 @@ public class Advent5 {
         return new String(hexChars);
     }
 
-    private static String hackPasswordSequential(final String doorId) throws NoSuchAlgorithmException {
+    private static String hackPassword(final String doorId, final boolean sequential) throws NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("MD5");
         StringBuilder password = new StringBuilder("********");
         int index = 0;
         int position;
+        char replace_with;
         String hash;
         for (int i = 0; i < 8; i++) {
             do {
@@ -30,30 +31,16 @@ public class Advent5 {
                 md.update(toHash.getBytes());
                 byte[] digest = md.digest();
                 hash = bytesToHex(digest);
-                position = i;
+                if (sequential) {
+                    position = i;
+                    replace_with = hash.charAt(5);
+                } else {
+                    position = hash.charAt(5) - '0';
+                    replace_with = hash.charAt(6);
+                }
             } while (!hash.startsWith("00000") || (hash.startsWith("00000") && (position < 0 || position > 7 || password.charAt(position) != '*')));
-            System.out.println(hash);
-            password.replace(position, position + 1, String.valueOf(hash.charAt(5)));
-        }
-        return password.toString();
-    }
-
-    private static String hackPasswordPositional(final String doorId) throws NoSuchAlgorithmException {
-        MessageDigest md = MessageDigest.getInstance("MD5");
-        StringBuilder password = new StringBuilder("********");
-        int index = 0;
-        int position;
-        String hash;
-        for (int i = 0; i < 8; i++) {
-            do {
-                String toHash = doorId + index++;
-                md.update(toHash.getBytes());
-                byte[] digest = md.digest();
-                hash = bytesToHex(digest);
-                position = hash.charAt(5) - '0';
-            } while (!hash.startsWith("00000") || (hash.startsWith("00000") && (position < 0 || position > 7 || password.charAt(position) != '*')));
-            System.out.println(hash);
-            password.replace(position, position + 1, String.valueOf(hash.charAt(6)));
+            password.replace(position, position + 1, String.valueOf(replace_with));
+            System.out.println(hash + " => " + password);
         }
         return password.toString();
     }
@@ -61,23 +48,23 @@ public class Advent5 {
     private static void testHackPasswordSequential() throws NoSuchAlgorithmException {
         String doorId = "abc";
         String expectedPassword = "18f47a30";
-        String password = hackPasswordSequential(doorId);
+        String password = hackPassword(doorId, true);
         assert password.equals(expectedPassword) : String.format("Expected password '%s' but was '%s'!", expectedPassword, password);
     }
 
     private static void testHackPasswordPositional() throws NoSuchAlgorithmException {
         String doorId = "abc";
         String expectedPassword = "05ace8e3";
-        String password = hackPasswordPositional(doorId);
+        String password = hackPassword(doorId, false);
         assert password.equals(expectedPassword) : String.format("Expected password '%s' but was '%s'!", expectedPassword, password);
     }
 
     public static void main(String[] args) throws NoSuchAlgorithmException {
         testHackPasswordSequential();
-        String password1 = hackPasswordSequential("abbhdwsy");
+        String password1 = hackPassword("abbhdwsy", true);
         System.out.println(String.format("Day 5, Part 1 the password is '%s'.", password1));
         testHackPasswordPositional();
-        String password2 = hackPasswordPositional("abbhdwsy");
+        String password2 = hackPassword("abbhdwsy", false);
         System.out.println(String.format("Day 5, Part 2 the password is '%s'.", password2));
     }
 
