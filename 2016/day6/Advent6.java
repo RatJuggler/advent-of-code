@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -24,16 +25,12 @@ public class Advent6 {
                             .forEach(i -> occurrences.get(i).merge(r[i], 1, Integer::sum)));
         }
         StringBuilder message = new StringBuilder();
-        for (int i = 0; i < messageWidth; i++) {
-            System.out.println(occurrences.get(i));
-            char highestOccurrence = occurrences.get(i).keySet().iterator().next();
-            for (char c : occurrences.get(i).keySet()) {
-                if (occurrences.get(i).get(c) > occurrences.get(i).get(highestOccurrence)) {
-                    highestOccurrence = c;
-                }
-            }
-            message.append(highestOccurrence);
-        }
+        occurrences.iterator().forEachRemaining(o -> {
+            System.out.println(o);
+            Optional<Map.Entry<Character, Integer>> mostOccurrences = o.entrySet().stream()
+                    .max(Map.Entry.comparingByValue());
+            message.append(mostOccurrences.isPresent() ? mostOccurrences.get().getKey() : '*');
+        });
         return message.toString();
     }
 
