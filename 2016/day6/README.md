@@ -38,3 +38,5 @@ In this modified code, the sender instead transmits what looks like random data,
 In the above example, the least common character in the first column is a; in the second, d, and so on. Repeating this process for the remaining characters produces the original message, advent.
 
 Given the recording in your puzzle input and this new decoding methodology, what is the original message that Santa is trying to send?
+
+Your puzzle answer was akothqli.

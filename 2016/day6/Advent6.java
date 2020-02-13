@@ -46,9 +46,11 @@ public class Advent6 {
 
     public static void main(String[] argc) throws IOException {
         testDecodeMessage(true, "easter");
-        String message = decodeMessage("2016/day6/input6.txt", true,8);
-        System.out.println(String.format("Day 6, Part 1 decoded message is %s.", message));
+        String message1 = decodeMessage("2016/day6/input6.txt", true,8);
+        System.out.println(String.format("Day 6, Part 1 decoded message is %s.", message1));
         testDecodeMessage(false, "advent");
+        String message2 = decodeMessage("2016/day6/input6.txt", false,8);
+        System.out.println(String.format("Day 6, Part 2 decoded message is %s.", message2));
     }
 
 }
