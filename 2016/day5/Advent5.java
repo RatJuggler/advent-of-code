@@ -20,7 +20,7 @@ public class Advent5 {
 
     private static String hackPassword(final String doorId, final boolean sequential) throws NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("MD5");
-        StringBuilder password = new StringBuilder("********");
+        char[] password = new char[] {'*', '*', '*', '*', '*', '*', '*', '*'};
         int index = 0;
         int position;
         char replace_with;
@@ -38,11 +38,11 @@ public class Advent5 {
                     position = hash.charAt(5) - '0';
                     replace_with = hash.charAt(6);
                 }
-            } while (!hash.startsWith("00000") || (hash.startsWith("00000") && (position < 0 || position > 7 || password.charAt(position) != '*')));
-            password.replace(position, position + 1, String.valueOf(replace_with));
-            System.out.println(hash + " => " + password);
+            } while (!hash.startsWith("00000") || (hash.startsWith("00000") && (position < 0 || position > 7 || password[position] != '*')));
+            password[position] = replace_with;
+            System.out.println(hash + " => " + String.valueOf(password));
         }
-        return password.toString();
+        return String.valueOf(password);
     }
 
     private static void testHackPasswordSequential() throws NoSuchAlgorithmException {
