@@ -32,7 +32,7 @@ class IPValidator {
     }
 
     private boolean hasABBA(final String segment) {
-        assert segment.length() > 3: "ABBA only supported for segments of >= 4 characters.";
+        assert segment.length() > 3: "ABBA only supported for segments of > 3 characters.";
         for (int i = 0; i < segment.length() - 3; i++) {
             char[] pair = segment.substring(i, i + 2).toCharArray();
             if (pair[0] != pair[1]) {
@@ -51,15 +51,38 @@ class IPValidator {
                 return false;
             }
         }
-        for (String net: this.supernet) {
-            if (hasABBA(net)) {
+        for (String supernet: this.supernet) {
+            if (hasABBA(supernet)) {
                 return true;
             }
         }
         return false;
     }
 
+    private List<String> findBABFromABA(final String segment) {
+        assert segment.length() > 2: "ABA only supported for segments of > 2 characters.";
+        List<String> babs = new ArrayList<>();
+        for (int i = 0; i < segment.length() - 2; i++) {
+            char[] tripple = segment.substring(i, i + 3).toCharArray();
+            if (tripple[0] != tripple[1] && tripple[0] == tripple[2]) {
+                babs.add(String.valueOf(tripple[1]) + tripple[0] + tripple[1]);
+            }
+        }
+        return babs;
+    }
+
     boolean supportsSSL() {
+        List<String> babs = new ArrayList<>();
+        for (String supernet: this.supernet) {
+            babs.addAll(findBABFromABA(supernet));
+        }
+        for (String hypernet: this.hypernet) {
+            for (String bab: babs) {
+                if (hypernet.contains(bab)) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
