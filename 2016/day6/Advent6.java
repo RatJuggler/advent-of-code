@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 
 public class Advent6 {
 
-    private static String decodeMessage(final String filename, final int messageWidth) throws IOException {
+    private static String decodeMessage(final String filename, final boolean useMax, final int messageWidth) throws IOException {
         List<Map<Character, Integer>> occurrences = new ArrayList<>();
         for (int i = 0; i < messageWidth; i++) {
             occurrences.add(new HashMap<>());
@@ -27,24 +27,28 @@ public class Advent6 {
         StringBuilder message = new StringBuilder();
         occurrences.iterator().forEachRemaining(o -> {
             System.out.println(o);
-            Optional<Map.Entry<Character, Integer>> mostOccurrences = o.entrySet().stream()
-                    .max(Map.Entry.comparingByValue());
-            message.append(mostOccurrences.isPresent() ? mostOccurrences.get().getKey() : '*');
+            Optional<Map.Entry<Character, Integer>> occurrence;
+            if (useMax) {
+                occurrence = o.entrySet().stream().max(Map.Entry.comparingByValue());
+            } else {
+                occurrence = o.entrySet().stream().min(Map.Entry.comparingByValue());
+            }
+            message.append(occurrence.isPresent() ? occurrence.get().getKey() : '*');
         });
         return message.toString();
     }
 
-    private static void testDecodeMessage() throws IOException {
+    private static void testDecodeMessage(final boolean useMax, final String expectedMessage) throws IOException {
         String filename = "2016/day6/test6a.txt";
-        String expectedMessage = "easter";
-        String message = decodeMessage(filename, expectedMessage.length());
+        String message = decodeMessage(filename, useMax, expectedMessage.length());
         assert message.equals(expectedMessage) : String.format("Expect message '%s' but was '%s'!", expectedMessage, message);
     }
 
     public static void main(String[] argc) throws IOException {
-        testDecodeMessage();
-        String message = decodeMessage("2016/day6/input6.txt", 8);
+        testDecodeMessage(true, "easter");
+        String message = decodeMessage("2016/day6/input6.txt", true,8);
         System.out.println(String.format("Day 6, Part 1 decoded message is %s.", message));
+        testDecodeMessage(false, "advent");
     }
 
 }
