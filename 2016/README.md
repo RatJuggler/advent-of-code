@@ -9,12 +9,16 @@ with lambdas to filter and reduce it.
 I started off by coding all the state changes explicitly and then refactored this into a more generic solution for defining keypads. 
 
 ##### Day 3: Squares With Three Sides
-Simple to do in a long handed way but couldn't think of a more elegant/generic approach for Part 2.
+Simple to do in a long-handed way but couldn't think of a more elegant/generic approach for Part 2.
 
 ##### Day 4: Security Through Obscurity
 Problem lends itself to using streams for much of the processing.
 
 ##### Day 5: How About a Nice Game of Chess?
-The core solution code was straightforward but required a but of rework to get a single method showing the password being filled in. 
+The core solution code was straightforward but required a bit of rework to get a single method showing the password being filled in. 
 Java doesn't have a nice Curses type library so I didn't animate the output in the end. The bytes-to-hex-string method was pulled 
 from StackOverflow just because.
+
+##### Day 6: Signals and Noise
+Started by building a imperative, statement oriented type solution and then reworked it to use a more declarative, expression 
+oriented approach.
