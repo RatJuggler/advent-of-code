@@ -43,6 +43,8 @@ public class Advent6 {
 
     public static void main(String[] argc) throws IOException {
         testDecodeMessage();
+        String message = decodeMessage("2016/day6/input6.txt", 8);
+        System.out.println(String.format("Day 6, Part 1 decoded message is %s.", message));
     }
 
 }
