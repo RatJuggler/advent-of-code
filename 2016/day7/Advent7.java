@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
@@ -44,34 +43,27 @@ class IPValidator {
     }
 
     boolean supportsTLS() {
-        if (this.hypernet.stream().anyMatch(this::hasABBA)) {
-            return false;
-        }
-        return this.supernet.stream().anyMatch(this::hasABBA);
+        return this.hypernet.stream().noneMatch(this::hasABBA) &&
+                this.supernet.stream().anyMatch(this::hasABBA);
     }
 
     private List<String> findBABFromABA(final String segment) {
         assert segment.length() > 2: "ABA only supported for segments of > 2 characters.";
         List<String> babs = new ArrayList<>();
         for (int i = 0; i < segment.length() - 2; i++) {
-            char[] tripple = segment.substring(i, i + 3).toCharArray();
-            if (tripple[0] != tripple[1] && tripple[0] == tripple[2]) {
-                babs.add(String.valueOf(tripple[1]) + tripple[0] + tripple[1]);
+            char[] aba = segment.substring(i, i + 3).toCharArray();
+            if (aba[0] != aba[1] && aba[0] == aba[2]) {
+                babs.add(String.valueOf(aba[1]) + aba[0] + aba[1]);
             }
         }
         return babs;
     }
 
     boolean supportsSSL() {
-        List<String> babs = this.supernet.stream().flatMap(s -> findBABFromABA(s).stream()).collect(Collectors.toList());
-        for (String hypernet: this.hypernet) {
-            for (String bab: babs) {
-                if (hypernet.contains(bab)) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return this.supernet.stream()
+                .flatMap(s -> findBABFromABA(s).stream())
+                .flatMap(b -> this.hypernet.stream().filter(h -> h.contains(b)))
+                .count() > 0;
     }
 
     @Override
