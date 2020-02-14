@@ -27,16 +27,23 @@ class Screen {
         }
     }
 
-    void applyInstruction(final String instruction) {
+    private Instruction parseInstruction(final String instructionString) {
         String pattern = "^(?<command>rect|rotate column|rotate row)(?: | x=| y=)(?<arg1>\\d+)(?:x| by )(?<arg2>\\d+)$";
         Pattern r = Pattern.compile(pattern);
-        Matcher m = r.matcher(instruction);
-        while (m.find()) {
-            String command = m.group("command");
-            String arg1 = m.group("arg1");
-            String arg2 = m.group("arg2");
-            System.out.println(String.format("%s(%s, %s)", command, arg1, arg2));
+        Matcher m = r.matcher(instructionString);
+        if (!m.find()) {
+            throw new IllegalStateException("Unable to parse instruction: " + instructionString);
         }
+        String command = m.group("command");
+        String arg1 = m.group("arg1");
+        String arg2 = m.group("arg2");
+        System.out.println(String.format("%s(%s, %s)", command, arg1, arg2));
+        return new Instruction(command, arg1, arg2);
+    }
+
+    void applyInstruction(final String instructionString) {
+        Instruction instruction = parseInstruction(instructionString);
+        instruction.apply();
     }
 
     int countLitPixels() {
@@ -50,6 +57,46 @@ class Screen {
         return litPixels;
     }
 
+    static class Instruction {
+
+        final String command;
+        final String arg1;
+        final String arg2;
+
+        Instruction(final String command, final String arg1, final String arg2) {
+            this.command = command;
+            this.arg1 = arg1;
+            this.arg2 = arg2;
+        }
+
+        boolean isRect() {
+            return this.command.equals("rect");
+        }
+
+        boolean isRotateRow() {
+            return this.command.equals("rotate row");
+        }
+
+        boolean isRotateColumn() {
+            return this.command.equals("rotate column");
+        }
+
+        void applyRect() {}
+
+        void applyRotateRow() {}
+
+        void applyRotateColumn() {}
+
+        void apply() {
+            if (isRect()) {
+                applyRect();
+            } else if (isRotateRow()) {
+                applyRotateRow();
+            } else if (isRotateColumn()) {
+                applyRotateColumn();
+            }
+        }
+    }
 }
 
 
