@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
@@ -34,29 +35,19 @@ class IPValidator {
     private boolean hasABBA(final String segment) {
         assert segment.length() > 3: "ABBA only supported for segments of > 3 characters.";
         for (int i = 0; i < segment.length() - 3; i++) {
-            char[] pair = segment.substring(i, i + 2).toCharArray();
-            if (pair[0] != pair[1]) {
-                String reversePair = String.valueOf(pair[1]) + pair[0];
-                if (segment.substring(i + 2, i + 4).equals(reversePair)) {
-                    return true;
-                }
+            char[] abba = segment.substring(i, i + 4).toCharArray();
+            if (abba[0] == abba[3] && abba[1] == abba[2] && abba[0] != abba[1]) {
+                return true;
             }
         }
         return false;
     }
 
     boolean supportsTLS() {
-        for (String hypernet: this.hypernet) {
-            if (hasABBA(hypernet)) {
-                return false;
-            }
+        if (this.hypernet.stream().anyMatch(this::hasABBA)) {
+            return false;
         }
-        for (String supernet: this.supernet) {
-            if (hasABBA(supernet)) {
-                return true;
-            }
-        }
-        return false;
+        return this.supernet.stream().anyMatch(this::hasABBA);
     }
 
     private List<String> findBABFromABA(final String segment) {
@@ -72,10 +63,7 @@ class IPValidator {
     }
 
     boolean supportsSSL() {
-        List<String> babs = new ArrayList<>();
-        for (String supernet: this.supernet) {
-            babs.addAll(findBABFromABA(supernet));
-        }
+        List<String> babs = this.supernet.stream().flatMap(s -> findBABFromABA(s).stream()).collect(Collectors.toList());
         for (String hypernet: this.hypernet) {
             for (String bab: babs) {
                 if (hypernet.contains(bab)) {
@@ -116,7 +104,7 @@ public class Advent7 {
         System.out.println(validator);
         boolean supports = validator.supportsTLS();
         assert supports == expectedSupports:
-                String.format("Expected support to be '%s' but was '%s'!", expectedSupports, supports);
+                String.format("Expected TLS support to be '%s' but was '%s'!", expectedSupports, supports);
     }
 
     private static void testSupportsSSL(final String ip, final boolean expectedSupports) {
@@ -124,7 +112,7 @@ public class Advent7 {
         System.out.println(validator);
         boolean supports = validator.supportsSSL();
         assert supports == expectedSupports:
-                String.format("Expected support to be '%s' but was '%s'!", expectedSupports, supports);
+                String.format("Expected SSL support to be '%s' but was '%s'!", expectedSupports, supports);
     }
 
     public static void main(final String[] args) throws IOException {
@@ -133,13 +121,14 @@ public class Advent7 {
         testSupportsTLS("aaaa[qwer]tyui", false);
         testSupportsTLS("ioxxoj[asdfgh]zxcvbn", true);
         testSupportsTLS("tyui[asdfgh]abcd[bddb]ioxxoj", false);
-        long tlsSupportedIPs = countTLSSupportedIPs("2016/day7/input7.txt");
+        String inputFile = "2016/day7/input7.txt";
+        long tlsSupportedIPs = countTLSSupportedIPs(inputFile);
         System.out.println(String.format("Day 7, Part 1 number of IPs support TLS is %d.", tlsSupportedIPs));
         testSupportsSSL("aba[bab]xyz", true);
         testSupportsSSL("xyx[xyx]xyx", false);
         testSupportsSSL("aaa[kek]eke", true);
         testSupportsSSL("zazbz[bzb]cdb", true);
-        long sslSupportedIPs = countSSLSupportedIPs("2016/day7/input7.txt");
+        long sslSupportedIPs = countSSLSupportedIPs(inputFile);
         System.out.println(String.format("Day 7, Part 2 number of IPs support SSL is %d.", sslSupportedIPs));
     }
 
