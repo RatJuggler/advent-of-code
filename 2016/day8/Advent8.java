@@ -6,6 +6,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -26,14 +28,21 @@ class Screen {
     }
 
     void applyInstruction(final String instruction) {
-
+        String pattern = "^(?<command>rect|rotate column|rotate row)(?: | x=| y=)(?<arg1>\\d+)(?:x| by )(?<arg2>\\d+)$";
+        Pattern r = Pattern.compile(pattern);
+        Matcher m = r.matcher(instruction);
+        while (m.find()) {
+            String command = m.group("command");
+            String arg1 = m.group("arg1");
+            String arg2 = m.group("arg2");
+            System.out.println(String.format("%s(%s, %s)", command, arg1, arg2));
+        }
     }
 
     int countLitPixels() {
         int litPixels = 0;
         for (char[] row : this.display) {
-            litPixels += IntStream
-                    .range(0, row.length)
+            litPixels += IntStream.range(0, row.length)
                     .mapToObj(c -> row[c])
                     .filter(c -> c == PIXEL_ON)
                     .count();
