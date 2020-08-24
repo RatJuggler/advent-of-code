@@ -99,10 +99,10 @@ final class Advent3 {
         String testFileName = "2016/day3/test3a.txt";
         testValidateTrianglesByRow(testFileName);
         int validTriangles1 = countValidTrianglesByRow("2016/day3/input3.txt");
-        System.out.println(String.format("Day 3, Part 1, there are %d valid triangles.", validTriangles1));
+        System.out.printf("Day 3, Part 1, there are %d valid triangles.%n", validTriangles1);
         testValidateTrianglesByColumn(testFileName);
         int validTriangles2 = countValidTrianglesByColumn("2016/day3/input3.txt");
-        System.out.println(String.format("Day 3, Part 2, there are %d valid triangles.", validTriangles2));
+        System.out.printf("Day 3, Part 2, there are %d valid triangles.%n", validTriangles2);
     }
 
 }
