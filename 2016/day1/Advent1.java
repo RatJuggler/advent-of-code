@@ -49,7 +49,7 @@ final class Position {
 
     private Location location;
     private char heading;
-    private Map<Location, Integer> history = new LinkedHashMap<>();
+    private final Map<Location, Integer> history = new LinkedHashMap<>();
 
     Position() {
         // Always start at origin facing North.
@@ -102,18 +102,18 @@ final class Position {
         char turn = direction.charAt(0);
         int distance = Integer.parseInt(direction.substring(1));
         this.move(turn, distance);
-        System.out.println(String.format("Turn: %s, Distance: %d -> %s", turn, distance, this));
+        System.out.printf("Turn: %s, Distance: %d -> %s%n", turn, distance, this);
     }
 
     int getDistance(final Function<Map.Entry<Location, Integer>, Boolean> filter,
                     final BiFunction<Map.Entry<Location, Integer>, Map.Entry<Location, Integer>, Map.Entry<Location, Integer>> select) {
-        Location visited = history.entrySet()
+        return history.entrySet()
                 .stream()
                 .filter(filter::apply)
                 .reduce(select::apply)
                 .map(Map.Entry::getKey)
-                .get();
-        return visited.absDistance();
+                .map(Location::absDistance)
+                .orElse(0);
     }
 
     @Override
@@ -157,13 +157,13 @@ final class Advent1 {
         testBlocksAway("R5, L5, R5, R3", 12, filter1, select1);
         String directions = readInputFile();
         int distance1 = blocksAway(directions, filter1, select1);
-        System.out.println(String.format("Day 1, Part 1 the Easter Bunny HQ is %d blocks away.", distance1));
+        System.out.printf("Day 1, Part 1 the Easter Bunny HQ is %d blocks away.%n", distance1);
         Function<Map.Entry<Location, Integer>, Boolean> filter2 = entry -> entry.getValue() > 1;
         BiFunction<Map.Entry<Location, Integer>, Map.Entry<Location, Integer>, Map.Entry<Location, Integer>> select2 =
                 (firstEntry, secondEntry) -> firstEntry;
         testBlocksAway("R8, R4, R4, R8", 4, filter2, select2);
         int distance2 = blocksAway(directions, filter2, select2);
-        System.out.println(String.format("Day 1, Part 2 the Easter Bunny HQ is %d blocks away.", distance2));
+        System.out.printf("Day 1, Part 2 the Easter Bunny HQ is %d blocks away.%n", distance2);
     }
 
 }
