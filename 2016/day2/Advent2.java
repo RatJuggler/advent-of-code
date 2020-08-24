@@ -25,10 +25,11 @@ final class Button {
     }
 
     char move(final char direction) {
-        if (this.moveToButton.get(direction) == null) {
+        Character moveTo = this.moveToButton.get(direction);
+        if (moveTo == null) {
             throw new IllegalStateException(String.format("Direction '%s' not supported in %s!", direction, this));
         }
-        return this.moveToButton.get(direction);
+        return moveTo;
     }
 
     @Override
@@ -43,7 +44,7 @@ final class Button {
 
 final class Keypad {
 
-    private Map<Character, Button> buttons = new HashMap<>();
+    private final Map<Character, Button> buttons = new HashMap<>();
     private Button button;
     private String code;
 
@@ -60,12 +61,13 @@ final class Keypad {
 
     private void followInstruction(final char instruction) {
         char newButton = this.button.move(instruction);
-        if (this.buttons.get(newButton) == null) {
+        Button button = this.buttons.get(newButton);
+        if (button == null) {
             throw new IllegalStateException(
                     String.format("Button not found for instruction '%s' from button '%s'!", instruction, this.button));
         }
-        this.button = this.buttons.get(newButton);
-        System.out.println(String.format("%s -> %s", instruction, this.button));
+        this.button = button;
+        System.out.printf("%s -> %s%n", instruction, this.button);
     }
 
     void followInstructions(final String instructions) {
@@ -75,7 +77,7 @@ final class Keypad {
             followInstruction(instruction);
         }
         this.code += this.button.getId();
-        System.out.println(String.format("Code now -> %s", this.code));
+        System.out.printf("Code now -> %s%n", this.code);
     }
 
     String codeFound() {
@@ -144,13 +146,13 @@ final class Advent2 {
         testDetermineCode("1985", keypad1);
         keypad1.reset();
         String code1 = determineCode("2016/day2/input2.txt", keypad1);
-        System.out.println(String.format("Day 2, Part 1 the bathroom code is '%s'.", code1));
+        System.out.printf("Day 2, Part 1 the bathroom code is '%s'.%n", code1);
         Keypad keypad2 = KeypadFactory.buildDiamondKeypad();
         keypad2.reset();
         testDetermineCode("5DB3", keypad2);
         keypad2.reset();
         String code2 = determineCode("2016/day2/input2.txt", keypad2);
-        System.out.println(String.format("Day 2, Part 2 the bathroom code is '%s'.", code2));
+        System.out.printf("Day 2, Part 2 the bathroom code is '%s'.%n", code2);
     }
 
 }
