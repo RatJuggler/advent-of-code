@@ -38,6 +38,15 @@ class Screen {
                 .count();
     }
 
+    void display() {
+        for (int i = 0; i < this.display.length; i++) {
+            if (i % this.width == 0) {
+                System.out.println();
+            }
+            System.out.print(this.display[i]);
+        }
+    }
+
     class InstructionFactory {
 
         InstructionFactory() {}
@@ -160,6 +169,8 @@ public class Advent8 {
         testSwipeCard();
         Screen screen = swipeCard("2016/day8/input8.txt", 50, 6);
         System.out.printf("Day 8, Part 1 found %d pixels lit.%n", screen.countLitPixels());
+        System.out.println("Day 8, Part 2");
+        screen.display();
     }
 
 }
