@@ -29,4 +29,7 @@ count them.
 
 ##### Day 8: Two-Factor Authentication
 Tried to avoid over engineering the screen and instruction processing.
- 
+
+##### Day 9: Explosives in Cyberspace
+Started of with Part 1 by actually creating the decompressed sequences instead of merely working out their length. Had to backtrack
+and refactor this to make Part 2 work. Took the opportunity to try out using methods as parameters.
