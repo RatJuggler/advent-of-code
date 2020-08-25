@@ -24,7 +24,6 @@ public class Advent9 {
     }
 
     private static int decompress1(final String sequence) {
-        System.out.println(sequence);
         if (sequence.isEmpty()) {
             return 0;
         }
@@ -50,7 +49,6 @@ public class Advent9 {
     }
 
     private static int decompress2(final String sequence) {
-        System.out.println(sequence);
         if (sequence.isEmpty()) {
             return 0;
         }
@@ -80,6 +78,13 @@ public class Advent9 {
                 String.format("Expected decompressed length to be %d but was %d!", expectedLength, decompressedLength);
     }
 
+    private static Integer decompressedLength2(final String filename) throws IOException {
+        try (Stream<String> stream = Files.lines(Paths.get(filename))) {
+            return stream.mapToInt(Advent9::decompress2)
+                    .sum();
+        }
+    }
+
     public static void main(final String[] args) throws IOException {
         testDecompress1("ADVENT", 6);
         testDecompress1("A(1x5)BC", 7);
@@ -92,6 +97,7 @@ public class Advent9 {
         testDecompress2("X(8x2)(3x3)ABCY", 20);
         testDecompress2("(27x12)(20x12)(13x14)(7x10)(1x12)A", 241920);
         testDecompress2("(25x3)(3x3)ABC(2x3)XY(5x2)PQRSTX(18x9)(3x2)TWO(5x7)SEVEN", 445);
+        System.out.printf("Day 9, Part 2 uncompressed length is %d.%n", decompressedLength2("2016/day9/input9.txt"));
     }
 
 }
