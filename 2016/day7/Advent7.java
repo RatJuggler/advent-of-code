@@ -115,13 +115,13 @@ public class Advent7 {
         testSupportsTLS("tyui[asdfgh]abcd[bddb]ioxxoj", false);
         String inputFile = "2016/day7/input7.txt";
         long tlsSupportedIPs = countTLSSupportedIPs(inputFile);
-        System.out.println(String.format("Day 7, Part 1 number of IPs support TLS is %d.", tlsSupportedIPs));
+        System.out.printf("Day 7, Part 1 number of IPs support TLS is %d.%n", tlsSupportedIPs);
         testSupportsSSL("aba[bab]xyz", true);
         testSupportsSSL("xyx[xyx]xyx", false);
         testSupportsSSL("aaa[kek]eke", true);
         testSupportsSSL("zazbz[bzb]cdb", true);
         long sslSupportedIPs = countSSLSupportedIPs(inputFile);
-        System.out.println(String.format("Day 7, Part 2 number of IPs support SSL is %d.", sslSupportedIPs));
+        System.out.printf("Day 7, Part 2 number of IPs support SSL is %d.%n", sslSupportedIPs);
     }
 
 }
