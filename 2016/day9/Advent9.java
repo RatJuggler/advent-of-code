@@ -9,7 +9,7 @@ import java.util.stream.Stream;
 
 public class Advent9 {
 
-    private static int parseDecompress1(final String sequence) {
+    private static long parseDecompress1(final String sequence) {
         String pattern = "^\\((?<take>\\d+)x(?<repeat>\\d+)\\)(?<remaining>.*)";
         Pattern r = Pattern.compile(pattern);
         Matcher m = r.matcher(sequence);
@@ -19,11 +19,10 @@ public class Advent9 {
         int take = Integer.parseInt(m.group("take"));
         int repeat = Integer.parseInt(m.group("repeat"));
         String remaining = m.group("remaining");
-        String decompressed = remaining.substring(0, take).repeat(repeat);
-        return decompressed.length() + decompress1(remaining.substring(take));
+        return (take * repeat) + decompress1(remaining.substring(take));
     }
 
-    private static int decompress1(final String sequence) {
+    private static long decompress1(final String sequence) {
         if (sequence.isEmpty()) {
             return 0;
         }
@@ -34,7 +33,7 @@ public class Advent9 {
         return 1 + decompress1(sequence.substring(1));
     }
 
-    private static int parseDecompress2(final String sequence) {
+    private static long parseDecompress2(final String sequence) {
         String pattern = "^\\((?<take>\\d+)x(?<repeat>\\d+)\\)(?<remaining>.*)";
         Pattern r = Pattern.compile(pattern);
         Matcher m = r.matcher(sequence);
@@ -44,11 +43,10 @@ public class Advent9 {
         int take = Integer.parseInt(m.group("take"));
         int repeat = Integer.parseInt(m.group("repeat"));
         String remaining = m.group("remaining");
-        String decompressed = remaining.substring(0, take).repeat(repeat);
-        return decompress2(decompressed) + decompress2(remaining.substring(take));
+        return (decompress2(remaining.substring(0, take)) * repeat) + decompress2(remaining.substring(take));
     }
 
-    private static int decompress2(final String sequence) {
+    private static long decompress2(final String sequence) {
         if (sequence.isEmpty()) {
             return 0;
         }
@@ -59,28 +57,28 @@ public class Advent9 {
         return 1 + decompress2(sequence.substring(1));
     }
 
-    private static void testDecompress1(final String sequence, final int expectedLength) {
-        int decompressedLength = decompress1(sequence);
+    private static void testDecompress1(final String sequence, final long expectedLength) {
+        long decompressedLength = decompress1(sequence);
         assert decompressedLength == expectedLength :
                 String.format("Expected decompressed length to be %d but was %d!", expectedLength, decompressedLength);
     }
 
-    private static Integer decompressedLength1(final String filename) throws IOException {
+    private static Long decompressedLength1(final String filename) throws IOException {
         try (Stream<String> stream = Files.lines(Paths.get(filename))) {
-            return stream.mapToInt(Advent9::decompress1)
+            return stream.mapToLong(Advent9::decompress1)
                     .sum();
         }
     }
 
-    private static void testDecompress2(final String sequence, final int expectedLength) {
-        int decompressedLength = decompress2(sequence);
+    private static void testDecompress2(final String sequence, final long expectedLength) {
+        long decompressedLength = decompress2(sequence);
         assert decompressedLength == expectedLength :
                 String.format("Expected decompressed length to be %d but was %d!", expectedLength, decompressedLength);
     }
 
-    private static Integer decompressedLength2(final String filename) throws IOException {
+    private static Long decompressedLength2(final String filename) throws IOException {
         try (Stream<String> stream = Files.lines(Paths.get(filename))) {
-            return stream.mapToInt(Advent9::decompress2)
+            return stream.mapToLong(Advent9::decompress2)
                     .sum();
         }
     }
