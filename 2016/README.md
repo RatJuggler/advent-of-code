@@ -16,9 +16,17 @@ Problem lends itself to using streams for much of the processing.
 
 ##### Day 5: How About a Nice Game of Chess?
 The core solution code was straightforward but required a bit of rework to get a single method showing the password being filled in. 
-Java doesn't have a nice Curses type library so I didn't animate the output in the end. The bytes-to-hex-string method was pulled 
+Java doesn't have a nice "Curses" type library, so I didn't animate the output in the end. The bytes-to-hex-string method was pulled 
 from StackOverflow just because.
 
 ##### Day 6: Signals and Noise
 Started by building a imperative, statement oriented type solution and then reworked it to use a more declarative, expression 
 oriented approach.
+
+##### Day 7: Internet Protocol Version 7
+Built a validator class to parse the IP and preform the required checks. Simple to then stream the IPs to validate through this and 
+count them.
+
+##### Day 8: Two-Factor Authentication
+Tried to avoid over engineering the screen and instruction processing.
+ 
