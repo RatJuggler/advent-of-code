@@ -63,10 +63,10 @@ public class Advent5 {
         testHackPasswordSequential();
         String inputDoorId = "abbhdwsy";
         String password1 = hackPassword(inputDoorId, true);
-        System.out.println(String.format("Day 5, Part 1 the password is '%s'.", password1));
+        System.out.printf("Day 5, Part 1 the password is '%s'.%n", password1);
         testHackPasswordPositional();
         String password2 = hackPassword(inputDoorId, false);
-        System.out.println(String.format("Day 5, Part 2 the password is '%s'.", password2));
+        System.out.printf("Day 5, Part 2 the password is '%s'.%n", password2);
     }
 
 }
