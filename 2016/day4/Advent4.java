@@ -11,9 +11,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.util.stream.Collectors.counting;
-import static java.util.stream.Collectors.groupingBy;
-
 
 class RoomValidator {
 
@@ -37,7 +34,7 @@ class RoomValidator {
         return string.codePoints()
                 .mapToObj(c -> (char) c)
                 .filter(c -> String.valueOf(c).matches("[a-z]"))
-                .collect(groupingBy(c -> c, counting()))
+                .collect(Collectors.groupingBy(c -> c, Collectors.counting()))
                 .entrySet()
                 .stream()
                 .sorted(Map.Entry.<Character, Long>comparingByValue().reversed().thenComparing(Map.Entry.comparingByKey()))
@@ -94,7 +91,7 @@ public class Advent4 {
 
     private static void testIsARealRoom(final String room, final boolean expectedRealRoom) {
         RoomValidator roomValidator = new RoomValidator(room);
-        System.out.println(String.format("%s -> %s", room, roomValidator));
+        System.out.printf("%s -> %s%n", room, roomValidator);
         boolean realRoom = roomValidator.isARealRoom();
         assert realRoom == expectedRealRoom: String.format("Expected result '%s' but was '%s'!", expectedRealRoom, realRoom);
     }
@@ -109,7 +106,7 @@ public class Advent4 {
         String room = "qzmt-zixmtkozy-ivhz-343[zimth]";
         String expectedName = "very encrypted name";
         RoomValidator roomValidator = new RoomValidator(room);
-        System.out.println(String.format("%s -> %s", room, roomValidator));
+        System.out.printf("%s -> %s%n", room, roomValidator);
         String name = roomValidator.decryptName();
         assert name.equals(expectedName) : String.format("Expect name to be '%s' but was '%s'!", expectedName, name);
     }
@@ -120,11 +117,11 @@ public class Advent4 {
         testIsARealRoom("not-a-real-room-404[oarel]", true);
         testIsARealRoom("totally-real-room-200[decoy]", false);
         testSumRealRoomSectorIds();
-        System.out.println(String.format("Day 4, Step 1, sum of sector id's for real rooms is %d.",
-                sumRealRoomSectorIds("2016/day4/input4.txt")));
+        System.out.printf("Day 4, Step 1, sum of sector id's for real rooms is %d.%n",
+                sumRealRoomSectorIds("2016/day4/input4.txt"));
         testDecryptName();
         RoomValidator[] found = findRoom("2016/day4/input4.txt", "northpole object storage");
-        System.out.println(String.format("Day 4, Step 1, rooms found: %s", Arrays.toString(found)));
+        System.out.printf("Day 4, Step 1, rooms found: %s%n", Arrays.toString(found));
     }
 
 }
