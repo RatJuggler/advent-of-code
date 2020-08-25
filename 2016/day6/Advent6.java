@@ -53,10 +53,10 @@ public class Advent6 {
     public static void main(String[] argc) throws IOException {
         testDecodeMessage(true, "easter");
         String message1 = decodeMessage("2016/day6/input6.txt", 8, true);
-        System.out.println(String.format("Day 6, Part 1 decoded message is %s.", message1));
+        System.out.printf("Day 6, Part 1 decoded message is %s.%n", message1);
         testDecodeMessage(false, "advent");
         String message2 = decodeMessage("2016/day6/input6.txt", 8, false);
-        System.out.println(String.format("Day 6, Part 2 decoded message is %s.", message2));
+        System.out.printf("Day 6, Part 2 decoded message is %s.%n", message2);
     }
 
 }
