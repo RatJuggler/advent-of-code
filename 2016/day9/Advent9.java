@@ -35,8 +35,30 @@ public class Advent9 {
         return 1 + decompress1(sequence.substring(1));
     }
 
+    private static int parseDecompress2(final String sequence) {
+        String pattern = "^\\((?<take>\\d+)x(?<repeat>\\d+)\\)(?<remaining>.*)";
+        Pattern r = Pattern.compile(pattern);
+        Matcher m = r.matcher(sequence);
+        if (!m.find()) {
+            throw new IllegalStateException("Unable to parse decompress sequence: " + sequence);
+        }
+        int take = Integer.parseInt(m.group("take"));
+        int repeat = Integer.parseInt(m.group("repeat"));
+        String remaining = m.group("remaining");
+        String decompressed = remaining.substring(0, take).repeat(repeat);
+        return decompress2(decompressed) + decompress2(remaining.substring(take));
+    }
+
     private static int decompress2(final String sequence) {
-        return 0;
+        System.out.println(sequence);
+        if (sequence.isEmpty()) {
+            return 0;
+        }
+        char process = sequence.charAt(0);
+        if (process == '(') {
+            return parseDecompress2(sequence);
+        }
+        return 1 + decompress2(sequence.substring(1));
     }
 
     private static void testDecompress1(final String sequence, final int expectedLength) {
@@ -69,7 +91,7 @@ public class Advent9 {
         testDecompress2("(3x3)XYZ", 9);
         testDecompress2("X(8x2)(3x3)ABCY", 20);
         testDecompress2("(27x12)(20x12)(13x14)(7x10)(1x12)A", 241920);
-        testDecompress2("(25x3)(3x3)ABC(2x3)XY(5x2)PQRSTX(18x9)(3x2)TWO(5x7)SEVEN", 241920);
+        testDecompress2("(25x3)(3x3)ABC(2x3)XY(5x2)PQRSTX(18x9)(3x2)TWO(5x7)SEVEN", 445);
     }
 
 }
