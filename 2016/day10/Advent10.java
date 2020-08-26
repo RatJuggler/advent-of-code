@@ -6,6 +6,8 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 
@@ -100,8 +102,40 @@ class Factory {
 
     Factory() {}
 
-    void applyInstruction(final String instruction) {
+    private Matcher parseInstruction(final String instruction, final String pattern) {
+        Pattern r = Pattern.compile(pattern);
+        Matcher m = r.matcher(instruction);
+        if (!m.find()) {
+            throw new IllegalStateException("Unable to parse instruction: " + instruction);
+        }
+        return m;
+    }
 
+    private void processValue(final String instruction) {
+        String pattern = "^value (?<value>\\d+) goes to bot (?<bot>\\d+)$";
+        Matcher m = this.parseInstruction(instruction, pattern);
+        String value = m.group("value");
+        String bot = m.group("bot");
+    }
+
+    private void processBot(final String instruction) {
+        String pattern = "^bot (?<bot>\\d+) gives low to (?<output1>bot|output) (?<number1>\\d+) and high to (?<output2>bot|output) (?<number2>\\d+)$";
+        Matcher m = this.parseInstruction(instruction, pattern);
+        String bot = m.group("bot");
+        String output1 = m.group("output1");
+        String number1 = m.group("number1");
+        String output2 = m.group("output2");
+        String number2 = m.group("number2");
+    }
+
+    void applyInstruction(final String instruction) {
+        if (instruction.startsWith("value")) {
+            processValue(instruction);
+        } else if (instruction.startsWith("bot")) {
+            processBot(instruction);
+        } else {
+            throw new IllegalStateException(String.format("Unrecognised instruction '%s'!", instruction));
+        }
     }
 
     Optional<Bin> getBin(final int number) {
