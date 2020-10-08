@@ -28,7 +28,7 @@ abstract class Output {
 }
 
 class Bin extends Output {
-
+    
     private int contents = -1;
 
     Bin(final int number) {
@@ -41,7 +41,7 @@ class Bin extends Output {
 
     @Override
     void acceptChip(int chip) {
-        if (this.contents != -1 && this.contents != chip) {
+        if (this.contents != -1) {
             throw new IllegalStateException("Bin only expected to accept one chip!");
         }
         this.contents = chip;
@@ -54,7 +54,7 @@ class Bin extends Output {
 
     @Override
     public String toString() {
-        return "Bin{contents=" + contents + '}';
+        return "Bin{contents=" + this.contents + '}';
     }
 }
 
@@ -62,27 +62,24 @@ class Bot extends Output {
 
     private int chip1 = -1;
     private int chip2 = -1;
-    private Output low = null;
-    private Output high = null;
+    private Output lowOutput = null;
+    private Output highOutput = null;
+    private String compare;
 
     Bot(final int number) {
         super(number);
     }
 
-    String getChips() {
-        if (this.chip1 > this.chip2) {
-            return this.chip2 + ":" + this.chip1;
-        } else {
-            return this.chip1 + ":" + this.chip2;
-        }
+    String getCompare() {
+        return this.compare;
     }
 
-    void setLow(final Output output) {
-        this.low = output;
+    void setLowOutput(final Output output) {
+        this.lowOutput = output;
     }
 
-    void setHigh(final Output output) {
-        this.high = output;
+    void setHighOutput(final Output output) {
+        this.highOutput = output;
     }
 
     @Override
@@ -91,7 +88,7 @@ class Bot extends Output {
             this.chip1 = chip;
         } else if (this.chip2 == -1) {
             this.chip2 = chip;
-        } else if (chip != this.chip1 && chip != this.chip2){
+        } else {
             throw new IllegalStateException("Bot only expected to accept two chips!");
         }
     }
@@ -101,22 +98,29 @@ class Bot extends Output {
         return "Bot-" + this.getNumber();
     }
 
+    boolean canProceed() {
+        return this.chip1 != -1 && this.chip2 != -1 && lowOutput != null && highOutput != null;
+    }
+
     void proceed() {
-        if (this.chip1 == -1 || this.chip2 == -1 || low == null || high == null) {
-            return;
-        }
         if (this.chip1 > this.chip2) {
-            this.high.acceptChip(this.chip1);
-            this.low.acceptChip(this.chip2);
+            this.highOutput.acceptChip(this.chip1);
+            this.lowOutput.acceptChip(this.chip2);
+            this.compare = this.chip2 + ":" + this.chip1;
         } else {
-            this.high.acceptChip(this.chip2);
-            this.low.acceptChip(this.chip1);
+            this.highOutput.acceptChip(this.chip2);
+            this.lowOutput.acceptChip(this.chip1);
+            this.compare = this.chip1 + ":" + this.chip2;
         }
+        this.chip1 = -1;
+        this.chip2 = -1;
     }
 
     @Override
     public String toString() {
-        return "Bot{chip1=" + chip1 + ", chip2=" + chip2 + ", low=" + low.getName() + ", high=" + high.getName() + '}';
+        return this.getName() + "{chip1=" + this.chip1 + ", chip2=" + this.chip2 +
+                ", low=" + (this.lowOutput == null ? "<not set>" : this.lowOutput.getName()) +
+                ", high=" + (this.highOutput == null ? "<not set>" : this.highOutput.getName()) + '}';
     }
 }
 
@@ -144,17 +148,16 @@ class Factory {
         return m;
     }
 
-    private Bot processValueInstruction(final String instruction) {
+    private void processValueInstruction(final String instruction) {
         String pattern = "^value (?<chip>\\d+) goes to bot (?<bot>\\d+)$";
         Matcher m = this.parseInstruction(instruction, pattern);
         int chip = Integer.parseInt(m.group("chip"));
         int botNumber = Integer.parseInt(m.group("bot"));
         Bot bot = this.getBot(botNumber);
         bot.acceptChip(chip);
-        return bot;
     }
 
-    private Output assign(final String output, final int number) {
+    private Output assignOutput(final String output, final int number) {
         if (output.equals("bot")) {
             return this.getBot(number);
         } else if (output.equals("output")) {
@@ -164,7 +167,7 @@ class Factory {
         }
     }
 
-    private Bot processBotInstruction(final String instruction) {
+    private void processBotInstruction(final String instruction) {
         String pattern = "^bot (?<bot>\\d+) gives low to (?<output1>bot|output) (?<number1>\\d+) and high to (?<output2>bot|output) (?<number2>\\d+)$";
         Matcher m = this.parseInstruction(instruction, pattern);
         int botNumber = Integer.parseInt(m.group("bot"));
@@ -173,26 +176,41 @@ class Factory {
         String output2 = m.group("output2");
         int number2 = Integer.parseInt(m.group("number2"));
         Bot bot = this.getBot(botNumber);
-        bot.setLow(assign(output1, number1));
-        bot.setHigh(assign(output2, number2));
-        return bot;
+        bot.setLowOutput(assignOutput(output1, number1));
+        bot.setHighOutput(assignOutput(output2, number2));
     }
 
     void applyInstruction(final String instruction) {
-        Bot bot;
         if (instruction.startsWith("value")) {
-            bot = processValueInstruction(instruction);
+            processValueInstruction(instruction);
         } else if (instruction.startsWith("bot")) {
-            bot = processBotInstruction(instruction);
+            processBotInstruction(instruction);
         } else {
             throw new IllegalStateException(String.format("Unrecognised instruction '%s'!", instruction));
         }
     }
 
-    void proceed() {
-        for (int i = 0; i < this.bots.size(); i++) {
-            this.bots.values().forEach(Bot::proceed);
+    void run() {
+        boolean allDone = false;
+        while (!allDone) {
+            allDone = true;
+            for (Bot bot : bots.values()) {
+                if (bot.canProceed()) {
+                    bot.proceed();
+                    System.out.println(bot);
+                    allDone = false;
+                }
+            }
         }
+    }
+
+    Bot findCompare(final String compare) {
+        for (Bot bot : bots.values()) {
+            if (bot.getCompare().equals(compare)) {
+                return bot;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -208,8 +226,7 @@ public class Advent10 {
         try (Stream<String> stream = Files.lines(Paths.get(filename))) {
             stream.forEach(factory::applyInstruction);
         }
-        factory.proceed();
-        System.out.println(factory.toString());
+        factory.run();
         return factory;
     }
 
@@ -218,12 +235,13 @@ public class Advent10 {
         assert factory.getBin(0).getContents() == 5 : "Expected Bin 0 to contain 5!";
         assert factory.getBin(1).getContents() == 2 : "Expected Bin 1 to contain 2!";
         assert factory.getBin(2).getContents() == 3 : "Expected Bin 2 to contain 3!";
-        assert factory.getBot(2).getChips().equals("2:5") : "Expected Bot 2 to compare 2:5!";
+        assert factory.findCompare("2:5").getName().equals("Bot-2") : "Expected Bot 2 to compare 2:5!";
     }
 
     public static void main(final String[] args) throws IOException {
         testFollowInstructions();
-        processInstructions("2016/day10/input10.txt");
+        Factory factory = processInstructions("2016/day10/input10.txt");
+        System.out.printf("Day 10, Part 1 bot that compares 17:61 is %s.%n", factory.findCompare("17:61"));
     }
 
 }
