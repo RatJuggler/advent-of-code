@@ -33,3 +33,10 @@ Tried to avoid over engineering the screen and instruction processing.
 ##### Day 9: Explosives in Cyberspace
 Started of with Part 1 by actually creating the decompressed sequences instead of merely working out their length. Had to backtrack
 and refactor this to make Part 2 work. Took the opportunity to try out using methods as parameters.
+
+##### Day 10: Balance Bots
+I spent a while on the development before realising that the bots and bins form a tree structure, with the bots as branches, and 
+the bins as leaves. Despite this insight I feel I've not produced anywhere near a good solution. It just feels too clunky, this may
+in part be due to over-engineered OO Java. Having said that, the comprehensive code created for Part 1 meant that the Part 2 
+solution was trivial.
+
