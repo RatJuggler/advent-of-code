@@ -242,6 +242,8 @@ public class Advent10 {
         testFollowInstructions();
         Factory factory = processInstructions("2016/day10/input10.txt");
         System.out.printf("Day 10, Part 1 bot that compares 17:61 is %s.%n", factory.findCompare("17:61"));
+        System.out.printf("Day 10, Part 2 product of bins 0, 1 & 2 is %d.%n",
+                factory.getBin(0).getContents() * factory.getBin(1).getContents() * factory.getBin(2).getContents());
     }
 
 }
