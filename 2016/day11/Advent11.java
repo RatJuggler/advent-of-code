@@ -31,6 +31,7 @@ class Column {
             System.out.println(column);
         }
     }
+
     private boolean validMove(final String component, final String floor, final char componentMoved, final String otherComponent) {
         return component.charAt(1) == componentMoved && (!floor.contains(otherComponent) || floor.contains(component.charAt(0) + otherComponent));
     }
@@ -39,17 +40,38 @@ class Column {
         String oldFloor = this.floors[this.elevator];
         String newFloor = this.floors[newElevator];
         for (int i = 0; i < (oldFloor.length() - 4) / 3; i++) {
-            int componentAt = 5 + (i * 3);
-            String component = oldFloor.substring(componentAt, componentAt + 2);
-            if (component.equals("..")) continue;
+            int component1At = 5 + (i * 3);
+            String component1 = oldFloor.substring(component1At, component1At + 2);
+            if (component1.equals("..")) continue;
             // Microchip moved to the same floor as an incompatible Generator OR Generator moved to the same floor as an incompatible Microchip.
-            if (this.validMove(component, newFloor, 'M', "G") ||
-                    this.validMove(component, newFloor, 'G', "M")) {
-                String[] newFloors = this.floors.clone();
-                newFloors[this.elevator] = oldFloor.substring(0, 3) + "." + oldFloor.substring(4, componentAt) + ".." + oldFloor.substring(componentAt + 2);
-                newFloors[newElevator] = newFloor.substring(0, 3) + "E" + newFloor.substring(4, componentAt) + component + newFloor.substring(componentAt + 2);
-                Column newColumn = new Column(newFloors, newElevator);
-                if (Column.newState(newColumn)) newColumn.move();
+            if (this.validMove(component1, newFloor, 'M', "G") ||
+                    this.validMove(component1, newFloor, 'G', "M")) {
+                String[] newFloors1 = this.floors.clone();
+                String oldFloor1 = oldFloor.substring(0, 3) + "." + oldFloor.substring(4, component1At) + ".." + oldFloor.substring(component1At + 2);
+                String newFloor1 = newFloor.substring(0, 3) + "E" + newFloor.substring(4, component1At) + component1 + newFloor.substring(component1At + 2);
+                newFloors1[this.elevator] = oldFloor1;
+                newFloors1[newElevator] = newFloor1;
+                Column newColumn1 = new Column(newFloors1, newElevator);
+                if (Column.newState(newColumn1)) newColumn1.move();
+                for (int j = 0; j < (oldFloor1.length() - 4) / 3; j++) {
+                    int component2At = 5 + (j * 3);
+                    String component2 = oldFloor1.substring(component2At, component2At + 2);
+                    if (component2.equals("..")) continue;
+                    // Microchip and Generator must have the same element to be move together.
+                    if (component1.charAt(1) != component2.charAt(1) && component1.charAt(0) != component2.charAt(0)) continue;
+                    // Microchip moved to the same floor as an incompatible Generator OR Generator moved to the same floor as an incompatible Microchip.
+                    if (component1.charAt(0) == component2.charAt(0) ||
+                            this.validMove(component2, newFloor, 'M', "G") ||
+                            this.validMove(component2, newFloor, 'G', "M")) {
+                        String[] newFloors2 = newFloors1.clone();
+                        String oldFloor2 = oldFloor1.substring(0, component2At) + ".." + oldFloor1.substring(component2At + 2);
+                        String newFloor2 = newFloor1.substring(0, component2At) + component2 + newFloor1.substring(component2At + 2);
+                        newFloors2[this.elevator] = oldFloor2;
+                        newFloors2[newElevator] = newFloor2;
+                        Column newColumn2 = new Column(newFloors2, newElevator);
+                        if (Column.newState(newColumn2)) newColumn2.move();
+                    }
+                }
             }
         }
     }
