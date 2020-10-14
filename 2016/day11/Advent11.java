@@ -15,10 +15,10 @@ class State {
         this.elevator = elevator;
     }
 
-    static State newState(final State currentState, final int newElevator, final int componentAt, final String component) {
-        String[] newFloors = currentState.floors.clone();
-        newFloors[currentState.elevator] =
-                newFloors[currentState.elevator].substring(0, componentAt) + ".." + newFloors[currentState.elevator].substring(componentAt + 2);
+    static State newState(final State state, final int elevator, final int newElevator, final int componentAt, final String component) {
+        String[] newFloors = state.floors.clone();
+        newFloors[elevator] =
+                newFloors[elevator].substring(0, componentAt) + ".." + newFloors[elevator].substring(componentAt + 2);
         newFloors[newElevator] =
                 newFloors[newElevator].substring(0, componentAt) + component + newFloors[newElevator].substring(componentAt + 2);
         return new State(newFloors, newElevator);
@@ -26,6 +26,14 @@ class State {
 
     boolean finalState() {
         return !this.floors[this.floors.length - 1].contains("..");
+    }
+
+    boolean elevatorOnGround() {
+        return this.elevator == 0;
+    }
+
+    boolean elevatorOnTop() {
+        return this.elevator == this.floors.length - 1;
     }
 
     @Override
@@ -53,9 +61,11 @@ class State {
     }
 }
 
-class Column {
+class StateSpaceSearch {
 
     private final List<State> history = new ArrayList<>();
+
+    StateSpaceSearch() {}
 
     boolean isNewState(final State newState) {
         for (State state : this.history) {
@@ -79,8 +89,8 @@ class Column {
         return component.charAt(1) == 'M' && (!floor.contains("G") || floor.contains(component.charAt(0) + "G"));
     }
 
-    private void moveComponent(final State state, final int newElevator) {
-        String oldFloor = state.floors[state.elevator];
+    private void moveComponents(final State state, final int elevator, final int newElevator) {
+        String oldFloor = state.floors[elevator];
         String newFloor = state.floors[newElevator];
         for (int i = 0; i < oldFloor.length() / 3; i++) {
             int component1At = i * 3;
@@ -88,31 +98,31 @@ class Column {
             if (component1.equals("..")) continue;
             // Microchip moved to the same floor as an incompatible Generator OR Generator moved to the same floor as an incompatible Microchip.
             if (this.validGeneratorMove(component1, newFloor) || this.validMicrochipMove(component1, newFloor)) {
-                State newState1 = State.newState(state, newElevator, component1At, component1);
-                if (this.isNewState(newState1)) this.move(newState1);
-                String oldFloor1 = newState1.floors[newState1.elevator];
-                for (int j = 0; j < oldFloor1.length() / 3; j++) {
+                State newState1 = State.newState(state, elevator, newElevator, component1At, component1);
+                this.begin(newState1);
+                for (int j = i; j < oldFloor.length() / 3; j++) {
                     int component2At = j * 3;
-                    String component2 = oldFloor1.substring(component2At, component2At + 2);
-                    if (component2.equals("..")) continue;
+                    String component2 = oldFloor.substring(component2At, component2At + 2);
+                    if (component2.equals("..") || component2.equals(component1)) continue;
                     // Microchip and Generator must have the same element to be move together.
                     if (component1.charAt(1) != component2.charAt(1) && component1.charAt(0) != component2.charAt(0)) continue;
                     // Microchip moved to the same floor as an incompatible Generator OR Generator moved to the same floor as an incompatible Microchip.
+                    String newFloor1 = newState1.floors[newElevator];
                     if (component1.charAt(0) == component2.charAt(0) ||
-                            this.validGeneratorMove(component2, newFloor) ||
-                            this.validMicrochipMove(component2, newFloor)) {
-                        State newState2 = State.newState(newState1, newElevator, component2At, component2);
-                        if (this.isNewState(newState2)) this.move(newState2);
+                            this.validGeneratorMove(component2, newFloor1) ||
+                            this.validMicrochipMove(component2, newFloor1)) {
+                        State newState2 = State.newState(newState1, elevator, newElevator, component2At, component2);
+                        this.begin(newState2);
                     }
                 }
             }
         }
     }
 
-    void move(final State state) {
-        if (!state.finalState()) {
-            if (state.elevator > 0) this.moveComponent(state, state.elevator - 1);
-            if (state.elevator < state.floors.length - 1) this.moveComponent(state,state.elevator + 1);
+    void begin(final State state) {
+        if (this.isNewState(state) && !state.finalState()) {
+            if (!state.elevatorOnGround()) this.moveComponents(state, state.elevator, state.elevator - 1);
+            if (!state.elevatorOnTop()) this.moveComponents(state,state.elevator, state.elevator + 1);
         }
     }
 
@@ -127,8 +137,8 @@ public class Advent11 {
         floors[1] = "HG .. .. .. ";
         floors[0] = ".. HM .. LM ";
         State initial = new State(floors, 0);
-        Column column = new Column();
-        if (column.isNewState(initial)) column.move(initial);
+        StateSpaceSearch column = new StateSpaceSearch();
+        column.begin(initial);
         column.dump();
     }
 
@@ -140,8 +150,8 @@ public class Advent11 {
         floors[1] = ".. .. .. OM .. PM .. .. .. .. ";
         floors[0] = "CG CM OG .. PG .. RG RM TG TM ";
         State initial = new State(floors, 0);
-        Column column = new Column();
-        if (column.isNewState(initial)) column.move(initial);
+        StateSpaceSearch column = new StateSpaceSearch();
+        column.begin(initial);
         column.dump();
     }
 
