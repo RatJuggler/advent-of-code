@@ -1,7 +1,9 @@
 package day11;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -94,7 +96,8 @@ class StateSpaceSearch {
         return component.charAt(1) == 'M' && (!floor.contains("G") || floor.contains(component.charAt(0) + "G"));
     }
 
-    private void moveComponents(final State state, final int elevator, final int newElevator) {
+    private List<State> componentMoves(final State state, final int elevator, final int newElevator) {
+        List<State> nextStates = new ArrayList<>();
         String oldFloor = state.floors[elevator];
         String newFloor1 = state.floors[newElevator];
         for (int i = 0; i < oldFloor.length(); i += 3) {
@@ -104,7 +107,7 @@ class StateSpaceSearch {
             // Microchip moved to the same floor as an incompatible Generator OR Generator moved to the same floor as an incompatible Microchip.
             if (this.validGeneratorMove(component1, newFloor1) || this.validMicrochipMove(component1, newFloor1)) {
                 State newState1 = State.newState(state, elevator, newElevator, i, component1, state.steps + 1);
-                this.begin(newState1);
+                nextStates.add(newState1);
                 for (int j = i; j < oldFloor.length(); j += 3) {
                     String component2 = oldFloor.substring(j, j + 2);
                     // Ignore empty components.
@@ -116,21 +119,26 @@ class StateSpaceSearch {
                     if (component1.charAt(0) == component2.charAt(0) ||
                             this.validGeneratorMove(component2, newFloor2) || this.validMicrochipMove(component2, newFloor2)) {
                         State newState2 = State.newState(newState1, elevator, newElevator, j, component2, newState1.steps);
-                        this.begin(newState2);
+                        nextStates.add(newState2);
                     }
                 }
             }
         }
+        return nextStates;
     }
 
     void begin(final State state) {
+        List<State> newStates = new ArrayList<>();
         if (this.isNewState(state)) {
-            if (!state.elevatorOnGround()) this.moveComponents(state, state.elevator, state.elevator - 1);
-            if (!state.elevatorOnTop()) this.moveComponents(state, state.elevator, state.elevator + 1);
+            if (!state.elevatorOnGround()) newStates.addAll(this.componentMoves(state, state.elevator, state.elevator - 1));
+            if (!state.elevatorOnTop()) newStates.addAll(this.componentMoves(state, state.elevator, state.elevator + 1));
         }
         if (state.isFinalState()) {
             System.out.println(state);
             System.out.println(this.minimumSteps);
+        }
+        for (State nextState : newStates) {
+            this.begin(nextState);
         }
     }
 
