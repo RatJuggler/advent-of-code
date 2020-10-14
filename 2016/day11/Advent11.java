@@ -6,8 +6,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.PriorityQueue;
+import java.util.Queue;
 
-class State {
+class State implements Comparable<State> {
 
     final String[] floors;
     final int elevator;
@@ -62,6 +64,11 @@ class State {
             column.append('F').append(i).append(i - 1 == this.elevator ? " E " : " . ").append(this.floors[i - 1]).append('\n');
         }
         return column.toString();
+    }
+
+    @Override
+    public int compareTo(State state) {
+        return 0;
     }
 }
 
@@ -127,18 +134,18 @@ class StateSpaceSearch {
         return nextStates;
     }
 
-    void begin(final State state) {
-        List<State> newStates = new ArrayList<>();
-        if (this.isNewState(state)) {
-            if (!state.elevatorOnGround()) newStates.addAll(this.componentMoves(state, state.elevator, state.elevator - 1));
-            if (!state.elevatorOnTop()) newStates.addAll(this.componentMoves(state, state.elevator, state.elevator + 1));
-        }
-        if (state.isFinalState()) {
-            System.out.println(state);
-            System.out.println(this.minimumSteps);
-        }
-        for (State nextState : newStates) {
-            this.begin(nextState);
+    void begin(final State initialState) {
+        Queue<State> nextStates = new PriorityQueue<>();
+        nextStates.add(initialState);
+        while (nextStates.peek() != null) {
+            State state = nextStates.poll();
+            if (this.isNewState(state)) {
+                if (!state.elevatorOnGround()) nextStates.addAll(this.componentMoves(state, state.elevator, state.elevator - 1));
+                if (!state.elevatorOnTop()) nextStates.addAll(this.componentMoves(state, state.elevator, state.elevator + 1));
+            }
+            if (state.isFinalState()) {
+                System.out.println("Queue: " + nextStates.size() + ", Steps to solution: " + this.minimumSteps);
+            }
         }
     }
 
