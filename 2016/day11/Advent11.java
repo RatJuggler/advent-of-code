@@ -98,17 +98,15 @@ class StateSpaceSearch {
     private void moveComponents(final State state, final int elevator, final int newElevator) {
         String oldFloor = state.floors[elevator];
         String newFloor1 = state.floors[newElevator];
-        for (int i = 0; i < oldFloor.length() / 3; i++) {
-            int component1At = i * 3;
-            String component1 = oldFloor.substring(component1At, component1At + 2);
+        for (int i = 0; i < oldFloor.length(); i += 3) {
+            String component1 = oldFloor.substring(i, i + 2);
             if (component1.equals("..")) continue;
             // Microchip moved to the same floor as an incompatible Generator OR Generator moved to the same floor as an incompatible Microchip.
             if (this.validGeneratorMove(component1, newFloor1) || this.validMicrochipMove(component1, newFloor1)) {
-                State newState1 = State.newState(state, elevator, newElevator, component1At, component1, state.steps + 1);
+                State newState1 = State.newState(state, elevator, newElevator, i, component1, state.steps + 1);
                 this.begin(newState1);
-                for (int j = i; j < oldFloor.length() / 3; j++) {
-                    int component2At = j * 3;
-                    String component2 = oldFloor.substring(component2At, component2At + 2);
+                for (int j = i; j < oldFloor.length(); j += 3) {
+                    String component2 = oldFloor.substring(j, j + 2);
                     if (component2.equals("..") || component2.equals(component1)) continue;
                     // Microchip and Generator must have the same element to be moved together.
                     if (component1.charAt(1) != component2.charAt(1) && component1.charAt(0) != component2.charAt(0)) continue;
@@ -116,7 +114,7 @@ class StateSpaceSearch {
                     String newFloor2 = newState1.floors[newElevator];
                     if (component1.charAt(0) == component2.charAt(0) ||
                             this.validGeneratorMove(component2, newFloor2) || this.validMicrochipMove(component2, newFloor2)) {
-                        State newState2 = State.newState(newState1, elevator, newElevator, component2At, component2, newState1.steps);
+                        State newState2 = State.newState(newState1, elevator, newElevator, j, component2, newState1.steps);
                         this.begin(newState2);
                     }
                 }
@@ -128,6 +126,9 @@ class StateSpaceSearch {
         if (this.isNewState(state) && !state.finalState()) {
             if (!state.elevatorOnGround()) this.moveComponents(state, state.elevator, state.elevator - 1);
             if (!state.elevatorOnTop()) this.moveComponents(state,state.elevator, state.elevator + 1);
+        }
+        if (state.finalState()) {
+            System.out.println(state);
         }
     }
 
@@ -144,7 +145,7 @@ public class Advent11 {
         State initial = new State(floors, 0, 0);
         StateSpaceSearch column = new StateSpaceSearch();
         column.begin(initial);
-        column.dump();
+//        column.dump();
     }
 
 
