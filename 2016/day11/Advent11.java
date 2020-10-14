@@ -1,8 +1,8 @@
 package day11;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 class State {
@@ -65,32 +65,25 @@ class State {
 
 class StateSpaceSearch {
 
-    private final List<State> history = new ArrayList<>();
+    private final Map<Integer, State> history = new HashMap<>();
     private int minimumSteps = Integer.MAX_VALUE;
 
     StateSpaceSearch() {}
 
     boolean isNewState(final State newState) {
+        if (newState.steps > this.minimumSteps) return false;
         if (newState.isFinalState()) {
             if (newState.steps < this.minimumSteps) this.minimumSteps = newState.steps;
             return false;
         }
-        if (newState.steps > this.minimumSteps) return false;
-        for (State state : this.history) {
-            if (newState.equals(state)) {
-                if (newState.steps >= state.steps) return false;
-                state.steps = newState.steps;
-                return true;
-            }
+        State found = history.get(newState.hashCode());
+        if (found == null) {
+            this.history.put(newState.hashCode(), newState);
+        } else {
+            if (newState.steps >= found.steps) return false;
+            found.steps = newState.steps;
         }
-        this.history.add(newState);
         return true;
-    }
-
-    void dump() {
-        for (State state : this.history) {
-            System.out.println(state);
-        }
     }
 
     private boolean validGeneratorMove(final String component, final String floor) {
@@ -106,6 +99,7 @@ class StateSpaceSearch {
         String newFloor1 = state.floors[newElevator];
         for (int i = 0; i < oldFloor.length(); i += 3) {
             String component1 = oldFloor.substring(i, i + 2);
+            // Ignore empty components.
             if (component1.equals("..")) continue;
             // Microchip moved to the same floor as an incompatible Generator OR Generator moved to the same floor as an incompatible Microchip.
             if (this.validGeneratorMove(component1, newFloor1) || this.validMicrochipMove(component1, newFloor1)) {
@@ -113,7 +107,8 @@ class StateSpaceSearch {
                 this.begin(newState1);
                 for (int j = i; j < oldFloor.length(); j += 3) {
                     String component2 = oldFloor.substring(j, j + 2);
-                    if (component2.equals("..") || component2.equals(component1)) continue;
+                    // Ignore empty components.
+                    if (component2.equals("..")) continue;
                     // Microchip and Generator must have the same element to be moved together.
                     if (component1.charAt(1) != component2.charAt(1) && component1.charAt(0) != component2.charAt(0)) continue;
                     // Microchip moved to the same floor as an incompatible Generator OR Generator moved to the same floor as an incompatible Microchip.
@@ -152,7 +147,6 @@ public class Advent11 {
         State initial = new State(floors, 0, 0);
         StateSpaceSearch column = new StateSpaceSearch();
         column.begin(initial);
-//        column.dump();
     }
 
 
@@ -165,12 +159,11 @@ public class Advent11 {
         State initial = new State(floors, 0, 0);
         StateSpaceSearch column = new StateSpaceSearch();
         column.begin(initial);
-//        column.dump();
     }
 
     public static void main(final String[] args) {
         testColumn();
-//        part1Column();
+        part1Column();
     }
 
 }
