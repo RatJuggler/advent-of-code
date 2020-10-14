@@ -75,6 +75,7 @@ class StateSpaceSearch {
             if (newState.steps < this.minimumSteps) this.minimumSteps = newState.steps;
             return false;
         }
+        if (newState.steps > this.minimumSteps) return false;
         for (State state : this.history) {
             if (newState.equals(state)) {
                 if (newState.steps >= state.steps) return false;
@@ -164,7 +165,7 @@ public class Advent11 {
         State initial = new State(floors, 0, 0);
         StateSpaceSearch column = new StateSpaceSearch();
         column.begin(initial);
-        column.dump();
+//        column.dump();
     }
 
     public static void main(final String[] args) {
