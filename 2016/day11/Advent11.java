@@ -26,7 +26,7 @@ class State {
         return new State(newFloors, newElevator, steps);
     }
 
-    boolean finalState() {
+    boolean isFinalState() {
         return !this.floors[this.floors.length - 1].contains("..");
     }
 
@@ -66,10 +66,15 @@ class State {
 class StateSpaceSearch {
 
     private final List<State> history = new ArrayList<>();
+    private int minimumSteps = Integer.MAX_VALUE;
 
     StateSpaceSearch() {}
 
     boolean isNewState(final State newState) {
+        if (newState.isFinalState()) {
+            if (newState.steps < this.minimumSteps) this.minimumSteps = newState.steps;
+            return false;
+        }
         for (State state : this.history) {
             if (newState.equals(state)) {
                 if (newState.steps >= state.steps) return false;
@@ -123,12 +128,13 @@ class StateSpaceSearch {
     }
 
     void begin(final State state) {
-        if (this.isNewState(state) && !state.finalState()) {
+        if (this.isNewState(state)) {
             if (!state.elevatorOnGround()) this.moveComponents(state, state.elevator, state.elevator - 1);
-            if (!state.elevatorOnTop()) this.moveComponents(state,state.elevator, state.elevator + 1);
+            if (!state.elevatorOnTop()) this.moveComponents(state, state.elevator, state.elevator + 1);
         }
-        if (state.finalState()) {
+        if (state.isFinalState()) {
             System.out.println(state);
+            System.out.println(this.minimumSteps);
         }
     }
 
