@@ -9,7 +9,7 @@ class State {
 
     final String[] floors;
     final int elevator;
-    final int steps;
+    int steps;
 
     State(final String[] floors, final int elevator, final int steps) {
         this.floors = floors;
@@ -71,7 +71,11 @@ class StateSpaceSearch {
 
     boolean isNewState(final State newState) {
         for (State state : this.history) {
-            if (newState.equals(state)) return false;
+            if (newState.equals(state)) {
+                if (newState.steps >= state.steps) return false;
+                state.steps = newState.steps;
+                return true;
+            }
         }
         this.history.add(newState);
         return true;
