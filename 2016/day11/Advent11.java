@@ -14,11 +14,18 @@ class State implements Comparable<State> {
     final String[] floors;
     final int elevator;
     int steps;
+    int priority;
 
     State(final String[] floors, final int elevator, final int steps) {
         this.floors = floors;
         this.elevator = elevator;
         this.steps = steps;
+        for (int i = 0; i < this.floors.length; i++) {
+            String floor = this.floors[i];
+            if (!floor.contains("G") && !floor.contains("M")) {
+                this.priority += (3 - i);
+            }
+        }
     }
 
     static State newState(final State state, final int elevator, final int newElevator, final int componentAt, final String component, final int steps) {
@@ -59,7 +66,8 @@ class State implements Comparable<State> {
 
     @Override
     public String toString() {
-        StringBuilder column = new StringBuilder().append("Steps: ").append(this.steps).append('\n');
+        StringBuilder column = new StringBuilder().append("Steps: ").append(this.steps)
+                .append(", Priority: ").append(this.priority).append('\n');
         for (int i = this.floors.length; i > 0; i--) {
             column.append('F').append(i).append(i - 1 == this.elevator ? " E " : " . ").append(this.floors[i - 1]).append('\n');
         }
@@ -68,7 +76,7 @@ class State implements Comparable<State> {
 
     @Override
     public int compareTo(State state) {
-        return 0;
+        return Integer.compare(this.priority, state.priority);
     }
 }
 
@@ -139,12 +147,13 @@ class StateSpaceSearch {
         nextStates.add(initialState);
         while (nextStates.peek() != null) {
             State state = nextStates.poll();
+//            System.out.println("Queue: " + nextStates.size() + ", History: " + this.history.size() + ", Steps to solution: " + this.minimumSteps);
             if (this.isNewState(state)) {
                 if (!state.elevatorOnGround()) nextStates.addAll(this.componentMoves(state, state.elevator, state.elevator - 1));
                 if (!state.elevatorOnTop()) nextStates.addAll(this.componentMoves(state, state.elevator, state.elevator + 1));
             }
             if (state.isFinalState()) {
-                System.out.println("Queue: " + nextStates.size() + ", Steps to solution: " + this.minimumSteps);
+                System.out.println("Queue: " + nextStates.size() + ", History: " + this.history.size() + ", Steps to solution: " + this.minimumSteps);
             }
         }
     }
