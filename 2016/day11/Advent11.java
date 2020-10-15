@@ -27,7 +27,10 @@ class State implements Comparable<State> {
 //                this.priority += (3 - i);
 //            }
 //        }
-        this.priority = (int) (this.steps - this.floors[this.floors.length - 1].chars().filter(ch -> ch == '.').count());
+//        this.priority = (int) (this.steps - this.floors[this.floors.length - 1].chars().filter(ch -> ch == '.').count());
+//        this.priority = (int) (-this.floors[this.floors.length - 1].chars().filter(ch -> ch == '.').count());
+        this.priority = (int) (this.floors[0].chars().filter(ch -> ch == '.').count() -
+                this.floors[this.floors.length - 1].chars().filter(ch -> ch == '.').count());
     }
 
     static State newState(final State state, final int elevator, final int newElevator, final int componentAt, final String component, final int steps) {
@@ -151,7 +154,8 @@ class StateSpaceSearch {
         nextStates.add(initialState);
         while (nextStates.peek() != null) {
             State state = nextStates.poll();
-//            System.out.println("Queue: " + nextStates.size() + ", History: " + this.history.size() + ", Steps to solution: " + this.minimumSteps);
+            System.out.println("Queue: " + nextStates.size() + ", History: " + this.history.size() + ", Steps to solution: " + this.minimumSteps);
+            System.out.println(state);
             if (this.validState(state)) {
                 if (!state.elevatorOnGround()) nextStates.addAll(this.componentMoves(state, state.elevator, state.elevator - 1));
                 if (!state.elevatorOnTop()) nextStates.addAll(this.componentMoves(state, state.elevator, state.elevator + 1));
