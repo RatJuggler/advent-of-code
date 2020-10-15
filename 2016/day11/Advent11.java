@@ -205,7 +205,7 @@ class StateSpaceSearch {
 
 public class Advent11 {
 
-    private static void testColumn() {
+    private static void test() {
         String[] floors = new String[4];
         floors[3] = ".. .. .. .. ";
         floors[2] = ".. .. LG .. ";
@@ -216,7 +216,7 @@ public class Advent11 {
         column.begin(initial);
     }
 
-    private static void part1Column() {
+    private static void part1() {
         String[] floors = new String[4];
         floors[3] = ".. .. .. .. .. .. .. .. .. .. ";
         floors[2] = ".. .. .. .. .. .. .. .. .. .. ";
@@ -227,9 +227,21 @@ public class Advent11 {
         column.begin(initial);
     }
 
+    private static void part2() {
+        String[] floors = new String[4];
+        floors[3] = ".. .. .. .. .. .. .. .. .. .. .. .. .. .. ";
+        floors[2] = ".. .. .. .. .. .. .. .. .. .. .. .. .. .. ";
+        floors[1] = ".. .. .. OM .. PM .. .. .. .. .. .. .. .. ";
+        floors[0] = "CG CM OG .. PG .. RG RM TG TM EG EM DG DM ";
+        State initial = new State(floors, 0, 0);
+        StateSpaceSearch column = new StateSpaceSearch();
+        column.begin(initial);
+    }
+
     public static void main(final String[] args) {
-        testColumn();
-        part1Column();
+        test();
+        part1();
+        part2();
     }
 
 }

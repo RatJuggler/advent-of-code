@@ -168,3 +168,5 @@ A dilithium-compatible microchip.
 These work just like the other generators and microchips. You'll have to get them up to assembly as well.
 
 What is the minimum number of steps required to bring all of the objects, including these four new ones, to the fourth floor?
+
+Your puzzle answer was 71.
