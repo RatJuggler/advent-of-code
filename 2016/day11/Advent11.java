@@ -127,7 +127,7 @@ class StateSpaceSearch {
             if (this.validGeneratorMove(component1, newFloor1) || this.validMicrochipMove(component1, newFloor1)) {
                 State newState1 = State.newState(state, elevator, newElevator, i, component1, state.steps + 1);
                 nextStates.add(newState1);
-                for (int j = i; j < oldFloor.length(); j += 3) {
+                for (int j = i + 3; j < oldFloor.length(); j += 3) {
                     String component2 = oldFloor.substring(j, j + 2);
                     // Ignore empty components.
                     if (component2.equals("..")) continue;
