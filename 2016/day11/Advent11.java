@@ -9,23 +9,25 @@ import java.util.Objects;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
+
 class State implements Comparable<State> {
 
     final String[] floors;
     final int elevator;
-    int steps;
     int priority;
+    int steps;
 
     State(final String[] floors, final int elevator, final int steps) {
         this.floors = floors;
         this.elevator = elevator;
         this.steps = steps;
-        for (int i = 0; i < this.floors.length; i++) {
-            String floor = this.floors[i];
-            if (!floor.contains("G") && !floor.contains("M")) {
-                this.priority += (3 - i);
-            }
-        }
+//        for (int i = 0; i < this.floors.length; i++) {
+//            String floor = this.floors[i];
+//            if (!floor.contains("G") && !floor.contains("M")) {
+//                this.priority += (3 - i);
+//            }
+//        }
+        this.priority = (int) (this.steps - this.floors[this.floors.length - 1].chars().filter(ch -> ch == '.').count());
     }
 
     static State newState(final State state, final int elevator, final int newElevator, final int componentAt, final String component, final int steps) {
@@ -80,6 +82,7 @@ class State implements Comparable<State> {
     }
 }
 
+
 class StateSpaceSearch {
 
     private final Map<Integer, State> history = new HashMap<>();
@@ -87,18 +90,19 @@ class StateSpaceSearch {
 
     StateSpaceSearch() {}
 
-    boolean isNewState(final State newState) {
-        if (newState.steps > this.minimumSteps) return false;
-        if (newState.isFinalState()) {
-            if (newState.steps < this.minimumSteps) this.minimumSteps = newState.steps;
+    private boolean validState(final State state) {
+        if (state.steps > this.minimumSteps) return false;
+        if (state.isFinalState()) {
+            if (state.steps < this.minimumSteps) this.minimumSteps = state.steps;
             return false;
         }
-        State found = history.get(newState.hashCode());
+        int hash = state.hashCode();
+        State found = history.get(hash);
         if (found == null) {
-            this.history.put(newState.hashCode(), newState);
+            this.history.put(hash, state);
         } else {
-            if (newState.steps >= found.steps) return false;
-            found.steps = newState.steps;
+            if (state.steps >= found.steps) return false;
+            found.steps = state.steps;
         }
         return true;
     }
@@ -148,7 +152,7 @@ class StateSpaceSearch {
         while (nextStates.peek() != null) {
             State state = nextStates.poll();
 //            System.out.println("Queue: " + nextStates.size() + ", History: " + this.history.size() + ", Steps to solution: " + this.minimumSteps);
-            if (this.isNewState(state)) {
+            if (this.validState(state)) {
                 if (!state.elevatorOnGround()) nextStates.addAll(this.componentMoves(state, state.elevator, state.elevator - 1));
                 if (!state.elevatorOnTop()) nextStates.addAll(this.componentMoves(state, state.elevator, state.elevator + 1));
             }
@@ -159,6 +163,7 @@ class StateSpaceSearch {
     }
 
 }
+
 
 public class Advent11 {
 
@@ -172,7 +177,6 @@ public class Advent11 {
         StateSpaceSearch column = new StateSpaceSearch();
         column.begin(initial);
     }
-
 
     private static void part1Column() {
         String[] floors = new String[4];
