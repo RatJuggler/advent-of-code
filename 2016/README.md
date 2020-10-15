@@ -2,7 +2,7 @@
 
 ##### Day 1: No Time for a Taxicab
 First part is straightforward as we are just updating the current location. For the second part I didn't want to mess around with
-trying to find the intersection points of all the direction vectors so I built a history of every point visited and used a stream 
+trying to find the intersection points of all the direction vectors, so I built a history of every point visited and used a stream 
 with lambdas to filter and reduce it.
 
 ##### Day 2: Bathroom Security
@@ -40,3 +40,13 @@ the bins as leaves. Despite this insight I feel I've not produced anywhere near 
 in part be due to over-engineered OO Java. Having said that, the comprehensive code created for Part 1 meant that the Part 2 
 solution was trivial.
 
+##### Day 11: Radioisotope Thermoelectric Generators
+Easily the hardest Advent-of-Code day I have encountered so far! Haven't encountered a problem like this for many, many years.
+It should have been a straightforward breadth first search, but I struggled over several days to solve it. Part of the issue was
+that I started down the path of trying to generate and validate new states in a single method. While doing this I didn't properly 
+implement the validation check for the floor components were being move from, so the rest of my solution suffered. Choosing how to 
+represent the problem state was also something I could have done better. Trying to keep things simple I ended up using a single 
+String to represent each floor, which seemed to work out in the end but obviously impacted the performance of the Part 2 solution.
+On the plus side I did get to use a PriorityQueue which I don't remember using previously.   
+
+##### Day 12: Leonardo's Monorail
