@@ -21,25 +21,20 @@ class State implements Comparable<State> {
         this.floors = floors;
         this.elevator = elevator;
         this.steps = steps;
-//        for (int i = 0; i < this.floors.length; i++) {
-//            String floor = this.floors[i];
-//            if (!floor.contains("G") && !floor.contains("M")) {
-//                this.priority += (3 - i);
-//            }
-//        }
-//        this.priority = (int) (this.steps - this.floors[this.floors.length - 1].chars().filter(ch -> ch == '.').count());
-//        this.priority = (int) (-this.floors[this.floors.length - 1].chars().filter(ch -> ch == '.').count());
+        // Number of empty positions on the ground floor (prefer) - Number of empty positions on the top floor (avoid)
         this.priority = (int) (this.floors[0].chars().filter(ch -> ch == '.').count() -
                 this.floors[this.floors.length - 1].chars().filter(ch -> ch == '.').count());
     }
 
-    static State newState(final State state, final int elevator, final int newElevator, final int componentAt, final String component, final int steps) {
+    static State newState(final State state, final String newFromFloor, final int newElevator, final String newToFloor) {
         String[] newFloors = state.floors.clone();
-        newFloors[elevator] =
-                newFloors[elevator].substring(0, componentAt) + ".." + newFloors[elevator].substring(componentAt + 2);
-        newFloors[newElevator] =
-                newFloors[newElevator].substring(0, componentAt) + component + newFloors[newElevator].substring(componentAt + 2);
-        return new State(newFloors, newElevator, steps);
+        newFloors[state.elevator] = newFromFloor;
+        newFloors[newElevator] = newToFloor;
+        return new State(newFloors, newElevator, state.steps + 1);
+    }
+
+    String getCurrentFloor() {
+        return this.floors[this.elevator];
     }
 
     boolean isFinalState() {
@@ -110,40 +105,79 @@ class StateSpaceSearch {
         return true;
     }
 
-    private boolean validGeneratorMove(final String component, final String floor) {
-        return component.charAt(1) == 'G' && (!floor.contains("M") || floor.contains(component.charAt(0) + "M"));
-    }
-
-    private boolean validMicrochipMove(final String component, final String floor) {
-        return component.charAt(1) == 'M' && (!floor.contains("G") || floor.contains(component.charAt(0) + "G"));
-    }
-
-    private List<State> componentMoves(final State state, final int elevator, final int newElevator) {
-        List<State> nextStates = new ArrayList<>();
-        String oldFloor = state.floors[elevator];
-        String newFloor1 = state.floors[newElevator];
-        for (int i = 0; i < oldFloor.length(); i += 3) {
-            String component1 = oldFloor.substring(i, i + 2);
+    private List<String> generateElevators(final String fromFloor) {
+        final String emptyElevator = ".. ".repeat(fromFloor.length() / 3);
+        List<String> elevators = new ArrayList<>();
+        for (int i = 0; i < fromFloor.length(); i += 3) {
+            String component1 = fromFloor.substring(i, i + 2);
             // Ignore empty components.
             if (component1.equals("..")) continue;
-            // Microchip moved to the same floor as an incompatible Generator OR Generator moved to the same floor as an incompatible Microchip.
-            if (this.validGeneratorMove(component1, newFloor1) || this.validMicrochipMove(component1, newFloor1)) {
-                State newState1 = State.newState(state, elevator, newElevator, i, component1, state.steps + 1);
-                nextStates.add(newState1);
-                for (int j = i + 3; j < oldFloor.length(); j += 3) {
-                    String component2 = oldFloor.substring(j, j + 2);
-                    // Ignore empty components.
-                    if (component2.equals("..")) continue;
-                    // Microchip and Generator must have the same element to be moved together.
-                    if (component1.charAt(1) != component2.charAt(1) && component1.charAt(0) != component2.charAt(0)) continue;
-                    // Microchip moved to the same floor as an incompatible Generator OR Generator moved to the same floor as an incompatible Microchip.
-                    String newFloor2 = newState1.floors[newElevator];
-                    if (component1.charAt(0) == component2.charAt(0) ||
-                            this.validGeneratorMove(component2, newFloor2) || this.validMicrochipMove(component2, newFloor2)) {
-                        State newState2 = State.newState(newState1, elevator, newElevator, j, component2, newState1.steps);
-                        nextStates.add(newState2);
-                    }
-                }
+            String elevator1 = emptyElevator.substring(0, i) + component1 + emptyElevator.substring(i + 2);
+            elevators.add(elevator1);
+            for (int j = i + 3; j < fromFloor.length(); j += 3) {
+                String component2 = fromFloor.substring(j, j + 2);
+                // Ignore empty components.
+                if (component2.equals("..")) continue;
+                // Microchip and Generator must have the same element to be moved together.
+                if (component1.charAt(1) != component2.charAt(1) && component1.charAt(0) != component2.charAt(0)) continue;
+                elevators.add(elevator1.substring(0, j) + component2 + elevator1.substring(j + 2));
+            }
+        }
+        return elevators;
+    }
+
+    private boolean validFloor(final String floor) {
+        boolean generatorPresent = false;
+        boolean unshieldedMicrochipPresent = false;
+        for (int i = 1; i < floor.length(); i += 3) {
+            if (floor.charAt(i) == 'G') generatorPresent = true;
+            if (floor.charAt(i) == 'M' && floor.charAt(i - 3) == '.') unshieldedMicrochipPresent = true;
+        }
+        return !(generatorPresent && unshieldedMicrochipPresent);
+    }
+
+    private String validElevatorMoveFrom(final String elevator, final String fromFloor) {
+        String newFromFloor = fromFloor;
+        for (int i = 0; i < elevator.length(); i += 3) {
+            String moved = elevator.substring(i, i + 2);
+            if (moved.equals("..")) continue;
+            newFromFloor = newFromFloor.substring(0, i) + ".." + newFromFloor.substring(i + 2);
+        }
+        if (this.validFloor(newFromFloor))
+            return newFromFloor;
+        else
+            return null;
+    }
+
+    private String validElevatorMoveTo(final String elevator, final String toFloor) {
+        String newToFloor = toFloor;
+        for (int i = 0; i < elevator.length(); i += 3) {
+            String moved = elevator.substring(i, i + 2);
+            if (moved.equals("..")) continue;
+            newToFloor = newToFloor.substring(0, i) + moved + newToFloor.substring(i + 2);
+        }
+        if (this.validFloor(newToFloor))
+            return newToFloor;
+        else
+            return null;
+    }
+
+    private List<State> generateNextStates(final State currentState, List<String> elevators) {
+        List<State> nextStates = new ArrayList<>();
+        for (String elevator : elevators) {
+            String newFromFloor = this.validElevatorMoveFrom(elevator, currentState.getCurrentFloor());
+            if (newFromFloor == null) continue;
+            if (!currentState.elevatorOnTop()) {
+                int up = currentState.elevator + 1;
+                String newToFloor = this.validElevatorMoveTo(elevator, currentState.floors[up]);
+                if (newToFloor != null)
+                    nextStates.add(State.newState(currentState, newFromFloor, up, newToFloor));
+            }
+            if (!currentState.elevatorOnGround()) {
+                int down = currentState.elevator - 1;
+                String newToFloor = this.validElevatorMoveTo(elevator, currentState.floors[down]);
+                if (newToFloor != null)
+                    nextStates.add(State.newState(currentState, newFromFloor, down, newToFloor));
             }
         }
         return nextStates;
@@ -154,11 +188,11 @@ class StateSpaceSearch {
         nextStates.add(initialState);
         while (nextStates.peek() != null) {
             State state = nextStates.poll();
-            System.out.println("Queue: " + nextStates.size() + ", History: " + this.history.size() + ", Steps to solution: " + this.minimumSteps);
-            System.out.println(state);
+//            System.out.println("Queue: " + nextStates.size() + ", History: " + this.history.size() + ", Steps to solution: " + this.minimumSteps);
+//            System.out.println(state);
             if (this.validState(state)) {
-                if (!state.elevatorOnGround()) nextStates.addAll(this.componentMoves(state, state.elevator, state.elevator - 1));
-                if (!state.elevatorOnTop()) nextStates.addAll(this.componentMoves(state, state.elevator, state.elevator + 1));
+                List<String> elevators = this.generateElevators(state.getCurrentFloor());
+                nextStates.addAll(this.generateNextStates(state, elevators));
             }
             if (state.isFinalState()) {
                 System.out.println("Queue: " + nextStates.size() + ", History: " + this.history.size() + ", Steps to solution: " + this.minimumSteps);
