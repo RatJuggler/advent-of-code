@@ -1,9 +1,51 @@
 package day13;
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Queue;
+
+
+class Position implements Cloneable {
+
+    final int x;
+    final int y;
+    int steps;
+
+    Position(final int x, final int y, final int steps) {
+        this.x = x;
+        this.y = y;
+        this.steps = steps;
+    }
+
+    boolean isFinalPosition(final int toX, final int toY) {
+        return x == toX && y == toY;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Position position = (Position) o;
+        return this.x == position.x && this.y == position.y;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(x, y);
+    }
+}
+
 
 class Office {
 
-    final char[][] space;
+    private final char[][] space;
+    private final Map<Integer, Position> history = new HashMap<>();
+    private int minimumSteps = Integer.MAX_VALUE;
+
 
     Office(final int seed, final int sizeX, final int sizeY) {
         this.space = new char[sizeY][sizeX];
@@ -22,8 +64,51 @@ class Office {
         }
     }
 
+    private List<Position> generateNextPositions(final Position currentPosition) {
+        Position newPosition;
+        List<Position> nextPositions = new ArrayList<>();
+        if (currentPosition.x < this.space[0].length - 1) {
+            newPosition = new Position(currentPosition.x + 1, currentPosition.y, currentPosition.steps + 1);
+            if (this.space[newPosition.y][newPosition.x] == '.') nextPositions.add(newPosition);
+        }
+        if (currentPosition.x > 0) {
+            newPosition = new Position(currentPosition.x - 1, currentPosition.y, currentPosition.steps + 1);
+            if (this.space[newPosition.y][newPosition.x] == '.') nextPositions.add(newPosition);
+        }
+        if (currentPosition.y < this.space.length - 1) {
+            newPosition = new Position(currentPosition.x, currentPosition.y + 1, currentPosition.steps + 1);
+            if (this.space[newPosition.y][newPosition.x] == '.') nextPositions.add(newPosition);
+        }
+        if (currentPosition.y > 0) {
+            newPosition = new Position(currentPosition.x, currentPosition.y - 1, currentPosition.steps + 1);
+            if (this.space[newPosition.y][newPosition.x] == '.') nextPositions.add(newPosition);
+        }
+        return nextPositions;
+    }
+
     int findPathTo(final int toX, final int toY) {
-        return 0;
+        Queue<Position> nextPositions = new ArrayDeque<>();
+        nextPositions.add(new Position(1, 1, 0));
+        while (nextPositions.peek() != null) {
+            Position position = nextPositions.poll();
+            if (position.steps < this.minimumSteps) {
+                if (position.isFinalPosition(toX, toY)) {
+                    this.minimumSteps = position.steps;
+                    System.out.println("Queue: " + nextPositions.size() + ", History: " + this.history.size() + ", Minimum steps: " + this.minimumSteps);
+                } else {
+                    int hash = position.hashCode();
+                    Position found = history.get(hash);
+                    if (found == null) {
+                        this.history.put(hash, position);
+                    } else {
+                        if (position.steps >= found.steps) continue;
+                        found.steps = position.steps;
+                    }
+                    nextPositions.addAll(this.generateNextPositions(position));
+                }
+            }
+        }
+        return this.minimumSteps;
     }
 
     @Override
@@ -57,9 +142,9 @@ public class Advent13 {
     }
 
     private static void test() {
+        int expectedSteps = 11;
         Office office = new Office(10, 10, 7);
         System.out.println(office.toString());
-        int expectedSteps = 11;
         int actualSteps = office.findPathTo(7, 4);
         assert actualSteps == expectedSteps : String.format("Expected to take '%s' steps but was '%s'!", expectedSteps, actualSteps);
     }
@@ -69,5 +154,4 @@ public class Advent13 {
         part1();
         part2();
     }
-
 }
