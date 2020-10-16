@@ -9,7 +9,7 @@ import java.util.Objects;
 import java.util.Queue;
 
 
-class Position implements Cloneable {
+class Position {
 
     final int x;
     final int y;
@@ -19,10 +19,6 @@ class Position implements Cloneable {
         this.x = x;
         this.y = y;
         this.steps = steps;
-    }
-
-    boolean isFinalPosition(final int toX, final int toY) {
-        return x == toX && y == toY;
     }
 
     @Override
@@ -43,9 +39,6 @@ class Position implements Cloneable {
 class Office {
 
     private final char[][] space;
-    private final Map<Integer, Position> history = new HashMap<>();
-    private int minimumSteps = Integer.MAX_VALUE;
-
 
     Office(final int seed, final int sizeX, final int sizeY) {
         this.space = new char[sizeY][sizeX];
@@ -88,18 +81,20 @@ class Office {
 
     int findPathTo(final int toX, final int toY) {
         Queue<Position> nextPositions = new ArrayDeque<>();
+        Map<Integer, Position> history = new HashMap<>();
+        int minimumSteps = Integer.MAX_VALUE;
         nextPositions.add(new Position(1, 1, 0));
         while (nextPositions.peek() != null) {
             Position position = nextPositions.poll();
-            if (position.steps < this.minimumSteps) {
-                if (position.isFinalPosition(toX, toY)) {
-                    this.minimumSteps = position.steps;
-                    System.out.println("Queue: " + nextPositions.size() + ", History: " + this.history.size() + ", Minimum steps: " + this.minimumSteps);
+            if (position.steps < minimumSteps) {
+                if (position.x == toX && position.y == toY) {
+                    minimumSteps = position.steps;
+                    System.out.println("Queue: " + nextPositions.size() + ", History: " + history.size() + ", Minimum steps: " + minimumSteps);
                 } else {
                     int hash = position.hashCode();
                     Position found = history.get(hash);
                     if (found == null) {
-                        this.history.put(hash, position);
+                        history.put(hash, position);
                     } else {
                         if (position.steps >= found.steps) continue;
                         found.steps = position.steps;
@@ -108,7 +103,7 @@ class Office {
                 }
             }
         }
-        return this.minimumSteps;
+        return minimumSteps;
     }
 
     @Override
