@@ -79,7 +79,30 @@ class Office {
         return nextPositions;
     }
 
-    int findPathTo(final int toX, final int toY) {
+    int findNumberOfLocationsOf(final int maximumSteps) {
+        Queue<Position> nextPositions = new ArrayDeque<>();
+        Map<Integer, Position> history = new HashMap<>();
+        Map<Integer, Position> locations = new HashMap<>();
+        nextPositions.add(new Position(1, 1, 0));
+        while (nextPositions.peek() != null) {
+            Position position = nextPositions.poll();
+            if (position.steps <= maximumSteps) {
+                locations.put(position.hashCode(), position);
+                int hash = position.hashCode();
+                Position found = history.get(hash);
+                if (found == null) {
+                    history.put(hash, position);
+                } else {
+                    if (position.steps >= found.steps) continue;
+                    found.steps = position.steps;
+                }
+                nextPositions.addAll(this.generateNextPositions(position));
+            }
+        }
+        return locations.size();
+    }
+
+    int findMinimumPathTo(final int toX, final int toY) {
         Queue<Position> nextPositions = new ArrayDeque<>();
         Map<Integer, Position> history = new HashMap<>();
         int minimumSteps = Integer.MAX_VALUE;
@@ -128,19 +151,22 @@ public class Advent13 {
 
 
     private static void part2() {
+        Office office = new Office(1358, 60, 60);
+        System.out.println(office.toString());
+        System.out.printf("Part 2, locations found = %s\n", office.findNumberOfLocationsOf(50));
     }
 
     private static void part1() {
         Office office = new Office(1358, 50, 50);
         System.out.println(office.toString());
-        System.out.printf("Part 1, steps taken = %s\n", office.findPathTo(31, 39));
+        System.out.printf("Part 1, steps taken = %s\n", office.findMinimumPathTo(31, 39));
     }
 
     private static void test() {
         int expectedSteps = 11;
         Office office = new Office(10, 10, 7);
         System.out.println(office.toString());
-        int actualSteps = office.findPathTo(7, 4);
+        int actualSteps = office.findMinimumPathTo(7, 4);
         assert actualSteps == expectedSteps : String.format("Expected to take '%s' steps but was '%s'!", expectedSteps, actualSteps);
     }
 
