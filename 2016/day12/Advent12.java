@@ -15,10 +15,6 @@ class Computer {
 
     Computer(final List<String> program) {
         this.program = program;
-        this.registers.put("a", 0);
-        this.registers.put("b", 0);
-        this.registers.put("c", 0);
-        this.registers.put("d", 0);
     }
 
     static Computer fromFile(final String filename) throws IOException {
@@ -37,7 +33,11 @@ class Computer {
             return Integer.parseInt(argument);
     }
 
-    void run() {
+    void run(final int a, final int b, final int c, final int d) {
+        this.registers.put("a", a);
+        this.registers.put("b", b);
+        this.registers.put("c", c);
+        this.registers.put("d", d);
         int line = 0;
         while (line < this.program.size()) {
             String instruction = this.program.get(line);
@@ -68,19 +68,22 @@ class Computer {
 
 public class Advent12 {
 
-    private static void part2() {
+    private static void part2() throws IOException {
+        Computer computer = Computer.fromFile("2016/day12/input12.txt");
+        computer.run(0, 0, 1, 0);
+        System.out.printf("Part 2, register 'a' = %s\n", computer.getRegister("a"));
     }
 
     private static void part1() throws IOException {
         Computer computer = Computer.fromFile("2016/day12/input12.txt");
-        computer.run();
-        System.out.printf("Register 'a' = %s", computer.getRegister("a"));
+        computer.run(0, 0, 0, 0);
+        System.out.printf("Part 1, register 'a' = %s\n", computer.getRegister("a"));
     }
 
     private static void test() throws IOException {
         int expectedA = 42;
         Computer computer = Computer.fromFile("2016/day12/test12.txt");
-        computer.run();
+        computer.run(0, 0, 0, 0);
         int actualA = computer.getRegister("a");
         assert actualA == expectedA : String.format("Expected register 'a' to be '%s' but was '%s'!", expectedA, actualA);
     }
