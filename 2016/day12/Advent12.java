@@ -26,6 +26,13 @@ class Computer {
         return this.registers.getOrDefault(register, 0);
     }
 
+    int decodeArgument(final String argument) {
+        if (Character.isAlphabetic(argument.charAt(0)))
+            return this.registers.getOrDefault(argument, 0);
+        else
+            return Integer.parseInt(argument);
+    }
+
     void run() {
         int line = 0;
         while (line < this.program.size() - 1) {
@@ -33,12 +40,7 @@ class Computer {
             String[] decode = instruction.split(" ");
             switch (decode[0]) {
                 case "cpy":
-                    int copy;
-                    if (Character.isAlphabetic(decode[1].charAt(0)))
-                        copy = this.registers.getOrDefault(decode[1], 0);
-                    else
-                        copy = Integer.parseInt(decode[1]);
-                    this.registers.put(decode[2], copy);
+                    this.registers.put(decode[2], this.decodeArgument(decode[1]));
                     line++;
                     break;
                 case "inc":
@@ -50,7 +52,7 @@ class Computer {
                     line++;
                     break;
                 case "jnz":
-                    if (this.registers.getOrDefault(decode[1], 0) != 0)
+                    if (this.decodeArgument(decode[1]) != 0)
                         line += Integer.parseInt(decode[2]);
                     else
                         line++;
