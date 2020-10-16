@@ -50,3 +50,6 @@ String to represent each floor, which seemed to work out in the end but obviousl
 On the plus side I did get to use a PriorityQueue which I don't remember using previously.   
 
 ##### Day 12: Leonardo's Monorail
+Implementation of a simple VM to execute the bunnycode. Except I managed to fall into the trap of not checking that the first 
+argument on the JNZ instruction, which can be a number or a register. The problem outline omits this detail, so I assumed it would
+always be a register to start with.
