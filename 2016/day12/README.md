@@ -38,3 +38,5 @@ The above code would set register a to 41, increase its value by 2, decrease its
 a is not zero, so the jnz a 2 skips it), leaving register a at 42. When you move past the last instruction, the program halts.
 
 After executing the assembunny code in your puzzle input, what value is left in register a?
+
+Your puzzle answer was 318077.

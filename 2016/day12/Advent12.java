@@ -15,6 +15,10 @@ class Computer {
 
     Computer(final List<String> program) {
         this.program = program;
+        this.registers.put("a", 0);
+        this.registers.put("b", 0);
+        this.registers.put("c", 0);
+        this.registers.put("d", 0);
     }
 
     static Computer fromFile(final String filename) throws IOException {
@@ -23,43 +27,39 @@ class Computer {
     }
 
     int getRegister(final String register) {
-        return this.registers.getOrDefault(register, 0);
+        return this.registers.get(register);
     }
 
-    int decodeArgument(final String argument) {
+    private int decodeArgument(final String argument) {
         if (Character.isAlphabetic(argument.charAt(0)))
-            return this.registers.getOrDefault(argument, 0);
+            return this.getRegister(argument);
         else
             return Integer.parseInt(argument);
     }
 
     void run() {
         int line = 0;
-        while (line < this.program.size() - 1) {
+        while (line < this.program.size()) {
             String instruction = this.program.get(line);
             String[] decode = instruction.split(" ");
             switch (decode[0]) {
                 case "cpy":
                     this.registers.put(decode[2], this.decodeArgument(decode[1]));
-                    line++;
                     break;
                 case "inc":
-                    this.registers.put(decode[1], this.registers.getOrDefault(decode[1], 0) + 1);
-                    line++;
+                    this.registers.put(decode[1], this.registers.get(decode[1]) + 1);
                     break;
                 case "dec":
-                    this.registers.put(decode[1], this.registers.getOrDefault(decode[1], 0) - 1);
-                    line++;
+                    this.registers.put(decode[1], this.registers.get(decode[1]) - 1);
                     break;
                 case "jnz":
                     if (this.decodeArgument(decode[1]) != 0)
-                        line += Integer.parseInt(decode[2]);
-                    else
-                        line++;
+                        line += Integer.parseInt(decode[2]) - 1;
                     break;
                 default:
                     throw new IllegalStateException(String.format("Unknown command '%s'", decode[0]));
             }
+            line++;
         }
     }
 
