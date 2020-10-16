@@ -83,27 +83,7 @@ class State implements Comparable<State> {
 
 class StateSpaceSearch {
 
-    private final Map<Integer, State> history = new HashMap<>();
-    private int minimumSteps = Integer.MAX_VALUE;
-
     StateSpaceSearch() {}
-
-    private boolean validState(final State state) {
-        if (state.steps > this.minimumSteps) return false;
-        if (state.isFinalState()) {
-            if (state.steps < this.minimumSteps) this.minimumSteps = state.steps;
-            return false;
-        }
-        int hash = state.hashCode();
-        State found = history.get(hash);
-        if (found == null) {
-            this.history.put(hash, state);
-        } else {
-            if (state.steps >= found.steps) return false;
-            found.steps = state.steps;
-        }
-        return true;
-    }
 
     private List<String> generateElevators(final String fromFloor) {
         final String emptyElevator = ".. ".repeat(fromFloor.length() / 3);
@@ -185,21 +165,32 @@ class StateSpaceSearch {
 
     void begin(final State initialState) {
         Queue<State> nextStates = new PriorityQueue<>();
+        Map<Integer, State> history = new HashMap<>();
+        int minimumSteps = Integer.MAX_VALUE;
         nextStates.add(initialState);
         while (nextStates.peek() != null) {
             State state = nextStates.poll();
-//            System.out.println("Queue: " + nextStates.size() + ", History: " + this.history.size() + ", Steps to solution: " + this.minimumSteps);
-//            System.out.println(state);
-            if (this.validState(state)) {
-                List<String> elevators = this.generateElevators(state.getCurrentFloor());
-                nextStates.addAll(this.generateNextStates(state, elevators));
-            }
-            if (state.isFinalState()) {
-                System.out.println("Queue: " + nextStates.size() + ", History: " + this.history.size() + ", Steps to solution: " + this.minimumSteps);
+            if (state.steps < minimumSteps) {
+                if (state.isFinalState()) {
+                    minimumSteps = state.steps;
+                    System.out.println("Queue: " + nextStates.size() + ", History: " + history.size() + ", Steps to solution: " + minimumSteps);
+                } else {
+//                    System.out.println("Queue: " + nextStates.size() + ", History: " + this.history.size() + ", Steps to solution: " + this.minimumSteps);
+//                    System.out.println(state);
+                    int hash = state.hashCode();
+                    State found = history.get(hash);
+                    if (found == null) {
+                        history.put(hash, state);
+                    } else {
+                        if (state.steps >= found.steps) continue;
+                        found.steps = state.steps;
+                    }
+                    List<String> elevators = this.generateElevators(state.getCurrentFloor());
+                    nextStates.addAll(this.generateNextStates(state, elevators));
+                }
             }
         }
     }
-
 }
 
 
