@@ -53,3 +53,8 @@ On the plus side I did get to use a PriorityQueue which I don't remember using p
 Implementation of a simple VM to execute the bunnycode. Except I managed to fall into the trap of not checking that the first 
 argument on the JNZ instruction, which can be a number or a register. The problem outline omits this detail, so I assumed it would
 always be a register to start with.
+
+##### Day 13: A Maze of Twisty Little Cubicles
+This is a maze generation / solving problem. I was able to find the solutions without any issues. I generated a representation of
+the mazes but didn't show the paths found.
+ 
