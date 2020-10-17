@@ -63,3 +63,5 @@ Given the actual salt in your puzzle input and using 2016 extra MD5 calls of key
 one-time pad key?
 
 Your puzzle input is still ahsbgdzn.
+
+Your puzzle answer was 22696

@@ -126,6 +126,10 @@ class KeyGenerator {
 public class Advent14 {
 
     private static void part2() {
+        HashCache hashCache = new HashCache("ahsbgdzn", 1000, true);
+        KeyGenerator generator = new KeyGenerator(hashCache);
+        int indexFound = generator.findKeyIndex(64);
+        System.out.printf("Day 14, Part 2 index of 64th key is %d.%n", indexFound);
     }
 
     private static void test2() {
