@@ -29,3 +29,5 @@ So, using our example salt of abc, index 22728 produces the 64th key.
 Given the actual salt in your puzzle input, what index produces your 64th one-time pad key?
 
 Your puzzle input is ahsbgdzn.
+
+Your puzzle answer was 23890.

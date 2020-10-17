@@ -17,8 +17,13 @@ class HashCache {
     private int cacheIndex;
     private int nextIndex;
 
-    private static String md5(String input) throws NoSuchAlgorithmException {
-        MessageDigest md5 = MessageDigest.getInstance("MD5");
+    private static String md5(String input) {
+        MessageDigest md5;
+        try {
+            md5 = MessageDigest.getInstance("MD5");
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException(e);
+        }
         byte[] digest = md5.digest(input.getBytes(StandardCharsets.UTF_8));
         StringBuilder sb = new StringBuilder();
         for (byte b : digest) {
@@ -27,7 +32,7 @@ class HashCache {
         return sb.toString();
     }
 
-    HashCache(final String salt, final int size) throws NoSuchAlgorithmException {
+    HashCache(final String salt, final int size) {
         this.salt = salt;
         this.cache = new ArrayDeque<>(size);
         for (int i = 0; i < size; i++) {
@@ -37,7 +42,7 @@ class HashCache {
         this.nextIndex = -1;
     }
 
-    String nextHash() throws NoSuchAlgorithmException {
+    String nextHash() {
         this.cache.add(HashCache.md5(salt + this.cacheIndex));
         this.cacheIndex++;
         this.nextIndex++;
@@ -79,7 +84,7 @@ class KeyGenerator {
         return null;
     }
 
-    private int findNextKeyIndex() throws NoSuchAlgorithmException {
+    private int findNextKeyIndex() {
         String triple;
         String quintuple;
         do {
@@ -97,7 +102,7 @@ class KeyGenerator {
         return this.hashCache.index();
     }
 
-    int findKeyIndex(final int number) throws NoSuchAlgorithmException {
+    int findKeyIndex(final int number) {
         int keyIndex = 0;
         for (int i = 0; i < number; i++) {
             keyIndex = findNextKeyIndex();
@@ -114,9 +119,13 @@ public class Advent14 {
     }
 
     private static void part1() {
+        HashCache hashCache = new HashCache("ahsbgdzn", 1000);
+        KeyGenerator generator = new KeyGenerator(hashCache);
+        int indexFound = generator.findKeyIndex(64);
+        System.out.printf("Day 14, Part 1 index of 64th key is %d.%n", indexFound);
     }
 
-    private static void test() throws NoSuchAlgorithmException {
+    private static void test() {
         int expectedIndex = 22728;
         HashCache hashCache = new HashCache("abc", 1000);
         KeyGenerator generator = new KeyGenerator(hashCache);
@@ -124,7 +133,7 @@ public class Advent14 {
         assert indexFound == expectedIndex : String.format("Expected index to be '%s' but was '%s'!", expectedIndex, indexFound);
     }
 
-    public static void main(final String[] args) throws NoSuchAlgorithmException {
+    public static void main(final String[] args) {
         test();
         part1();
         part2();
