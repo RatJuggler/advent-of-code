@@ -83,15 +83,17 @@ class KeyGenerator {
         String triple;
         String quintuple;
         do {
-            String hash = this.hashCache.nextHash();
-            triple = this.tripleFound(hash);
-        } while (triple == null);
-        Iterator<String> cache = this.hashCache.iterator();
-        quintuple = null;
-        while (!triple.equals(quintuple) && cache.hasNext()) {
-            String hash = cache.next();
-            quintuple = this.quintupleFound(hash);
-        }
+            do {
+                String hash = this.hashCache.nextHash();
+                triple = this.tripleFound(hash);
+            } while (triple == null);
+            Iterator<String> cache = this.hashCache.iterator();
+            quintuple = null;
+            while (!triple.equals(quintuple) && cache.hasNext()) {
+                String hash = cache.next();
+                quintuple = this.quintupleFound(hash);
+            }
+        } while (!triple.equals(quintuple));
         return this.hashCache.index();
     }
 
@@ -99,6 +101,7 @@ class KeyGenerator {
         int keyIndex = 0;
         for (int i = 0; i < number; i++) {
             keyIndex = findNextKeyIndex();
+            System.out.println(i + " " + keyIndex);
         }
         return keyIndex;
     }
@@ -114,10 +117,10 @@ public class Advent14 {
     }
 
     private static void test() throws NoSuchAlgorithmException {
-        int expectedIndex = 39;
+        int expectedIndex = 22728;
         HashCache hashCache = new HashCache("abc", 1000);
         KeyGenerator generator = new KeyGenerator(hashCache);
-        int indexFound = generator.findKeyIndex(2);
+        int indexFound = generator.findKeyIndex(64);
         assert indexFound == expectedIndex : String.format("Expected index to be '%s' but was '%s'!", expectedIndex, indexFound);
     }
 
