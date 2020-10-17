@@ -57,4 +57,6 @@ always be a register to start with.
 ##### Day 13: A Maze of Twisty Little Cubicles
 This is a maze generation / solving problem. I was able to find the solutions without any issues. I generated a representation of
 the mazes but didn't show the paths found.
- 
+
+##### Day 14: One-Time Pad
+No issues with this problem. I implemented a cache to hold the 1000 hashes so but didn't look for any other optimisations.
