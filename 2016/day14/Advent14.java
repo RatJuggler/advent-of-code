@@ -5,6 +5,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,6 +47,10 @@ class HashCache {
     int index() {
         return this.nextIndex;
     }
+
+    Iterator<String> iterator() {
+        return this.cache.iterator();
+    }
 }
 
 class KeyGenerator {
@@ -56,18 +61,39 @@ class KeyGenerator {
         this.hashCache = hashCache;
     }
 
-    private boolean tripleFound(final String hash) {
+    private String quintupleFound(final String hash) {
+        String pattern = "(?<quintuple>.)\\1{4}";
+        Pattern r = Pattern.compile(pattern);
+        Matcher m = r.matcher(hash);
+        if (m.find())
+            return m.group("quintuple");
+        return null;
+    }
+
+    private String tripleFound(final String hash) {
         String pattern = "(?<triple>.)\\1{2}";
         Pattern r = Pattern.compile(pattern);
         Matcher m = r.matcher(hash);
-        return m.find();
+        if (m.find())
+            return m.group("triple");
+        return null;
     }
 
-    int findTriple() throws NoSuchAlgorithmException {
-        String hash;
+    int findKey() throws NoSuchAlgorithmException {
+        String triple;
+        String quintuple;
         do {
-            hash = this.hashCache.nextHash();
-        } while (!this.tripleFound(hash));
+            do {
+                String hash = this.hashCache.nextHash();
+                triple = this.tripleFound(hash);
+            } while (triple == null);
+            Iterator<String> cache = this.hashCache.iterator();
+            quintuple = null;
+            while (quintuple == null && cache.hasNext()) {
+                String hash = cache.next();
+                quintuple = this.quintupleFound(hash);
+            }
+        } while (!triple.equals(quintuple));
         return this.hashCache.index();
     }
 }
@@ -82,10 +108,10 @@ public class Advent14 {
     }
 
     private static void test() throws NoSuchAlgorithmException {
-        int expectedIndex = 18;
+        int expectedIndex = 92;
         HashCache hashCache = new HashCache("abc", 1000);
         KeyGenerator generator = new KeyGenerator(hashCache);
-        int indexFound = generator.findTriple();
+        int indexFound = generator.findKey();
         assert indexFound == expectedIndex : String.format("Expected index to be '%s' but was '%s'!", expectedIndex, indexFound);
     }
 
