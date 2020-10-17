@@ -66,13 +66,11 @@ class KeyGenerator {
         this.hashCache = hashCache;
     }
 
-    private String quintupleFound(final String hash) {
-        String pattern = "(?<quintuple>.)\\1{4}";
+    private boolean quintupleFound(final String hash, final String find) {
+        String pattern = "(" + find + ")\\1{4}";
         Pattern r = Pattern.compile(pattern);
         Matcher m = r.matcher(hash);
-        if (m.find())
-            return m.group("quintuple");
-        return null;
+        return m.find();
     }
 
     private String tripleFound(final String hash) {
@@ -86,19 +84,19 @@ class KeyGenerator {
 
     private int findNextKeyIndex() {
         String triple;
-        String quintuple;
+        boolean quintupleFound;
         do {
             do {
                 String hash = this.hashCache.nextHash();
                 triple = this.tripleFound(hash);
             } while (triple == null);
             Iterator<String> cache = this.hashCache.iterator();
-            quintuple = null;
-            while (!triple.equals(quintuple) && cache.hasNext()) {
+            quintupleFound = false;
+            while (!quintupleFound && cache.hasNext()) {
                 String hash = cache.next();
-                quintuple = this.quintupleFound(hash);
+                quintupleFound = this.quintupleFound(hash, triple);
             }
-        } while (!triple.equals(quintuple));
+        } while (!quintupleFound);
         return this.hashCache.index();
     }
 
@@ -125,7 +123,7 @@ public class Advent14 {
         System.out.printf("Day 14, Part 1 index of 64th key is %d.%n", indexFound);
     }
 
-    private static void test() {
+    private static void test1() {
         int expectedIndex = 22728;
         HashCache hashCache = new HashCache("abc", 1000);
         KeyGenerator generator = new KeyGenerator(hashCache);
@@ -134,7 +132,7 @@ public class Advent14 {
     }
 
     public static void main(final String[] args) {
-        test();
+        test1();
         part1();
         part2();
     }
