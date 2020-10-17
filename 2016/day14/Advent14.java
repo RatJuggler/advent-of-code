@@ -79,22 +79,28 @@ class KeyGenerator {
         return null;
     }
 
-    int findKey() throws NoSuchAlgorithmException {
+    private int findNextKeyIndex() throws NoSuchAlgorithmException {
         String triple;
         String quintuple;
         do {
-            do {
-                String hash = this.hashCache.nextHash();
-                triple = this.tripleFound(hash);
-            } while (triple == null);
-            Iterator<String> cache = this.hashCache.iterator();
-            quintuple = null;
-            while (quintuple == null && cache.hasNext()) {
-                String hash = cache.next();
-                quintuple = this.quintupleFound(hash);
-            }
-        } while (!triple.equals(quintuple));
+            String hash = this.hashCache.nextHash();
+            triple = this.tripleFound(hash);
+        } while (triple == null);
+        Iterator<String> cache = this.hashCache.iterator();
+        quintuple = null;
+        while (!triple.equals(quintuple) && cache.hasNext()) {
+            String hash = cache.next();
+            quintuple = this.quintupleFound(hash);
+        }
         return this.hashCache.index();
+    }
+
+    int findKeyIndex(final int number) throws NoSuchAlgorithmException {
+        int keyIndex = 0;
+        for (int i = 0; i < number; i++) {
+            keyIndex = findNextKeyIndex();
+        }
+        return keyIndex;
     }
 }
 
@@ -108,10 +114,10 @@ public class Advent14 {
     }
 
     private static void test() throws NoSuchAlgorithmException {
-        int expectedIndex = 92;
+        int expectedIndex = 39;
         HashCache hashCache = new HashCache("abc", 1000);
         KeyGenerator generator = new KeyGenerator(hashCache);
-        int indexFound = generator.findKey();
+        int indexFound = generator.findKeyIndex(2);
         assert indexFound == expectedIndex : String.format("Expected index to be '%s' but was '%s'!", expectedIndex, indexFound);
     }
 
