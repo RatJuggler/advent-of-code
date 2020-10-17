@@ -13,11 +13,12 @@ import java.util.regex.Pattern;
 class HashCache {
 
     private final String salt;
+    private final boolean stretch;
     private final Deque<String> cache;
     private int cacheIndex;
     private int nextIndex;
 
-    private static String md5(String input) {
+    private static String md5(final String input) {
         MessageDigest md5;
         try {
             md5 = MessageDigest.getInstance("MD5");
@@ -32,18 +33,29 @@ class HashCache {
         return sb.toString();
     }
 
-    HashCache(final String salt, final int size) {
+    private static String generateMD5(final String input, final boolean stretch) {
+        String hash = HashCache.md5(input);
+        if (stretch) {
+            for (int i = 0; i < 2016; i++) {
+                hash = HashCache.md5(hash);
+            }
+        }
+        return hash;
+    }
+
+    HashCache(final String salt, final int size, final boolean stretch) {
         this.salt = salt;
+        this.stretch = stretch;
         this.cache = new ArrayDeque<>(size);
         for (int i = 0; i < size; i++) {
-            this.cache.add(HashCache.md5(salt + i));
+            this.cache.add(HashCache.generateMD5(salt + i, stretch));
         }
         this.cacheIndex = this.cache.size();
         this.nextIndex = -1;
     }
 
     String nextHash() {
-        this.cache.add(HashCache.md5(salt + this.cacheIndex));
+        this.cache.add(HashCache.generateMD5(salt + this.cacheIndex, stretch));
         this.cacheIndex++;
         this.nextIndex++;
         return this.cache.pollFirst();
@@ -116,8 +128,16 @@ public class Advent14 {
     private static void part2() {
     }
 
+    private static void test2() {
+        int expectedIndex = 22551;
+        HashCache hashCache = new HashCache("abc", 1000, true);
+        KeyGenerator generator = new KeyGenerator(hashCache);
+        int indexFound = generator.findKeyIndex(64);
+        assert indexFound == expectedIndex : String.format("Expected index to be '%s' but was '%s'!", expectedIndex, indexFound);
+    }
+
     private static void part1() {
-        HashCache hashCache = new HashCache("ahsbgdzn", 1000);
+        HashCache hashCache = new HashCache("ahsbgdzn", 1000, false);
         KeyGenerator generator = new KeyGenerator(hashCache);
         int indexFound = generator.findKeyIndex(64);
         System.out.printf("Day 14, Part 1 index of 64th key is %d.%n", indexFound);
@@ -125,7 +145,7 @@ public class Advent14 {
 
     private static void test1() {
         int expectedIndex = 22728;
-        HashCache hashCache = new HashCache("abc", 1000);
+        HashCache hashCache = new HashCache("abc", 1000, false);
         KeyGenerator generator = new KeyGenerator(hashCache);
         int indexFound = generator.findKeyIndex(64);
         assert indexFound == expectedIndex : String.format("Expected index to be '%s' but was '%s'!", expectedIndex, indexFound);
@@ -134,6 +154,7 @@ public class Advent14 {
     public static void main(final String[] args) {
         test1();
         part1();
+        test2();
         part2();
     }
 }
