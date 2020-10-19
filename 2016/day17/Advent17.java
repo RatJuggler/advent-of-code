@@ -104,7 +104,7 @@ class Vault {
                 if (position.x == this.sizeX && position.y == this.sizeY) {
                     path = position.path;
                     pathLength = path.length();
-                    System.out.println("Queue: " + nextPositions.size() + ", Path: " + pathLength + ", " + path);
+//                    System.out.println("Queue: " + nextPositions.size() + ", Path: " + pathLength + ", " + path);
                 } else {
                     nextPositions.addAll(this.generateMoves(position));
                 }
@@ -114,7 +114,7 @@ class Vault {
     }
 
     String navigateLongestPath() {
-        return this.navigate(0, (path, longestPath) -> path.length() > longestPath);
+        return this.navigate(0, (path, longestPath) -> path.length() >= longestPath);
     }
 
     String navigateShortestPath() {
@@ -124,6 +124,11 @@ class Vault {
 
 
 public class Advent17 {
+
+    private static void part2() {
+        String path = new Vault("dmypynyp", 3, 3).navigateLongestPath();
+        System.out.printf("Part 2, longest path found = %s\n", path.length());
+    }
 
     private static void part1() {
         String path = new Vault("dmypynyp", 3, 3).navigateShortestPath();
@@ -148,5 +153,6 @@ public class Advent17 {
         test2("ihgpwlah", 370);
         test2("kglvqrro", 492);
         test2("ulqzkmiv", 830);
+        part2();
     }
 }

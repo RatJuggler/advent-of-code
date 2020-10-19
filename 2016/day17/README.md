@@ -61,3 +61,5 @@ For example:
 - With ulqzkmiv, the longest path would be 830 steps long.
 
 What is the length of the longest path that reaches the vault?
+
+Your puzzle answer was 386.
