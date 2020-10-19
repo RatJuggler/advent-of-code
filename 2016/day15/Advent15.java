@@ -11,10 +11,12 @@ import java.util.stream.Stream;
 
 class Disc {
 
+    private final int disc;
     private final int positions;
-    private int currentPosition;
+    private final int currentPosition;
 
-    Disc(final int positions, final int startPosition) {
+    Disc(final int disc, final int positions, final int startPosition) {
+        this.disc = disc;
         this.positions = positions;
         this.currentPosition = startPosition;
     }
@@ -26,19 +28,19 @@ class Disc {
         if (!m.find()) {
             throw new IllegalStateException("Unable to parse disc line: " + line);
         }
+        int disc = Integer.parseInt(m.group("disc"));
         int positions = Integer.parseInt(m.group("positions"));
         int startPosition = Integer.parseInt(m.group("startPosition"));
-        return new Disc(positions, startPosition);
+        return new Disc(disc, positions, startPosition);
     }
 
-    int turn() {
-        this.currentPosition = (this.currentPosition + 1) % this.positions;
-        return this.currentPosition;
+    boolean atSlot(final int elapsed) {
+        return (this.disc + this.currentPosition + elapsed) % this.positions == 0;
     }
 
     @Override
     public String toString() {
-        return "Disc{positions=" + positions + ", currentPosition=" + currentPosition + '}';
+        return "Disc" + this.disc + "{positions=" + this.positions + ", currentPosition=" + this.currentPosition + '}';
     }
 }
 
@@ -57,6 +59,22 @@ class Sculpture {
         return new Sculpture(discs);
     }
 
+    int pushButton() {
+        int time = 0;
+        boolean capsuleDropped = false;
+        while (!capsuleDropped) {
+            capsuleDropped = true;
+            for (Disc disc : discs) {
+                if (!disc.atSlot(time)) {
+                    capsuleDropped = false;
+                    break;
+                }
+            }
+            time++;
+        }
+        return time - 1;
+    }
+
     @Override
     public String toString() {
         return Arrays.toString(discs);
@@ -70,8 +88,10 @@ public class Advent15 {
     }
 
     private static void test() throws IOException {
+        int expectedTime = 5;
         Sculpture sculpture = Sculpture.fromFile("2016/day15/test15a.txt");
-        System.out.println(sculpture.toString());
+        int capsuleTime  = sculpture.pushButton();
+        assert capsuleTime == expectedTime: String.format("Expected time '%s' but was '%s'!", expectedTime, capsuleTime);
     }
 
     public static void main(String[] args) throws IOException {
