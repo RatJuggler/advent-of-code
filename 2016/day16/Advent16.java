@@ -29,6 +29,12 @@ public class Advent16 {
         return checksum;
     }
 
+    private static void part2() {
+        String data = generateData("01110110101001000", 35651584);
+        String checksum = checksum(data);
+        System.out.printf("Day 16, Part 2 checksum is %s.%n", checksum);
+    }
+
     private static void part1() {
         String data = generateData("01110110101001000", 272);
         String checksum = checksum(data);
@@ -60,6 +66,7 @@ public class Advent16 {
         testChecksum("110010110100", "100");
         test();
         part1();
+        part2();
     }
 
 }
