@@ -48,3 +48,5 @@ Passcodes actually used by Easter Bunny Vault Security do allow access to the va
 Given your vault's passcode, what is the shortest path (the actual path, not just the length) to reach the vault?
 
 Your puzzle input is dmypynyp.
+
+Your puzzle answer was RDRDUDLRDR.

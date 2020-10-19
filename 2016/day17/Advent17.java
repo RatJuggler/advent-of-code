@@ -116,6 +116,11 @@ class Vault {
 
 public class Advent17 {
 
+    private static void part1() {
+        String path = new Vault("dmypynyp", 3, 3).navigate();
+        System.out.printf("Part 1, shortest path found = %s\n", path);
+    }
+
     private static void test(final String passcode, final String shortestPath) {
         String path = new Vault(passcode, 3, 3).navigate();
         assert path.equals(shortestPath) : String.format("Expected shortest path to be '%s' but was '%s'!", shortestPath, path);
@@ -125,5 +130,6 @@ public class Advent17 {
         test("ihgpwlah", "DDRRRD");
         test("kglvqrro", "DDUDRLRRUDRD");
         test("ulqzkmiv", "DRURDRUDDLLDLUURRDULRLDUUDDDRR");
+        part1();
     }
 }
