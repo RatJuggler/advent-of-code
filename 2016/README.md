@@ -67,3 +67,7 @@ Started to simulate each disc turning then realised you can just test for each s
 ##### Day 16: Dragon Checksum
 Very straightforward, I reproduced all the examples as tests to ensure the correct result. Though it's always hard to know what
 to do with global/common functions in Java when you don't want everything to be part of a class.
+
+##### Day 17: Two Steps Forward
+Combining ideas from previous days proved to make this a fairly easy puzzle. I used a BiFunction (functional interface) to pass the
+path length check so that it could be swapped from the shortest to the longest length while using the same core path search code.
