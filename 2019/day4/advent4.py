@@ -59,9 +59,9 @@ def main():
     assert step2_validation('111122')
 
     step1_passwords = validate_passwords(step1_validation)
-    print('For Step 1 there are {0} valid passwords.'.format(step1_passwords))
+    print('Day 4, Part 1 there are {0} valid passwords.'.format(step1_passwords))
     step2_passwords = validate_passwords(step2_validation)
-    print('For Step 2 there are {0} valid passwords.'.format(step2_passwords))
+    print('Day 4, Part 2 there are {0} valid passwords.'.format(step2_passwords))
 
 
 if __name__ == '__main__':
