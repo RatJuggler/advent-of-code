@@ -30,9 +30,9 @@ def calculate_fuel_plus_fuel(modules):
 def main(filename):
     modules = read_module_list(filename)
     total_fuel = calculate_fuel(modules)
-    print("Fuel requirement for supplied modules = {0}".format(total_fuel))
+    print("Day 1, Part 1 fuel requirement for supplied modules = {0}".format(total_fuel))
     total_fuel_plus_fuel = calculate_fuel_plus_fuel(modules)
-    print("Fuel requirement for supplied modules (incl fuel for fuel) = {0}".format(total_fuel_plus_fuel))
+    print("Day 2, Part 2 fuel requirement for supplied modules (incl fuel for fuel) = {0}".format(total_fuel_plus_fuel))
 
 
 if __name__ == '__main__':
