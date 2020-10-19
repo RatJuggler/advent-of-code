@@ -84,7 +84,10 @@ class Sculpture {
 
 public class Advent15 {
 
-    private static void part1() {
+    private static void part1() throws IOException {
+        Sculpture sculpture = Sculpture.fromFile("2016/day15/input15.txt");
+        int capsuleTime  = sculpture.pushButton();
+        System.out.printf("Day 15, Part 1 button should be pressed at time %s.%n", capsuleTime);
     }
 
     private static void test() throws IOException {

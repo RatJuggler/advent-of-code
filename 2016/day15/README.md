@@ -36,3 +36,5 @@ case, the capsule would fall through the discs and come out of the machine.
 
 However, your situation has more than two discs; you've noted their positions in your puzzle input. What is the first time you can 
 press the button to get a capsule?
+
+Your puzzle answer was 317371.
