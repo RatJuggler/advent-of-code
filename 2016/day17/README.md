@@ -52,7 +52,10 @@ Your puzzle input is dmypynyp.
 Your puzzle answer was RDRDUDLRDR.
 
 --- Part Two ---
-You're curious how robust this security solution really is, and so you decide to find longer and longer paths which still provide access to the vault. You remember that paths always end the first time they reach the bottom-right room (that is, they can never pass through it, only end in it).
+
+You're curious how robust this security solution really is, and so you decide to find longer and longer paths which still provide 
+access to the vault. You remember that paths always end the first time they reach the bottom-right room (that is, they can never 
+pass through it, only end in it).
 
 For example:
 

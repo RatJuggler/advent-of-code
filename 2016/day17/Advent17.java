@@ -73,7 +73,7 @@ class Vault {
 
     private List<Position> generateMoves(final Position currentPosition) {
         List<Position> nextPositions = new ArrayList<>();
-        String doors = md5(this.passcode + currentPosition.path).substring(0, 4);
+        String doors = Vault.md5(this.passcode + currentPosition.path).substring(0, 4);
         // Up
         if (this.isOpen(doors.charAt(0)) && currentPosition.y > 0) {
             nextPositions.add(currentPosition.up());
@@ -93,7 +93,7 @@ class Vault {
         return nextPositions;
     }
 
-    final String navigate(final int initialPathLength, final BiFunction<String, Integer, Boolean> pathLengthCheck) {
+    private String navigate(final int initialPathLength, final BiFunction<String, Integer, Boolean> pathLengthCheck) {
         Queue<Position> nextPositions = new ArrayDeque<>();
         int pathLength = initialPathLength;
         String path = null;
