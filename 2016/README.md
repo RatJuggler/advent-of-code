@@ -63,3 +63,7 @@ No issues with this problem. I implemented a cache to hold the 1000 hashes so bu
 
 ##### Day 15: Timing is Everything
 Started to simulate each disc turning then realised you can just test for each slot being aligned with a simple mod check.
+
+##### Day 16: Dragon Checksum
+Very straightforward, I reproduced all the examples as tests to ensure the correct result. Though it's always hard to know what
+to do with global/common functions in Java when you don't want everything to be part of a class.
