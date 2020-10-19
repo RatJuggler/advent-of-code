@@ -60,3 +60,6 @@ the mazes but didn't show the paths found.
 
 ##### Day 14: One-Time Pad
 No issues with this problem. I implemented a cache to hold the 1000 hashes so but didn't look for any other optimisations.
+
+##### Day 15: Timing is Everything
+Started to simulate each disc turning then realised you can just test for each slot being aligned with a simple mod check.
