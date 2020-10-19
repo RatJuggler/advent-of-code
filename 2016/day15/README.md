@@ -49,3 +49,5 @@ starting at position 0 has appeared exactly one second below the previously-bott
 
 With this new disc, and counting again starting from time=0 with the configuration in your puzzle input, what is the first time you 
 can press the button to get another capsule?
+
+Your puzzle answer was 2080951.
