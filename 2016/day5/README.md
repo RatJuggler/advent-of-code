@@ -18,6 +18,8 @@ Given the actual Door ID, what is the password?
 
 Your puzzle input is abbhdwsy.
 
+Your puzzle answer was 801b56a7.
+
 --- Part Two ---
 
 As the door slides open, you are presented with a second door that uses a slightly more inspired security mechanism. Clearly unimpressed by the last version (in what movie is the password decrypted in order?!), the Easter Bunny engineers have worked out a better solution.
