@@ -38,3 +38,14 @@ However, your situation has more than two discs; you've noted their positions in
 press the button to get a capsule?
 
 Your puzzle answer was 317371.
+
+--- Part Two ---
+
+After getting the first capsule (it contained a star! what great fortune!), the machine detects your success and begins to 
+rearrange itself.
+
+When it's done, the discs are back in their original configuration as if it were time=0 again, but a new disc with 11 positions and 
+starting at position 0 has appeared exactly one second below the previously-bottom disc.
+
+With this new disc, and counting again starting from time=0 with the configuration in your puzzle input, what is the first time you 
+can press the button to get another capsule?
