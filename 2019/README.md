@@ -10,3 +10,7 @@ Defined the Intcode processor as a class and included a test.
 My solution is somewhat long-winded, with a whole series of discrete steps, because of how I broke the problem down. I stored each
 section of the wires as lines and then worked out all the intersections between them which is a lot of work. On review a better 
 solution might have been to just plot the wires into a 2d array simply recording the intersections as they were found.
+
+##### Day 4: Secure Container
+I kept all of the password criteria functions separate and made sure that they passed all the examples given. I could then pass the
+functions required for each part of the solution into the same validation loop.
