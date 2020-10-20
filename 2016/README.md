@@ -71,3 +71,7 @@ to do with global/common functions in Java when you don't want everything to be 
 ##### Day 17: Two Steps Forward
 Combining ideas from previous days proved to make this a fairly easy puzzle. I used a BiFunction (functional interface) to pass the
 path length check so that it could be swapped from the shortest to the longest length while using the same core path search code.
+
+##### Day 18: Like a Rogue
+While the puzzle was straightforward I wasn't happy with my TrapDector class until I'd simplified it down to the bare bones of the
+requirement.
