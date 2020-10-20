@@ -67,3 +67,5 @@ Your puzzle answer was 1982.
 --- Part Two ---
 
 How many safe tiles are there in a total of 400000 rows?
+
+Your puzzle answer was 20005203.

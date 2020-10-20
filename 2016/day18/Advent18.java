@@ -50,7 +50,6 @@ class TrapDetector {
         int safeTiles = 0;
         for (String row : this.room) {
             safeTiles += row.chars().filter(c -> c == '.').count();
-            System.out.println(row);
         }
         return safeTiles;
     }
@@ -58,6 +57,13 @@ class TrapDetector {
 
 
 public class Advent18 {
+
+    private static void part2() throws IOException {
+        String firstRow = Files.readString(Paths.get("2016/day18/input18.txt"));
+        TrapDetector detector = new TrapDetector(firstRow);
+        detector.detect(400000);
+        System.out.printf("Part 2, number of safe tiles = %s\n", detector.safeTiles());
+    }
 
     private static void part1() throws IOException {
         String firstRow = Files.readString(Paths.get("2016/day18/input18.txt"));
@@ -89,5 +95,6 @@ public class Advent18 {
         testDetect();
         testSafeTileCount();
         part1();
+        part2();
     }
 }
