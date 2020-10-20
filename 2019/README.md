@@ -25,3 +25,7 @@ Need to revisit...
 ##### Day 7: Amplification Circuit
 This was a fun puzzle, running an instance of the Intcode processor for each amplifier and coordinating between them. Made sure
 that all the test examples would run and another chance to use the ```itertools``` library which makes life so much simpler. 
+
+##### Day 8: Space Image Format
+Another fun puzzle messing around with the data to produce a crude display.
+
