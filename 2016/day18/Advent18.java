@@ -11,39 +11,26 @@ class TrapDetector {
 
     private final List<String> room = new ArrayList<>();
 
-    TrapDetector(final String firstRow) {
-        this.room.add(firstRow);
-    }
-
-    private boolean isNewTrap(final char leftTile, final char centerTile, final char rightTile) {
-        return (leftTile == '^' && centerTile == '^' && rightTile == '.') ||
-                (leftTile == '.' && centerTile == '^' && rightTile == '^') ||
-                (leftTile == '^' && centerTile == '.' && rightTile == '.') ||
-                (leftTile == '.' && centerTile == '.' && rightTile == '^');
-    }
-
-    private String detectRow() {
+    private static String detectRow(final String currentRow) {
         StringBuilder newRow = new StringBuilder();
-        String currentRow = this.room.get(this.room.size() - 1);
         for (int tile = 0; tile < currentRow.length(); tile++) {
-            char leftTile = '.';
-            if (tile > 0) leftTile = currentRow.charAt(tile - 1);
-            char centerTile = currentRow.charAt(tile);
-            char rightTile = '.';
-            if (tile < currentRow.length() - 1) rightTile = currentRow.charAt(tile + 1);
-            if (this.isNewTrap(leftTile, centerTile, rightTile))
-                newRow.append('^');
-            else
-                newRow.append('.');
+            char leftTile = tile > 0 ? currentRow.charAt(tile - 1) : '.';
+            char rightTile = tile < currentRow.length() - 1 ? currentRow.charAt(tile + 1) : '.';
+            newRow.append(leftTile == rightTile ? '.' : '^');
         }
         return newRow.toString();
     }
 
-    List<String> detect(final int rows) {
+    TrapDetector(final String firstRow, final int rows) {
+        String nextRow = firstRow;
         while (this.room.size() < rows) {
-            this.room.add(this.detectRow());
+            this.room.add(nextRow);
+            nextRow = TrapDetector.detectRow(nextRow);
         }
-        return room;
+    }
+
+    String getRoomRow(final int row) {
+        return this.room.get(row);
     }
 
     int safeTiles() {
@@ -60,34 +47,30 @@ public class Advent18 {
 
     private static void part2() throws IOException {
         String firstRow = Files.readString(Paths.get("2016/day18/input18.txt"));
-        TrapDetector detector = new TrapDetector(firstRow);
-        detector.detect(400000);
+        TrapDetector detector = new TrapDetector(firstRow, 400000);
         System.out.printf("Part 2, number of safe tiles = %s\n", detector.safeTiles());
     }
 
     private static void part1() throws IOException {
         String firstRow = Files.readString(Paths.get("2016/day18/input18.txt"));
-        TrapDetector detector = new TrapDetector(firstRow);
-        detector.detect(40);
+        TrapDetector detector = new TrapDetector(firstRow, 40);
         System.out.printf("Part 1, number of safe tiles = %s\n", detector.safeTiles());
     }
 
     private static void testSafeTileCount() {
         int expectedSafeCount = 38;
-        TrapDetector detector = new TrapDetector(".^^.^.^^^^");
-        detector.detect(10);
+        TrapDetector detector = new TrapDetector(".^^.^.^^^^", 10);
         int actualSafeCount = detector.safeTiles();
         assert actualSafeCount == expectedSafeCount : String.format("Expected safe count to be '%s' but was '%s'!", expectedSafeCount, actualSafeCount);
     }
 
     private static void testDetect() {
-        TrapDetector detector = new TrapDetector("..^^.");
-        List<String> room = detector.detect(3);
+        TrapDetector detector = new TrapDetector("..^^.", 3);
         String expectedSecondRow = ".^^^^";
-        String actualSecondRow = room.get(1);
+        String actualSecondRow = detector.getRoomRow(1);
         assert actualSecondRow.equals(expectedSecondRow) : String.format("Expected 2nd row to be '%s' but was '%s'!", expectedSecondRow, actualSecondRow);
         String expectedThirdRow = "^^..^";
-        String actualThirdRow = room.get(2);
+        String actualThirdRow = detector.getRoomRow(2);
         assert actualThirdRow.equals(expectedThirdRow) : String.format("Expected 3rd row to be '%s' but was '%s'!", expectedThirdRow, actualThirdRow);
     }
 
