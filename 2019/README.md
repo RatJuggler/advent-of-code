@@ -29,3 +29,5 @@ that all the test examples would run and another chance to use the ```itertools`
 ##### Day 8: Space Image Format
 Another fun puzzle messing around with the data to produce a crude display.
 
+##### Day 9: Sensor Boost
+More polishing of the Intcode processor.
