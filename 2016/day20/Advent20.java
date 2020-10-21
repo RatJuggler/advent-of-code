@@ -48,7 +48,7 @@ class Range implements Comparable<Object> {
 
 public class Advent20 {
 
-    private static long firstFree(final String filename) throws IOException {
+    private static List<Range> getRanges(final String filename) throws IOException {
         Range[] ranges;
         try (Stream<String> stream = Files.lines(Paths.get(filename))) {
             ranges = stream.map(Range::fromLine).sorted().toArray(Range[]::new);
@@ -67,15 +67,29 @@ public class Advent20 {
                 }
             }
         }
+        combined.add(current);
         System.out.println(combined);
-        return combined.get(0).to + 1;
+        return combined;
     }
 
-    private static void part1() throws IOException {
-        System.out.printf("Day 20, Part 1 lowest value unblocked IP is %s.%n", firstFree("2016/day20/input20.txt"));
+    private static void part2(List<Range> blocklist) {
+        long free = 0;
+        long lastTo = blocklist.get(0).to;
+        for (int i = 1; i < blocklist.size(); i++) {
+            Range next = blocklist.get(i);
+            free += next.from - lastTo - 1;
+            lastTo = next.to;
+        }
+        System.out.printf("Day 20, Part 2 number of unblocked IPs is %s.%n", free);
+    }
+
+    private static void part1(List<Range> blocklist) {
+        System.out.printf("Day 20, Part 1 lowest value unblocked IP is %s.%n", blocklist.get(0).to + 1);
     }
 
     public static void main(String[] args) throws IOException {
-        part1();
+        List<Range> blocklist = getRanges("2016/day20/input20.txt");
+        part1(blocklist);
+        part2(blocklist);
     }
 }
