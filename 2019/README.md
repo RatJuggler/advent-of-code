@@ -18,3 +18,19 @@ functions required for each part of the solution into the same validation loop.
 ##### Day 5: Sunny with a Chance of Asteroids
 I spent quite a bit of time on this trying to improve the Intcode processor and included all the tests supplied with the puzzle.
 Also, I was surprised to learn that Python doesn't have a ```switch``` statement.
+
+##### Day 6: Universal Orbit Map
+Need to revisit...
+
+##### Day 7: Amplification Circuit
+This was a fun puzzle, running an instance of the Intcode processor for each amplifier and coordinating between them. Made sure
+that all the test examples would run and another chance to use the ```itertools``` library which makes life so much simpler. 
+
+##### Day 8: Space Image Format
+Another fun puzzle messing around with the data to produce a crude display.
+
+##### Day 9: Sensor Boost
+More polishing of the Intcode processor.
+
+##### Day 10: Monitoring Station
+To be completed...
