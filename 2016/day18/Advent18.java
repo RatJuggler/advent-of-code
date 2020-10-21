@@ -33,12 +33,10 @@ class TrapDetector {
         return this.room.get(row);
     }
 
-    int safeTiles() {
-        int safeTiles = 0;
-        for (String row : this.room) {
-            safeTiles += row.chars().filter(c -> c == '.').count();
-        }
-        return safeTiles;
+    long safeTiles() {
+        return this.room.stream()
+                .map(row -> row.chars().filter(c -> c == '.').count())
+                .reduce( 0L, Long::sum);
     }
 }
 
@@ -58,9 +56,9 @@ public class Advent18 {
     }
 
     private static void testSafeTileCount() {
-        int expectedSafeCount = 38;
+        long expectedSafeCount = 38;
         TrapDetector detector = new TrapDetector(".^^.^.^^^^", 10);
-        int actualSafeCount = detector.safeTiles();
+        long actualSafeCount = detector.safeTiles();
         assert actualSafeCount == expectedSafeCount : String.format("Expected safe count to be '%s' but was '%s'!", expectedSafeCount, actualSafeCount);
     }
 
