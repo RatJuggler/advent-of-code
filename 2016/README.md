@@ -75,3 +75,9 @@ path length check so that it could be swapped from the shortest to the longest l
 ##### Day 18: Like a Rogue
 While the puzzle was straightforward I wasn't happy with my TrapDector class until I'd simplified it down to the bare bones of the
 requirement.
+
+##### Day 19: An Elephant Named Joseph
+So I worked out the first part simply enough using brute force to remove losing elves in an array of booleans. My attempts with the
+second part using a ```LinkedList``` have so far been unsuccessful as they take too long to complete. Swapping back to an array
+improves the speed but I'm not getting the correct result.
+Looking at the solutions threads these are a variation on the [Josephus Problem](https://en.wikipedia.org/wiki/Josephus_problem).
