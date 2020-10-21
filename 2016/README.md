@@ -81,3 +81,6 @@ So I worked out the first part simply enough using brute force to remove losing 
 second part using a ```LinkedList``` have so far been unsuccessful as they take too long to complete. Swapping back to an array
 improves the speed but I'm not getting the correct result.
 Looking at the solutions threads these are a variation on the [Josephus Problem](https://en.wikipedia.org/wiki/Josephus_problem).
+
+##### Day 20: Firewall Rules
+Fairly straightforward though I'm sure there's a better way of consolidating the ranges than my implementation.
