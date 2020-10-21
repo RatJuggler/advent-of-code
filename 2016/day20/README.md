@@ -17,3 +17,5 @@ The blacklist specifies ranges of IPs (inclusive of both the start and end value
 this firewall allows are 3 and 9, since those are the only numbers not in any range.
 
 Given the list of blocked IPs you retrieved from the firewall (your puzzle input), what is the lowest-valued IP that is not blocked?
+
+Your puzzle answer was 22887907.
