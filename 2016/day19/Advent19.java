@@ -39,11 +39,11 @@ class Party {
         final List<Integer> players = new LinkedList<>();
         for (int elf = 0; elf < this.elves; elf++)
             players.add(elf + 1);
-        int elf = 0;
+        int player = 0;
         while (players.size() > 1) {
-            int opposite = (elf + (players.size() / 2)) % players.size();
+            int opposite = (player + (players.size() / 2)) % players.size();
             players.remove(opposite);
-            elf = elf == players.size() ? 0 : elf + 1;
+            player = player >= players.size() ? 0 : player + 1;
             if (players.size() % 10000 == 0)
                 System.out.println(players.size());
         }
@@ -54,13 +54,14 @@ class Party {
         final int[] hasPresents = new int[this.elves];
         for (int elf = 0; elf < this.elves; elf++)
             hasPresents[elf] = elf + 1;
-        int elf = 0;
+        int player = 0;
         int leftInGame = this.elves;
         while (leftInGame > 1) {
-            int opposite = (elf + (leftInGame / 2)) % leftInGame;
+            int opposite = (player + (leftInGame / 2)) % leftInGame;
+            System.out.println(player + " " + opposite + " " + leftInGame);
             leftInGame--;
             System.arraycopy(hasPresents, opposite + 1, hasPresents, opposite, leftInGame - opposite);
-            elf = elf == leftInGame ? 0 : elf + 1;
+            player = player >= leftInGame ? 0 : player + 1;
             if (leftInGame % 10000 == 0)
                 System.out.println(leftInGame);
         }
