@@ -13,8 +13,8 @@ class Party {
     }
 
     int play1() {
-        final boolean[] hasPresents = new boolean[elves];
-        for (int elf = 0; elf < elves; elf++)
+        final boolean[] hasPresents = new boolean[this.elves];
+        for (int elf = 0; elf < this.elves; elf++)
             hasPresents[elf] = true;
         int winner = -1;
         while (winner < 0) {
@@ -35,21 +35,36 @@ class Party {
         return winner + 1;
     }
 
-    int play2() {
-        List<Integer> players = new LinkedList<>();
-        for (int player = 0; player < this.elves; player++)
-            players.add(player, player + 1);
-        int player = 0;
+    int oldPlay2() {
+        final List<Integer> players = new LinkedList<>();
+        for (int elf = 0; elf < this.elves; elf++)
+            players.add(elf + 1);
+        int elf = 0;
         while (players.size() > 1) {
-            int opposite = (player + (players.size() / 2)) % players.size();
+            int opposite = (elf + (players.size() / 2)) % players.size();
             players.remove(opposite);
-            if (player == players.size())
-                player = 0;
-            else
-                player++;
-            System.out.println(players.size());
+            elf = elf == players.size() ? 0 : elf + 1;
+            if (players.size() % 10000 == 0)
+                System.out.println(players.size());
         }
         return players.get(0);
+    }
+
+    int play2() {
+        final int[] hasPresents = new int[this.elves];
+        for (int elf = 0; elf < this.elves; elf++)
+            hasPresents[elf] = elf + 1;
+        int elf = 0;
+        int leftInGame = this.elves;
+        while (leftInGame > 1) {
+            int opposite = (elf + (leftInGame / 2)) % leftInGame;
+            leftInGame--;
+            System.arraycopy(hasPresents, opposite + 1, hasPresents, opposite, leftInGame - opposite);
+            elf = elf == leftInGame ? 0 : elf + 1;
+            if (leftInGame % 10000 == 0)
+                System.out.println(leftInGame);
+        }
+        return hasPresents[0];
     }
 }
 
