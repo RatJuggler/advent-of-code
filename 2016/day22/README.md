@@ -24,3 +24,5 @@ they are directly connected, such that:
 - The data on node A (its Used) would fit on node B (its Avail).
 
 How many viable pairs of nodes are there?
+
+Your puzzle answer was 864.
