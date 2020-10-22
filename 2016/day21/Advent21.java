@@ -23,20 +23,22 @@ class Transformer {
         return s.substring(0, x) + reversed + s.substring(y + 1);
     }
 
-    static String rotate(final String s, final char x) {
+    static String rotateRight(final String s, final char x) {
         int i = s.indexOf(x);
         return rotate(s, "right", 1 + i + (i >= 4 ? 1 : 0));
     }
 
+    static String rotateLeft(final String s, final char x) {
+        int i = s.indexOf(x);
+        return rotate(s, "left", (i + 1 + (i >= 7 ? 1 : 0)) / 2);
+    }
+
     static String rotate(final String s, final String d, final int x) {
         int r = x % s.length();
-        if (d.equals("left")) {
-            return s.substring(x) + s.substring(0, r);
-        } else if (d.equals("right")) {
+        if (d.equals("left"))
+            return s.substring(r) + s.substring(0, r);
+        else
             return s.substring(s.length() - r) + s.substring(0, s.length() - r);
-        } else {
-            throw new IllegalStateException("Unknown direction to rotate: " + d);
-        }
     }
 
     static String swap(final String s, final int x, final int y) {
@@ -85,9 +87,20 @@ class Scrambler {
         String on = m.group("on");
         String arg1 = m.group("arg1");
         if (on.startsWith("based"))
-            return Transformer.rotate(password, arg1.charAt(0));
+            return Transformer.rotateRight(password, arg1.charAt(0));
         else
             return Transformer.rotate(password, on, Integer.parseInt(arg1));
+    }
+
+    private String rotateReverse(final String password, final Matcher m) {
+        String on = m.group("on");
+        String arg1 = m.group("arg1");
+        if (on.startsWith("based")) {
+            return Transformer.rotateLeft(password, arg1.charAt(0));
+        } else {
+            on = on.equals("left") ? "right" : "left";
+            return Transformer.rotate(password, on, Integer.parseInt(arg1));
+        }
     }
 
     private String reverse(final String password, final Matcher m) {
@@ -97,34 +110,68 @@ class Scrambler {
     }
 
     private String move(final String password, final Matcher m) {
-        int x = Integer.parseInt(m.group("arg1"));
-        int y = Integer.parseInt(m.group("arg2"));
-        return Transformer.move(password, x, y);
+        int arg1 = Integer.parseInt(m.group("arg1"));
+        int arg2 = Integer.parseInt(m.group("arg2"));
+        return Transformer.move(password, arg1, arg2);
+    }
+
+    private String moveReverse(final String password, final Matcher m) {
+        int arg1 = Integer.parseInt(m.group("arg1"));
+        int arg2 = Integer.parseInt(m.group("arg2"));
+        return Transformer.move(password, arg2, arg1);
     }
 
     String scramble(final String password) {
-        String newPassword = password;
+        String scramble = password;
         for (String instruction : this.instructions) {
             Matcher m = parseInstruction(instruction);
             String action = m.group("action");
             switch (action) {
                 case "move":
-                    newPassword = move(newPassword, m);
+                    scramble = move(scramble, m);
                     break;
                 case "reverse":
-                    newPassword = reverse(newPassword, m);
+                    scramble = reverse(scramble, m);
                     break;
                 case "rotate":
-                    newPassword = rotate(newPassword, m);
+                    scramble = rotate(scramble, m);
                     break;
                 case "swap":
-                    newPassword = swap(newPassword, m);
+                    scramble = swap(scramble, m);
                     break;
                 default:
                     throw new IllegalStateException("Unknown instruction: " + instruction);
             }
+            System.out.println(scramble + " " + instruction);
         }
-        return newPassword;
+        return scramble;
+    }
+
+    String unscramble(final String password) {
+        String unscramble = password;
+        for (int i = this.instructions.size() - 1; i >= 0; i--) {
+            String instruction = this.instructions.get(i);
+            Matcher m = parseInstruction(instruction);
+            String action = m.group("action");
+            switch (action) {
+                case "move":
+                    unscramble = moveReverse(unscramble, m);
+                    break;
+                case "reverse":
+                    unscramble = reverse(unscramble, m);
+                    break;
+                case "rotate":
+                    unscramble = rotateReverse(unscramble, m);
+                    break;
+                case "swap":
+                    unscramble = swap(unscramble, m);
+                    break;
+                default:
+                    throw new IllegalStateException("Unknown instruction: " + instruction);
+            }
+            System.out.println(unscramble + " " + instruction);
+        }
+        return unscramble;
     }
 }
 
@@ -134,14 +181,15 @@ public class Advent21 {
     private static void testTransforms() {
         assert Transformer.move("abcde", 1, 4).equals("acdeb");
         assert Transformer.reverse("abcde", 2, 3).equals("abdce");
-        assert Transformer.rotate("abcde", 'b').equals("deabc");
+        assert Transformer.rotateRight("abcde", 'b').equals("deabc");
+        assert Transformer.rotateLeft("deabc", 'b').equals("abcde");
         assert Transformer.rotate("abcde", "left", 2).equals("cdeab");
         assert Transformer.rotate("abcde", "right", 4).equals("bcdea");
         assert Transformer.swap("abcde", 1, 4).equals("aecdb");
         assert Transformer.swap("abcde", 'd', 'a').equals("dbcae");
     }
 
-    private static void test() throws IOException {
+    private static void test1() throws IOException {
         String expected = "decab";
         Scrambler scrambler = new Scrambler("2016/day21/test21a.txt");
         String actual = scrambler.scramble("abcde");
@@ -153,10 +201,18 @@ public class Advent21 {
         System.out.printf("Part 1, scrambled password = %s\n", scrambler.scramble("abcdefgh"));
     }
 
+    private static void test2() throws IOException {
+        String expected = "abcde";
+        Scrambler scrambler = new Scrambler("2016/day21/test21a.txt");
+        String actual = scrambler.unscramble("decab");
+        assert actual.equals(expected) : String.format("Expected unscrambled password to be '%s' but was '%s'!", expected, actual);
+    }
+
     public static void main(String[] args) throws IOException {
         testTransforms();
-        test();
-        part1();
+        test1();
+//        part1();
+        test2();
     }
 
 }
