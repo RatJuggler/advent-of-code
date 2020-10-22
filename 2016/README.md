@@ -84,3 +84,8 @@ Looking at the solutions threads these are a variation on the [Josephus Problem]
 
 ##### Day 20: Firewall Rules
 Fairly straightforward though I'm sure there's a better way of consolidating the ranges than my implementation.
+
+##### Day 21: Scrambled Letters and Hash
+This one requires extra careful reading to ensure that the Part 1 scrambling rules were implemented correctly. To help with this I 
+split out the various transformations into their own class and added tests for them. Part 2 looked like it should be similar, just
+with unscrambling rules, but I've got stuck trying to implement the reverse of the "rotate based on letter position" instruction. 
