@@ -38,3 +38,10 @@ Now, you just need to generate a new scrambled password and you can access the s
 your puzzle input, what is the result of scrambling abcdefgh?
 
 Your puzzle answer was dgfaehcb.
+
+--- Part Two ---
+
+You scrambled the password correctly, but you discover that you can't actually modify the password file on the system. You'll need 
+to un-scramble one of the existing passwords by reversing the scrambling process.
+
+What is the un-scrambled version of the scrambled password fbgdceah?
