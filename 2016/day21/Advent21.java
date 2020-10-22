@@ -12,7 +12,7 @@ class Transformer {
 
     Transformer() {}
 
-    static String move(final String s, int x, int y) {
+    static String move(final String s, final int x, final int y) {
         char move = s.charAt(x);
         String r = s.substring(0, x) + s.substring(x + 1);
         return r.substring(0, y) + move + r.substring(y);
@@ -28,22 +28,22 @@ class Transformer {
         return rotate(s, "right", 1 + i + (i >= 4 ? 1 : 0));
     }
 
-    static String rotate(final String s, final String d, int x) {
-        x = x % s.length();
+    static String rotate(final String s, final String d, final int x) {
+        int r = x % s.length();
         if (d.equals("left")) {
-            return s.substring(x) + s.substring(0, x);
+            return s.substring(x) + s.substring(0, r);
         } else if (d.equals("right")) {
-            return s.substring(s.length() - x) + s.substring(0, s.length() - x);
+            return s.substring(s.length() - r) + s.substring(0, s.length() - r);
         } else {
             throw new IllegalStateException("Unknown direction to rotate: " + d);
         }
     }
 
-    static String swap(final String s, int x, int y) {
-        if (x > y) {
-            int i = x; x = y; y = i;
-        }
-        return s.substring(0, x) + s.charAt(y) + s.substring(x + 1, y) + s.charAt(x) + s.substring(y + 1);
+    static String swap(final String s, final int x, final int y) {
+        if (x > y)
+            return s.substring(0, y) + s.charAt(x) + s.substring(y + 1, x) + s.charAt(y) + s.substring(x + 1);
+        else
+            return s.substring(0, x) + s.charAt(y) + s.substring(x + 1, y) + s.charAt(x) + s.substring(y + 1);
     }
 
     static String swap(final String s, final char x, final char y) {
@@ -67,9 +67,7 @@ class Scrambler {
 
     private Matcher parseInstruction(final String instruction) {
         Matcher m = INSTRUCTION_PARSER.matcher(instruction);
-        if (!m.find()) {
-            throw new IllegalStateException("Unable to parse instruction: " + instruction);
-        }
+        if (!m.find()) throw new IllegalStateException("Unable to parse instruction: " + instruction);
         return m;
     }
 
@@ -77,21 +75,19 @@ class Scrambler {
         String on = m.group("on");
         String arg1 = m.group("arg1");
         String arg2 = m.group("arg2");
-        if (on.equals("letter")) {
+        if (on.equals("letter"))
             return Transformer.swap(password, arg1.charAt(0), arg2.charAt(0));
-        } else {
+        else
             return Transformer.swap(password, Integer.parseInt(arg1), Integer.parseInt(arg2));
-        }
     }
 
     private String rotate(final String password, final Matcher m) {
         String on = m.group("on");
         String arg1 = m.group("arg1");
-        if (on.startsWith("based")) {
+        if (on.startsWith("based"))
             return Transformer.rotate(password, arg1.charAt(0));
-        } else {
+        else
             return Transformer.rotate(password, on, Integer.parseInt(arg1));
-        }
     }
 
     private String reverse(final String password, final Matcher m) {
