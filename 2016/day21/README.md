@@ -36,3 +36,5 @@ After these steps, the resulting scrambled password is decab.
 
 Now, you just need to generate a new scrambled password and you can access the system. Given the list of scrambling operations in 
 your puzzle input, what is the result of scrambling abcdefgh?
+
+Your puzzle answer was dgfaehcb.
