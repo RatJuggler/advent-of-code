@@ -98,6 +98,12 @@ class Computer {
 
 public class Advent23 {
 
+    private static void part2() throws IOException {
+        Computer computer = Computer.fromFile("2016/day23/input23.txt");
+        computer.run(12, 0, 0, 0);
+        System.out.printf("Part 2, register 'a' = %s\n", computer.getRegister("a"));
+    }
+
     private static void part1() throws IOException {
         Computer computer = Computer.fromFile("2016/day23/input23.txt");
         computer.run(7, 0, 0, 0);
@@ -115,5 +121,6 @@ public class Advent23 {
     public static void main(String[] args) throws IOException {
         test();
         part1();
+        part2();
     }
 }
