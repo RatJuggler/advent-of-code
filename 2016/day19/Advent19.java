@@ -43,7 +43,10 @@ class Party {
         while (players.size() > 1) {
             int opposite = (player + (players.size() / 2)) % players.size();
             players.remove(opposite);
-            player = player >= players.size() ? 0 : player + 1;
+            if (opposite > player)
+                player = (player + 1) % players.size();
+            else if (player == players.size())
+                player = 0;
             if (players.size() % 10000 == 0)
                 System.out.println(players.size());
         }
@@ -58,10 +61,12 @@ class Party {
         int leftInGame = this.elves;
         while (leftInGame > 1) {
             int opposite = (player + (leftInGame / 2)) % leftInGame;
-            System.out.println(player + " " + opposite + " " + leftInGame);
             leftInGame--;
             System.arraycopy(hasPresents, opposite + 1, hasPresents, opposite, leftInGame - opposite);
-            player = player >= leftInGame ? 0 : player + 1;
+            if (opposite > player)
+                player = (player + 1) % leftInGame;
+            else if (player == leftInGame)
+                player = 0;
             if (leftInGame % 10000 == 0)
                 System.out.println(leftInGame);
         }

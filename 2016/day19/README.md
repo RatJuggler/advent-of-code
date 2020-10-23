@@ -72,3 +72,5 @@ Finally, Elf 2 steals from Elf 4:
 So, with five Elves, the Elf that sits starting in position 2 gets all the presents.
 
 With the number of Elves given in your puzzle input, which Elf now gets all the presents?
+
+Your puzzle answer was 1410967.
