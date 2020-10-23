@@ -28,6 +28,10 @@ class Computer {
         return this.registers.get(register);
     }
 
+    private void updateRegister(final String register, final int change) {
+        this.registers.put(register, this.getRegister(register) + change);
+    }
+
     private String[] decode(final int line) {
         return this.program.get(line).split(" ");
     }
@@ -43,35 +47,38 @@ class Computer {
             return Integer.parseInt(argument);
     }
 
+    private String getLines(final int fromLine, final int lines) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = fromLine; i < fromLine + lines; i++) {
+            sb.append(this.program.get(i)).append(' ');
+        }
+        return sb.toString();
+    }
+
+    private Matcher findCode(final String pattern, final int fromLine, final int lines) {
+        String code = this.getLines(fromLine, lines);
+        Pattern r = Pattern.compile(pattern);
+        return r.matcher(code);
+    }
+
     private boolean optimiseMultiply(final int fromLine) {
-        final String multiply = "^cpy (?<b>\\S) (?<c>\\S) inc (?<a>\\S) dec \\2 jnz \\2 -2 dec (?<d>\\S) jnz \\4 -5$";
-        String code = this.program.get(fromLine) + " " +
-                this.program.get(fromLine + 1) + " " +
-                this.program.get(fromLine + 2) + " " +
-                this.program.get(fromLine + 3) + " " +
-                this.program.get(fromLine + 4) + " " +
-                this.program.get(fromLine + 5);
-        Pattern r = Pattern.compile(multiply);
-        Matcher m = r.matcher(code);
+        final String multiply = "^cpy (?<b>\\S) (?<c>\\S) inc (?<a>\\S) dec \\2 jnz \\2 -2 dec (?<d>\\S) jnz \\4 -5 $";
+        Matcher m = findCode(multiply, fromLine, 6);
         if (!m.find()) return false;
         String register = m.group("a");
         String x = m.group("b");
         String y = m.group("d");
-        this.registers.put(register, this.getRegister(register) + (this.decodeArgument(x) * this.decodeArgument(y)));
+        this.updateRegister(register, this.decodeArgument(x) * this.decodeArgument(y));
         return true;
     }
 
     private boolean optimiseAdd(final int fromLine) {
-        final String add = "^inc (?<a>\\S) dec (?<b>\\S) jnz \\2 -2$";
-        String code = this.program.get(fromLine) + " " +
-                this.program.get(fromLine + 1) + " " +
-                this.program.get(fromLine + 2);
-        Pattern r = Pattern.compile(add);
-        Matcher m = r.matcher(code);
+        final String add = "^inc (?<a>\\S) dec (?<b>\\S) jnz \\2 -2 $";
+        Matcher m = findCode(add, fromLine, 3);
         if (!m.find()) return false;
         String register = m.group("a");
         String x = m.group("b");
-        this.registers.put(register, this.getRegister(register) + this.decodeArgument(x));
+        this.updateRegister(register, this.decodeArgument(x));
         return true;
     }
 
@@ -111,12 +118,12 @@ class Computer {
                     case "inc":
                         String inc = decode[1];
                         if (this.validRegister(inc))
-                            this.registers.put(inc, this.registers.get(inc) + 1);
+                            this.updateRegister(inc, 1);
                         break;
                     case "dec":
                         String dec = decode[1];
                         if (this.validRegister(dec))
-                            this.registers.put(dec, this.registers.get(dec) - 1);
+                            this.updateRegister(dec, -1);
                         break;
                     case "jnz":
                         if (this.decodeArgument(decode[1]) != 0)
