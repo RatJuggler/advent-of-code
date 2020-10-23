@@ -27,7 +27,7 @@ class Computer {
     }
 
     private boolean validRegister(final String register) {
-        return "abcd".contains(register);
+        return "a|b|c|d".contains(register);
     }
 
     private int decodeArgument(final String argument) {
@@ -35,6 +35,27 @@ class Computer {
             return this.getRegister(argument);
         else
             return Integer.parseInt(argument);
+    }
+
+    private boolean optimised(final int line) {
+        String[] dl1 = this.program.get(line).split(" ");
+        String[] dl2 = this.program.get(line + 1).split(" ");
+        String[] dl3 = this.program.get(line + 2).split(" ");
+
+        if (!("inc|dec".contains(dl1[0]) && "inc|dec".contains(dl2[0]) && !dl1[1].equals(dl2[1]) &&
+                dl3[0].equals("jnz") && (dl3[1].equals(dl1[1]) || dl3[1].equals(dl2[1])) && this.decodeArgument(dl3[2]) == -2))
+            return false;
+
+        if (dl1[0].equals(dl2[0])) {
+            String update = dl3[1].equals(dl1[1]) ? dl2[1] : dl1[1];
+            int by = dl1[0].equals("inc") ? +Math.abs(this.decodeArgument(dl3[1])) : -Math.abs(this.decodeArgument(dl3[1]));
+            this.registers.put(update, this.registers.get(update) + by);
+        } else {
+            String update = dl1[0].equals("inc") ? dl1[1] : dl2[1];
+            this.registers.put(update, this.registers.get(update) + this.decodeArgument(dl3[1]));
+        }
+
+        return true;
     }
 
     private String toggle(final String instruction) {
@@ -58,39 +79,43 @@ class Computer {
         this.registers.put("d", d);
         int line = 0;
         while (line < this.program.size()) {
-            String instruction = this.program.get(line);
-            String[] decode = instruction.split(" ");
-            switch (decode[0]) {
-                case "cpy":
-                    String copyTo = decode[2];
-                    if (this.validRegister(copyTo))
-                        this.registers.put(copyTo, this.decodeArgument(decode[1]));
-                    break;
-                case "inc":
-                    String inc = decode[1];
-                    if (this.validRegister(inc))
-                        this.registers.put(inc, this.registers.get(inc) + 1);
-                    break;
-                case "dec":
-                    String dec = decode[1];
-                    if (this.validRegister(dec))
-                        this.registers.put(dec, this.registers.get(dec) - 1);
-                    break;
-                case "jnz":
-                    if (this.decodeArgument(decode[1]) != 0)
-                        line += this.decodeArgument(decode[2]) - 1;
-                    break;
-                case "tgl":
-                    int toTgl = line + this.decodeArgument(decode[1]);
-                    if (toTgl < this.program.size()) {
-                        String newInstruction = this.toggle(this.program.get(toTgl));
-                        this.program.set(toTgl, newInstruction);
-                    }
-                    break;
-                default:
-                    throw new IllegalStateException(String.format("Unknown command '%s'", decode[0]));
+            if (line < this.program.size() - 2 && this.optimised(line)) {
+                line += 3;
+            } else {
+                String instruction = this.program.get(line);
+                String[] decode = instruction.split(" ");
+                switch (decode[0]) {
+                    case "cpy":
+                        String copyTo = decode[2];
+                        if (this.validRegister(copyTo))
+                            this.registers.put(copyTo, this.decodeArgument(decode[1]));
+                        break;
+                    case "inc":
+                        String inc = decode[1];
+                        if (this.validRegister(inc))
+                            this.registers.put(inc, this.registers.get(inc) + 1);
+                        break;
+                    case "dec":
+                        String dec = decode[1];
+                        if (this.validRegister(dec))
+                            this.registers.put(dec, this.registers.get(dec) - 1);
+                        break;
+                    case "jnz":
+                        if (this.decodeArgument(decode[1]) != 0)
+                            line += this.decodeArgument(decode[2]) - 1;
+                        break;
+                    case "tgl":
+                        int toTgl = line + this.decodeArgument(decode[1]);
+                        if (toTgl < this.program.size()) {
+                            String newInstruction = this.toggle(this.program.get(toTgl));
+                            this.program.set(toTgl, newInstruction);
+                        }
+                        break;
+                    default:
+                        throw new IllegalStateException(String.format("Unknown command '%s'", decode[0]));
+                }
+                line++;
             }
-            line++;
         }
     }
 }
