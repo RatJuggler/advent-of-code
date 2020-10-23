@@ -23,14 +23,9 @@ class Transformer {
         return s.substring(0, x) + reversed + s.substring(y + 1);
     }
 
-    static String rotateRight(final String s, final char x) {
+    static String rotateOnLetter(final String s, final char x) {
         int i = s.indexOf(x);
         return rotate(s, "right", 1 + i + (i >= 4 ? 1 : 0));
-    }
-
-    static String rotateLeft(final String s, final char x) {
-        int i = s.indexOf(x);
-        return rotate(s, "left", (i + 1 + (i >= 7 ? 1 : 0)) / 2);
     }
 
     static String rotate(final String s, final String d, final int x) {
@@ -87,7 +82,7 @@ class Scrambler {
         String on = m.group("on");
         String arg1 = m.group("arg1");
         if (on.startsWith("based"))
-            return Transformer.rotateRight(password, arg1.charAt(0));
+            return Transformer.rotateOnLetter(password, arg1.charAt(0));
         else
             return Transformer.rotate(password, on, Integer.parseInt(arg1));
     }
@@ -96,7 +91,12 @@ class Scrambler {
         String on = m.group("on");
         String arg1 = m.group("arg1");
         if (on.startsWith("based")) {
-            return Transformer.rotateLeft(password, arg1.charAt(0));
+            for (int i = 0; i < password.length(); i++) {
+                String reverse = Transformer.rotate(password, "left", i);
+                String forward = Transformer.rotateOnLetter(reverse, arg1.charAt(0));
+                if (forward.equals(password)) return reverse;
+            }
+            throw new IllegalStateException("Unable to reverse rotateOnLetter for " + password);
         } else {
             on = on.equals("left") ? "right" : "left";
             return Transformer.rotate(password, on, Integer.parseInt(arg1));
@@ -181,24 +181,11 @@ public class Advent21 {
     private static void testTransforms() {
         assert Transformer.move("abcde", 1, 4).equals("acdeb");
         assert Transformer.reverse("abcde", 2, 3).equals("abdce");
-        assert Transformer.rotateRight("abcde", 'b').equals("deabc");
-        assert Transformer.rotateLeft("deabc", 'b').equals("abcde");
+        assert Transformer.rotateOnLetter("abcde", 'b').equals("deabc");
         assert Transformer.rotate("abcde", "left", 2).equals("cdeab");
         assert Transformer.rotate("abcde", "right", 4).equals("bcdea");
         assert Transformer.swap("abcde", 1, 4).equals("aecdb");
         assert Transformer.swap("abcde", 'd', 'a').equals("dbcae");
-    }
-
-    private static void test1() throws IOException {
-        String expected = "decab";
-        Scrambler scrambler = new Scrambler("2016/day21/test21a.txt");
-        String actual = scrambler.scramble("abcde");
-        assert actual.equals(expected) : String.format("Expected scrambled password to be '%s' but was '%s'!", expected, actual);
-    }
-
-    private static void part1() throws IOException {
-        Scrambler scrambler = new Scrambler("2016/day21/input21.txt");
-        System.out.printf("Part 1, scrambled password = %s\n", scrambler.scramble("abcdefgh"));
     }
 
     private static void test2() throws IOException {
@@ -208,11 +195,28 @@ public class Advent21 {
         assert actual.equals(expected) : String.format("Expected unscrambled password to be '%s' but was '%s'!", expected, actual);
     }
 
+    private static void test1() throws IOException {
+        String expected = "decab";
+        Scrambler scrambler = new Scrambler("2016/day21/test21a.txt");
+        String actual = scrambler.scramble("abcde");
+        assert actual.equals(expected) : String.format("Expected scrambled password to be '%s' but was '%s'!", expected, actual);
+    }
+
+    private static void part2() throws IOException {
+        Scrambler scrambler = new Scrambler("2016/day21/input21.txt");
+        System.out.printf("Part 2, unscrambled password = %s\n", scrambler.unscramble("fbgdceah"));
+    }
+
+    private static void part1() throws IOException {
+        Scrambler scrambler = new Scrambler("2016/day21/input21.txt");
+        System.out.printf("Part 1, scrambled password = %s\n", scrambler.scramble("abcdefgh"));
+    }
+
     public static void main(String[] args) throws IOException {
         testTransforms();
         test1();
-//        part1();
+        part1();
         test2();
+        part2();
     }
-
 }
