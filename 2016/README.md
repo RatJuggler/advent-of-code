@@ -95,5 +95,15 @@ I completed Part 1 without implementing the full Node connectivity to keep thing
 tackling Part 2 as this time. 
 
 ##### Day 23: Safe Cracking
-Reusing and refining the code from Day 12 to add a new instruction for Part 1 was fun. I implemented the optimisation without any
-major refactoring of the existing code, so it seemed a bit clunky, but works fine.
+Reusing and refining the bunnycode VM from Day 12 to add a new instruction for Part 1 was fun. I implemented the optimisation 
+without any major refactoring of the existing code, so it seemed a bit clunky, but works fine.
+
+##### Day 24: Air Duct Spelunking
+Skipping this day to continue with reusing code from Day 23 on Day 25.
+
+##### Day 25: Clock Signal
+Continuing to reuse the bunnycode VM, now from Day 23. Part 1 touches on the [halting problem](https://en.wikipedia.org/wiki/Halting_problem)
+but I just modified the bunnycode VM to return each output it generated, then cycled through looking for an initial arbitrary 
+output that matched that required.
+
+I now need to complete Days 19, 21, 22 and 24 before I continue with Part 2 of Day 25.
