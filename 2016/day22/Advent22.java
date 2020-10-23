@@ -61,15 +61,22 @@ class ClusterStorage {
         Node[] cluster;
         try (Stream<String> stream = Files.lines(Paths.get(filename))) {
             Node[][] test1 = stream.filter(l -> l.startsWith("/dev/grid"))
-                            .map(Node::fromLine)
-                            .collect(Collectors.groupingBy(n -> n.y))
-                            .values()
-                            .stream()
-                            .map(c -> c.toArray(Node[]::new))
-                            .toArray(Node[][]::new);
+                                .map(Node::fromLine)
+                                .collect(Collectors.groupingBy(n -> n.y))
+                                .values()
+                                .stream()
+                                .map(c -> c.toArray(Node[]::new))
+                                .toArray(Node[][]::new);
             Node[] test2 = Arrays.stream(test1).flatMap(row -> Arrays.stream(row).distinct()).toArray(Node[]::new);
             System.out.println(Arrays.toString(test1));
             System.out.println(Arrays.toString(test2));
+            long testPairs = Arrays.stream(test1)
+                                .flatMap(row -> Arrays.stream(row).distinct())
+                                .filter(n1 -> Arrays.stream(test1)
+                                                .flatMap(row -> Arrays.stream(row).distinct())
+                                                .anyMatch(n2 -> n1 != n2 && n1.used > 0 && n2.avail >= n1.used))
+                                .count();
+            System.out.println(testPairs);
         }
         try (Stream<String> stream = Files.lines(Paths.get(filename))) {
             cluster = stream.filter(l -> l.startsWith("/dev/grid"))
