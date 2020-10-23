@@ -93,3 +93,7 @@ with unscrambling rules, but I've got stuck trying to implement the reverse of t
 ##### Day 22: Grid Computing
 I completed Part 1 without implementing the full Node connectivity to keep things simple. I've decided to move on instead of
 tackling Part 2 as this time. 
+
+##### Day 23: Safe Cracking
+Reusing and refining the code from Day 12 to add a new instruction for Part 1 was fun. I implemented the optimisation without any
+major refactoring of the existing code, so it seemed a bit clunky, but works fine.
