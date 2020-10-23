@@ -37,3 +37,13 @@ What is the lowest positive integer that can be used to initialize register a an
 0, 1... repeating forever?
 
 Your puzzle answer was 175.
+
+--- Part Two ---
+
+The antenna is ready. Now, all you need is the fifty stars required to generate the signal for the sleigh, but you don't have 
+enough.
+
+You look toward the sky in desperation... suddenly noticing that a lone star has been installed at the top of the antenna! Only 49 
+more to go.
+
+You don't have enough stars to transmit the signal, though. You need 5 more.
