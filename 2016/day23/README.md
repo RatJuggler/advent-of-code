@@ -47,3 +47,5 @@ The rest of the electronics seem to place the keypad entry (the number of eggs, 
 value left in register a to the safe.
 
 What value should be sent to the safe?
+
+Your puzzle answer was 11893.
