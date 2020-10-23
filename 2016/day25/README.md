@@ -35,3 +35,5 @@ find the input to produce the right signal through experimentation.
 
 What is the lowest positive integer that can be used to initialize register a and cause the code to output a clock signal of 0, 1, 
 0, 1... repeating forever?
+
+Your puzzle answer was 175.
