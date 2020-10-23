@@ -6,6 +6,8 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 class Computer {
@@ -26,6 +28,10 @@ class Computer {
         return this.registers.get(register);
     }
 
+    private String[] decode(final int line) {
+        return this.program.get(line).split(" ");
+    }
+
     private boolean validRegister(final String register) {
         return "a|b|c|d".contains(register);
     }
@@ -37,39 +43,50 @@ class Computer {
             return Integer.parseInt(argument);
     }
 
-    private boolean optimised(final int line) {
-        String[] dl1 = this.program.get(line).split(" ");
-        String[] dl2 = this.program.get(line + 1).split(" ");
-        String[] dl3 = this.program.get(line + 2).split(" ");
-
-        if (!("inc|dec".contains(dl1[0]) && "inc|dec".contains(dl2[0]) && !dl1[1].equals(dl2[1]) &&
-                dl3[0].equals("jnz") && (dl3[1].equals(dl1[1]) || dl3[1].equals(dl2[1])) && this.decodeArgument(dl3[2]) == -2))
-            return false;
-
-        if (dl1[0].equals(dl2[0])) {
-            String update = dl3[1].equals(dl1[1]) ? dl2[1] : dl1[1];
-            int by = dl1[0].equals("inc") ? +Math.abs(this.decodeArgument(dl3[1])) : -Math.abs(this.decodeArgument(dl3[1]));
-            this.registers.put(update, this.registers.get(update) + by);
-        } else {
-            String update = dl1[0].equals("inc") ? dl1[1] : dl2[1];
-            this.registers.put(update, this.registers.get(update) + this.decodeArgument(dl3[1]));
-        }
-
+    private boolean optimiseMultiply(final int fromLine) {
+        final String multiply = "^cpy (?<b>\\S) (?<c>\\S) inc (?<a>\\S) dec \\2 jnz \\2 -2 dec (?<d>\\S) jnz \\4 -5$";
+        String code = this.program.get(fromLine) + " " +
+                this.program.get(fromLine + 1) + " " +
+                this.program.get(fromLine + 2) + " " +
+                this.program.get(fromLine + 3) + " " +
+                this.program.get(fromLine + 4) + " " +
+                this.program.get(fromLine + 5);
+        Pattern r = Pattern.compile(multiply);
+        Matcher m = r.matcher(code);
+        if (!m.find()) return false;
+        String register = m.group("a");
+        String x = m.group("b");
+        String y = m.group("d");
+        this.registers.put(register, this.getRegister(register) + (this.decodeArgument(x) * this.decodeArgument(y)));
         return true;
     }
 
-    private String toggle(final String instruction) {
-        String[] decode = instruction.split(" ");
+    private boolean optimiseAdd(final int fromLine) {
+        final String add = "^inc (?<a>\\S) dec (?<b>\\S) jnz \\2 -2$";
+        String code = this.program.get(fromLine) + " " +
+                this.program.get(fromLine + 1) + " " +
+                this.program.get(fromLine + 2);
+        Pattern r = Pattern.compile(add);
+        Matcher m = r.matcher(code);
+        if (!m.find()) return false;
+        String register = m.group("a");
+        String x = m.group("b");
+        this.registers.put(register, this.getRegister(register) + this.decodeArgument(x));
+        return true;
+    }
+
+    private String toggle(final int tglLine) {
+        String[] decode = this.decode(tglLine);
         if (decode.length == 2) {
-            String toggle = "inc ";
-            if (instruction.startsWith(toggle)) toggle = "dec ";
-            return toggle + decode[1];
+            String toggle = "inc";
+            if (decode[0].equals(toggle)) toggle = "dec";
+            return toggle + " " + decode[1];
         } else if (decode.length == 3) {
-            String toggle = "jnz ";
-            if (instruction.startsWith(toggle)) toggle = "cpy ";
-            return toggle + decode[1] + " " + decode[2];
+            String toggle = "jnz";
+            if (decode[0].equals(toggle)) toggle = "cpy";
+            return toggle + " " + decode[1] + " " + decode[2];
         }
-        throw new IllegalStateException("Unknown instruction to toggle: " + instruction);
+        throw new IllegalStateException("Unknown instruction to toggle: " + decode[0]);
     }
 
     void run(final int a, final int b, final int c, final int d) {
@@ -79,11 +96,12 @@ class Computer {
         this.registers.put("d", d);
         int line = 0;
         while (line < this.program.size()) {
-            if (line < this.program.size() - 2 && this.optimised(line)) {
+            if (line < this.program.size() - 5 && this.optimiseMultiply(line)) {
+                line += 6;
+            } else if (line < this.program.size() - 2 && this.optimiseAdd(line)) {
                 line += 3;
             } else {
-                String instruction = this.program.get(line);
-                String[] decode = instruction.split(" ");
+                String[] decode = this.decode(line);
                 switch (decode[0]) {
                     case "cpy":
                         String copyTo = decode[2];
@@ -105,10 +123,9 @@ class Computer {
                             line += this.decodeArgument(decode[2]) - 1;
                         break;
                     case "tgl":
-                        int toTgl = line + this.decodeArgument(decode[1]);
-                        if (toTgl < this.program.size()) {
-                            String newInstruction = this.toggle(this.program.get(toTgl));
-                            this.program.set(toTgl, newInstruction);
+                        int tglLine = line + this.decodeArgument(decode[1]);
+                        if (tglLine < this.program.size()) {
+                            this.program.set(tglLine, this.toggle(tglLine));
                         }
                         break;
                     default:
