@@ -58,16 +58,13 @@ class Node implements Cloneable {
         return "Node{" + name + ", size=" + size + ", used=" + used + ", avail=" + avail + '}';
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        Node node = (Node) o;
-        return x == node.x &&
-                y == node.y &&
-                size == node.size &&
-                used == node.used &&
-                avail == node.avail &&
-                name.equals(node.name);
+    public boolean equalState(final Node that) {
+        return this.name.equals(that.name) &&
+                this.x == that.x &&
+                this.y == that.y &&
+                this.size == that.size &&
+                this.used == that.used &&
+                this.avail == that.avail;
     }
 }
 
@@ -120,15 +117,12 @@ class ClusterStorage {
                 '}';
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        ClusterStorage that = (ClusterStorage) o;
+    public boolean equalState(final ClusterStorage that) {
         for (int y = 0; y < this.cluster.length; y++) {
             Node[] row = this.cluster[y];
             Node[] thatRow = that.cluster[y];
             for (int x = 0; x < row.length; x++) {
-                if (!row[x].equals(thatRow[x])) return false;
+                if (!row[x].equalState(thatRow[x])) return false;
             }
         }
         return true;
@@ -141,11 +135,11 @@ public class Advent22 {
     private static void testClone() throws IOException {
         ClusterStorage storage = ClusterStorage.fromFile("2016/day22/test22a.txt");
         ClusterStorage copy = storage.makeClone();
-        System.out.println("Equal = " + storage.equals(copy));
+        System.out.println("Equal State = " + storage.equalState(copy));
         copy.cluster[0][0] = new Node("Testing", 99, 99, 99, 99, 99);
         System.out.println(storage);
         System.out.println(copy);
-        System.out.println("Equal = " + storage.equals(copy));
+        System.out.println("Equal State = " + storage.equalState(copy));
     }
 
     private static void test1() throws IOException {
