@@ -128,7 +128,7 @@ class ClusterStorage {
                     out = " G ";
                 } else if (this.cluster[y][x].used == 0) {
                     out = " _ ";
-                } else if (this.cluster[y][x].used > 100) {
+                } else if (this.cluster[y][x].used > 85) {
                     out = " # ";
                 }
                 System.out.print(out);
