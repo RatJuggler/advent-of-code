@@ -120,3 +120,5 @@ the data from node-y1-x2 to node-y0-x2:
 So, after 7 steps, we've accessed the data we want. Unfortunately, each of these moves takes time, and we need to be efficient:
 
 What is the fewest number of steps required to move your goal data to node-x0-y0?
+
+Your puzzle answer was 244.

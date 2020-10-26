@@ -226,5 +226,11 @@ public class Advent22 {
         testState();
         test1();
         part1();
+        // Part 2 - Just count the swaps on the state display.
+        // 74 steps to move the empty node up to the G.
+        // . G _  . G .  . G .  . G .  _ G .  G _ .
+        // . . .  . . _  . _ .  _ . .  . . .  . . .
+        // 5 steps to use the empty node to move the G left one.
+        // => 74 + (34 * 5) = 244
     }
 }
