@@ -4,13 +4,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
-class Node implements Cloneable {
+class Node {
 
     private static final String PARSE_PATTERN =
             "^(?<node>\\S+-x(?<x>\\d+)-y(?<y>\\d+)) +(?<size>\\d+)T +(?<used>\\d+)T +(?<avail>\\d+)T +(?<peruse>\\d+)%$";
@@ -65,6 +66,24 @@ class Node implements Cloneable {
                 this.size == that.size &&
                 this.used == that.used &&
                 this.avail == that.avail;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Node node = (Node) o;
+        return x == node.x &&
+                y == node.y &&
+                size == node.size &&
+                used == node.used &&
+                avail == node.avail &&
+                name.equals(node.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, x, y, size, used, avail);
     }
 }
 
@@ -127,19 +146,48 @@ class ClusterStorage {
         }
         return true;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ClusterStorage that = (ClusterStorage) o;
+        return Arrays.equals(cluster, that.cluster);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(cluster);
+    }
 }
 
 
 public class Advent22 {
 
-    private static void testClone() throws IOException {
-        ClusterStorage storage = ClusterStorage.fromFile("2016/day22/test22a.txt");
-        ClusterStorage copy = storage.makeClone();
-        System.out.println("Equal State = " + storage.equalState(copy));
-        copy.cluster[0][0] = new Node("Testing", 99, 99, 99, 99, 99);
-        System.out.println(storage);
+    private static void showChecks(final ClusterStorage original, final ClusterStorage copy) {
+        System.out.println(original);
         System.out.println(copy);
-        System.out.println("Equal State = " + storage.equalState(copy));
+        System.out.println("Equal State = " + original.equalState(copy));
+        System.out.println("Original HashCode = " + Arrays.deepHashCode(original.cluster));
+        System.out.println("Copy HashCode = " + Arrays.deepHashCode(copy.cluster));
+        System.out.println("Original HashCode[0][0] = " + original.cluster[0][0].hashCode());
+        System.out.println("Copy HashCode[0][0] = " + copy.cluster[0][0].hashCode());
+        System.out.println("Original HashCode[1][1] = " + original.cluster[1][1].hashCode());
+        System.out.println("Copy HashCode[1][1] = " + copy.cluster[1][1].hashCode());
+        System.out.println("Original HashCode[2][2] = " + original.cluster[2][2].hashCode());
+        System.out.println("Copy HashCode[2][2] = " + copy.cluster[2][2].hashCode());
+    }
+
+    private static void testClone() throws IOException {
+        ClusterStorage original = ClusterStorage.fromFile("2016/day22/test22a.txt");
+        ClusterStorage copy = original.makeClone();
+        showChecks(original, copy);
+        original.cluster[1][1] = new Node("Testing", 99, 99, 99, 99, 99);
+        copy.cluster[2][2] = new Node("Testing", 99, 99, 99, 99, 99);
+        showChecks(original, copy);
+        original.cluster[1][1] = copy.cluster[1][1];
+        copy.cluster[2][2] = original.cluster[2][2];
+        showChecks(original, copy);
     }
 
     private static void test1() throws IOException {
