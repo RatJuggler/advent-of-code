@@ -117,6 +117,26 @@ class ClusterStorage {
                     .count();
     }
 
+    void showState() {
+        for (int y = 0; y < this.cluster.length; y++) {
+            Node[] row = this.cluster[y];
+            for (int x = 0; x < row.length; x++) {
+                String out = " . ";
+                if (y == 0 && x == 0) {
+                    out = "(.)";
+                } else if (y == 0 && x == row.length - 1) {
+                    out = " G ";
+                } else if (this.cluster[y][x].used == 0) {
+                    out = " _ ";
+                } else if (this.cluster[y][x].used > 100) {
+                    out = " # ";
+                }
+                System.out.print(out);
+            }
+            System.out.println();
+        }
+    }
+
     ClusterStorage makeClone() {
         Node[][] copy = Arrays.stream(this.cluster)
                 .flatMap(row -> Arrays.stream(row).distinct())
@@ -178,7 +198,7 @@ public class Advent22 {
         System.out.println("Copy HashCode[2][2] = " + copy.cluster[2][2].hashCode());
     }
 
-    private static void testClone() throws IOException {
+    private static void testState() throws IOException {
         ClusterStorage original = ClusterStorage.fromFile("2016/day22/test22a.txt");
         ClusterStorage copy = original.makeClone();
         showChecks(original, copy);
@@ -192,16 +212,18 @@ public class Advent22 {
 
     private static void test1() throws IOException {
         ClusterStorage storage = ClusterStorage.fromFile("2016/day22/test22a.txt");
+        storage.showState();
         System.out.printf("Test, viable pairs = %s\n", storage.countViablePairs());
     }
 
     private static void part1() throws IOException {
         ClusterStorage storage = ClusterStorage.fromFile("2016/day22/input22.txt");
+        storage.showState();
         System.out.printf("Part 1, viable pairs = %s\n", storage.countViablePairs());
     }
 
     public static void main(String[] args) throws IOException {
-        testClone();
+        testState();
         test1();
         part1();
     }
