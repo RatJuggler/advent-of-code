@@ -53,51 +53,31 @@ class Node {
 
 class ClusterStorage {
 
-    final Node[] cluster;
+    final Node[][] cluster;
 
-    ClusterStorage(final Node[] cluster) { this.cluster = cluster; }
+    ClusterStorage(final Node[][] cluster) { this.cluster = cluster; }
 
     static ClusterStorage fromFile(final String filename) throws IOException {
-        Node[] cluster;
-        try (Stream<String> stream = Files.lines(Paths.get(filename))) {
-            Node[][] test1 = stream.filter(l -> l.startsWith("/dev/grid"))
-                                .map(Node::fromLine)
-                                .collect(Collectors.groupingBy(n -> n.y))
-                                .values()
-                                .stream()
-                                .map(c -> c.toArray(Node[]::new))
-                                .toArray(Node[][]::new);
-            Node[] test2 = Arrays.stream(test1).flatMap(row -> Arrays.stream(row).distinct()).toArray(Node[]::new);
-            System.out.println(Arrays.toString(test1));
-            System.out.println(Arrays.toString(test2));
-            long testPairs = Arrays.stream(test1)
-                                .flatMap(row -> Arrays.stream(row).distinct())
-                                .filter(n1 -> Arrays.stream(test1)
-                                                .flatMap(row -> Arrays.stream(row).distinct())
-                                                .anyMatch(n2 -> n1 != n2 && n1.used > 0 && n2.avail >= n1.used))
-                                .count();
-            System.out.println(testPairs);
-        }
+        Node[][] cluster;
         try (Stream<String> stream = Files.lines(Paths.get(filename))) {
             cluster = stream.filter(l -> l.startsWith("/dev/grid"))
                             .map(Node::fromLine)
-                            .toArray(Node[]::new);
-            System.out.println(Arrays.toString(cluster));
+                            .collect(Collectors.groupingBy(n -> n.y))
+                            .values()
+                            .stream()
+                            .map(c -> c.toArray(Node[]::new))
+                            .toArray(Node[][]::new);
         }
         return new ClusterStorage(cluster);
     }
 
-    int countViablePairs() {
-        int viablePairs = 0;
-        for (int a = 0; a < this.cluster.length; a++) {
-            Node nodeA = this.cluster[a];
-            for (int b = a; b < this.cluster.length; b++) {
-                Node nodeB = this.cluster[b];
-                if (nodeA.used > 0 && nodeB.avail >= nodeA.used) viablePairs++;
-                if (nodeB.used > 0 && nodeA.avail >= nodeB.used) viablePairs++;
-            }
-        }
-        return viablePairs;
+    long countViablePairs() {
+        return Arrays.stream(this.cluster)
+                    .flatMap(row -> Arrays.stream(row).distinct())
+                    .filter(n1 -> Arrays.stream(this.cluster)
+                            .flatMap(row -> Arrays.stream(row).distinct())
+                            .anyMatch(n2 -> n1 != n2 && n1.used > 0 && n2.avail >= n1.used))
+                    .count();
     }
 }
 
