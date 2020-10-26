@@ -95,8 +95,15 @@ I did as others and simply tested each combination of rotating back left, then a
 until the result matched the starting point.
 
 ##### Day 22: Grid Computing
-I completed Part 1 without implementing the full Node connectivity to keep things simple. I've decided to move on instead of
-tackling Part 2 as this time. 
+I completed Part 1 without implementing the full Node connectivity to keep things simple then moved on to Day23 rather than 
+tackling Part 2. Coming back to this I first changed to using a two-dimensional array to store the Nodes, also using Java Streams
+to build and scan the array. I then tested my assumptions on making copies of the array and determining their ```HashCode``` values 
+ready to start looking at some sort of breadth first search. At this point I decided I should check for some hints as the search 
+space looked large and I felt I was missing something. A quick look at a couple of blogs on solving this pointed to the details 
+given on solving the Part 2 example, especially on how the state was being shown. Adding some code to duplicate this display in a 
+similar manner and it looked like this was more about moving the empty node round to achieve the result. Looking at the display 
+again I decided to chance it and just counted the steps required to achieve the desired result, which proved to be the correct 
+solution. Having already spent time on Streams, Equals and HashCodes I decided not to continue with the Part 2 code.
 
 ##### Day 23: Safe Cracking
 Reusing and refining the bunnycode VM from Day 12 to add a new instruction for Part 1 was fun. I implemented the optimisation 
