@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
-class Node {
+class Node implements Cloneable {
 
     private static final String PARSE_PATTERN =
             "^(?<node>\\S+-x(?<x>\\d+)-y(?<y>\\d+)) +(?<size>\\d+)T +(?<used>\\d+)T +(?<avail>\\d+)T +(?<peruse>\\d+)%$";
@@ -30,6 +30,15 @@ class Node {
         this.size = size;
         this.used = used;
         this.avail = avail;
+    }
+
+    Node(final Node from) {
+        this.name = from.name;
+        this.x = from.x;
+        this.y = from.y;
+        this.size = from.size;
+        this.used = from.used;
+        this.avail = from.avail;
     }
 
     static Node fromLine(final String line) {
@@ -79,12 +88,39 @@ class ClusterStorage {
                             .anyMatch(n2 -> n1 != n2 && n1.used > 0 && n2.avail >= n1.used))
                     .count();
     }
+
+    ClusterStorage makeClone() {
+        Node[][] copy = Arrays.stream(this.cluster)
+                .flatMap(row -> Arrays.stream(row).distinct())
+                .map(Node::new)
+                .collect(Collectors.groupingBy(n -> n.y))
+                .values()
+                .stream()
+                .map(c -> c.toArray(Node[]::new))
+                .toArray(Node[][]::new);
+        return new ClusterStorage(copy);
+    }
+
+    @Override
+    public String toString() {
+        return "ClusterStorage{\n" +
+                Arrays.stream(this.cluster).map(Arrays::toString).reduce("", (s, e) -> s + e + "\n") +
+                '}';
+    }
 }
 
 
 public class Advent22 {
 
-    private static void test() throws IOException {
+    private static void testClone() throws IOException {
+        ClusterStorage storage = ClusterStorage.fromFile("2016/day22/test22a.txt");
+        ClusterStorage copy = storage.makeClone();
+        copy.cluster[0][0] = new Node("Testing", 99, 99, 99, 99, 99);
+        System.out.println(storage);
+        System.out.println(copy);
+    }
+
+    private static void test1() throws IOException {
         ClusterStorage storage = ClusterStorage.fromFile("2016/day22/test22a.txt");
         System.out.printf("Test, viable pairs = %s\n", storage.countViablePairs());
     }
@@ -95,7 +131,8 @@ public class Advent22 {
     }
 
     public static void main(String[] args) throws IOException {
-        test();
+        testClone();
+        test1();
         part1();
     }
 }
