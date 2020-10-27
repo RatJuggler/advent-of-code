@@ -119,4 +119,4 @@ Continuing to reuse the bunnycode VM, now from Day 23. Part 1 touches on the [ha
 but I just modified the bunnycode VM to return each output it generated, then cycled through looking for an initial arbitrary 
 output that matched that required.
 
-I now need to complete Days 19, 21, 22 and 24 before I continue with Part 2 of Day 25.
+After going back and completing the missing parts I was able to reach the final goal of 50 stars.
