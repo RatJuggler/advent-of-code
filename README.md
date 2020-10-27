@@ -4,15 +4,17 @@ Advent of Code https://adventofcode.com
 
 I only started in 2019 but enjoyed it so much I'm doing the previous years. 
 
-I've completed 2015 using Python (3.6+). As I only started with Python recently it was an excellent learning exercise.
+I've completed 2015 using Python (3.6+). As I hadn't done much Python before it was an excellent learning exercise.
 
-I've started doing 2016 but this time using Java 11.
+I've now completed 2016 using Java 11. Certainly seemed a lot harder solving these puzzles in Java rather than Python :thinking:.
 
 ##### Some general points about my solutions:
 
 - I always like to have the odd test or two rather than going straight for the answer to prove I'm on the right track. 
 But these will be mostly simple test methods using *assert* statements rather than complete separate tests (Note: For
 Java this means turning on asserts in the JVM with -ea).
+
+- I try not to pull in additional libraries beyond those of the core language.
 
 - I've probably overused regular expressions for parsing instead of simple string splits.
 
