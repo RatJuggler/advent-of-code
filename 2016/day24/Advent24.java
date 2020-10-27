@@ -101,6 +101,37 @@ class Maze {
         }
     }
 
+    private int totalSteps(final List<Character> visited) {
+        int totalSteps = 0;
+        char previous = visited.get(0);
+        for (Character c : visited) {
+            totalSteps += this.distances.get(previous).get(c);
+            previous = c;
+        }
+        return totalSteps;
+    }
+
+    private int visit(final List<Character> visited, final int minimumSteps) {
+        if (visited.size() == this.poi.size()) {
+            return Math.min(this.totalSteps(visited), minimumSteps);
+        }
+        int newMinimum = minimumSteps;
+        for (Character c : this.poi.keySet()) {
+            if (!visited.contains(c)) {
+                visited.add(c);
+                newMinimum = visit(visited, newMinimum);
+                visited.remove(c);
+            }
+        }
+        return newMinimum;
+    }
+
+    int visitAll() {
+        List<Character> visited = new ArrayList<>();
+        visited.add('0');
+        return visit(visited, Integer.MAX_VALUE);
+    }
+
     String showPOI() {
         StringBuilder sb = new StringBuilder();
         for (char c : this.poi.keySet()) {
@@ -127,6 +158,10 @@ public class Advent24 {
         System.out.println(maze.showPOI());
         maze.findDistances();
         System.out.println(maze.showDistances());
+        int expected = 14;
+        int actual = maze.visitAll();
+        assert actual == expected : String.format("Expected minimum steps to be '%s' but was '%s'!", expected, actual);
+        ;
     }
 
     private static void part1() throws IOException {
@@ -135,6 +170,7 @@ public class Advent24 {
         System.out.println(maze.showPOI());
         maze.findDistances();
         System.out.println(maze.showDistances());
+        System.out.println("Day 24, Part 1, minimum number of steps to visit all = " + maze.visitAll());
     }
 
     public static void main(String[] args) throws IOException {

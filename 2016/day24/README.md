@@ -33,3 +33,5 @@ total of 14) required to start at 0 and then visit every other location at least
 
 Given your actual map, and starting from location 0, what is the fewest number of steps required to visit every non-0 number marked 
 on the map at least once?
+
+Your puzzle answer was 442.
