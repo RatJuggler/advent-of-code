@@ -46,4 +46,8 @@ enough.
 You look toward the sky in desperation... suddenly noticing that a lone star has been installed at the top of the antenna! Only 49 
 more to go.
 
-You don't have enough stars to transmit the signal, though. You need 5 more.
+You activate all fifty stars and transmit the signal. The star atop the antenna begins to glow.
+
+Suddenly, you see the sleigh fly past you!
+
+Looks like Santa was already waiting for your signal.
