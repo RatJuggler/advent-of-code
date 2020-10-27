@@ -95,7 +95,7 @@ I did as others and simply tested each combination of rotating back left, then a
 until the result matched the starting point.
 
 ##### Day 22: Grid Computing
-I completed Part 1 without implementing the full Node connectivity to keep things simple then moved on to Day23 rather than 
+I completed Part 1 without implementing the full Node connectivity to keep things simple then moved on to Day 23 rather than 
 tackling Part 2. Coming back to this I first changed to using a two-dimensional array to store the Nodes, also using Java Streams
 to build and scan the array. I then tested my assumptions on making copies of the array and determining their ```HashCode``` values 
 ready to start looking at some sort of breadth first search. At this point I decided I should check for some hints as the search 
@@ -110,7 +110,9 @@ Reusing and refining the bunnycode VM from Day 12 to add a new instruction for P
 without any major refactoring of the existing code, so it seemed a bit clunky, but works fine.
 
 ##### Day 24: Air Duct Spelunking
-Skipping this day to continue with reusing code from Day 23 on Day 25.
+I skipped this day to start with so I could continue with reusing code from Day 23 on Day 25. Coming back to this having completed
+the other missing parts I stumbled around about a bit, before I got going in the right direction, but it proved to be fairly 
+straightforward. 
 
 ##### Day 25: Clock Signal
 Continuing to reuse the bunnycode VM, now from Day 23. Part 1 touches on the [halting problem](https://en.wikipedia.org/wiki/Halting_problem)
