@@ -29,8 +29,7 @@ class Point {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Point point = (Point) o;
-        return x == point.x &&
-                y == point.y;
+        return x == point.x && y == point.y;
     }
 
     @Override
@@ -40,7 +39,7 @@ class Point {
 
     @Override
     public String toString() {
-        return "Point{x=" + this.x + ", y=" + this.y + ", steps= " + this.steps + '}';
+        return "Point{x=" + this.x + ", y=" + this.y + ", steps=" + this.steps + '}';
     }
 }
 
@@ -73,23 +72,10 @@ class Maze {
 
     private List<Point> generateNextPoints(final Point currentPoint) {
         List<Point> nextPoints = new ArrayList<>();
-        Point newPoint;
-        if (currentPoint.x < this.layout.get(0).length() - 1) {
-            newPoint = new Point(currentPoint.x + 1, currentPoint.y, currentPoint.steps + 1);
-            nextPoints.add(newPoint);
-        }
-        if (currentPoint.x > 0) {
-            newPoint = new Point(currentPoint.x - 1, currentPoint.y, currentPoint.steps + 1);
-            nextPoints.add(newPoint);
-        }
-        if (currentPoint.y < this.layout.size() - 1) {
-            newPoint = new Point(currentPoint.x, currentPoint.y + 1, currentPoint.steps + 1);
-            nextPoints.add(newPoint);
-        }
-        if (currentPoint.y > 0) {
-            newPoint = new Point(currentPoint.x, currentPoint.y - 1, currentPoint.steps + 1);
-            nextPoints.add(newPoint);
-        }
+        nextPoints.add(new Point(currentPoint.x + 1, currentPoint.y, currentPoint.steps + 1));
+        nextPoints.add(new Point(currentPoint.x - 1, currentPoint.y, currentPoint.steps + 1));
+        nextPoints.add(new Point(currentPoint.x, currentPoint.y + 1, currentPoint.steps + 1));
+        nextPoints.add(new Point(currentPoint.x, currentPoint.y - 1, currentPoint.steps + 1));
         return nextPoints;
     }
 
@@ -101,18 +87,15 @@ class Maze {
         while (nextPoint.peek() != null) {
             Point point = nextPoint.poll();
             char c = this.layout.get(point.y).charAt(point.x);
-            if (c != '#') {
-                if (Character.isDigit(c)) {
-                    int current = distances.getOrDefault(c, Integer.MAX_VALUE);
-                    if (point.steps < current) distances.put(c, point.steps);
-                }
-                history.put(point.hashCode(), point);
+            if (Character.isDigit(c)) {
+                int current = distances.getOrDefault(c, Integer.MAX_VALUE);
+                if (point.steps < current) distances.put(c, point.steps);
+            }
+            int hash = point.hashCode();
+            if (history.get(hash) == null) {
+                history.put(hash, point);
                 for (Point newPoint : this.generateNextPoints(point)) {
-                    int hash = newPoint.hashCode();
-                    Point found = history.get(hash);
-                    if (found == null) {
-                        nextPoint.add(newPoint);
-                    }
+                    if (this.layout.get(newPoint.y).charAt(newPoint.x) != '#') nextPoint.add(newPoint);
                 }
             }
         }
@@ -123,6 +106,7 @@ class Maze {
         for (char from : this.poi.keySet()) {
             System.out.println("Finding distances from: " + from);
             this.distances.put(from, this.findDistances(from));
+            System.out.println(this.distances.get(from));
         }
     }
 
