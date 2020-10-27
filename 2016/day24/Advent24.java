@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Queue;
 
 
@@ -30,11 +29,6 @@ class Point {
         if (o == null || getClass() != o.getClass()) return false;
         Point point = (Point) o;
         return x == point.x && y == point.y;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(x, y);
     }
 
     @Override
@@ -82,7 +76,7 @@ class Maze {
     private Map<Character, Integer> findDistances(final char start) {
         Map<Character, Integer> distances = new HashMap<>();
         Queue<Point> nextPoint = new ArrayDeque<>();
-        Map<Integer, Point> history = new HashMap<>();
+        List<Point> history = new ArrayList<>();
         nextPoint.add(this.poi.get(start));
         while (nextPoint.peek() != null) {
             Point point = nextPoint.poll();
@@ -91,9 +85,8 @@ class Maze {
                 int current = distances.getOrDefault(c, Integer.MAX_VALUE);
                 if (point.steps < current) distances.put(c, point.steps);
             }
-            int hash = point.hashCode();
-            if (history.get(hash) == null) {
-                history.put(hash, point);
+            if (!history.contains(point)) {
+                history.add(point);
                 for (Point newPoint : this.generateNextPoints(point)) {
                     if (this.layout.get(newPoint.y).charAt(newPoint.x) != '#') nextPoint.add(newPoint);
                 }
@@ -104,9 +97,7 @@ class Maze {
 
     void findDistances() {
         for (char from : this.poi.keySet()) {
-            System.out.println("Finding distances from: " + from);
             this.distances.put(from, this.findDistances(from));
-            System.out.println(this.distances.get(from));
         }
     }
 
