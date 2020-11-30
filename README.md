@@ -2,11 +2,17 @@
 
 Advent of Code https://adventofcode.com
 
-I only started in 2019 but enjoyed it so much I'm doing the previous years. 
+- 2020 - Waiting for this to start. I am going to use Java 11.
 
-I've completed 2015 using Python (3.6+). As I hadn't done much Python before it was an excellent learning exercise.
+- 2019 - Started using Python (3.x), but not completed. Need to go back and work on this.
 
-I've now completed 2016 using Java 11. Certainly seemed a lot harder solving these puzzles in Java rather than Python :thinking:.
+- 2018 - Not started.
+
+- 2017 - Not started.
+
+- 2016 - Completed using Java 11. Certainly seemed a lot harder solving these puzzles in Java rather than Python :thinking:.
+
+- 2015 - Completed using Python (3.x). Doing As I hadn't done much Python before it was an excellent learning exercise.
 
 ##### Some general points about my solutions:
 
