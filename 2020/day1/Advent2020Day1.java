@@ -17,33 +17,61 @@ final class Advent2020Day1 {
         return expenses;
     }
 
-    private static int find2020Product(final String filename) throws FileNotFoundException {
+    private static int find2020DoubleProduct(final String filename) throws FileNotFoundException {
         List<Integer> expenses = readExpenses(filename);
         expenses.sort(Integer::compareTo);
         int expense1 = 0, expense2 = 0;
-        for (int e1 : expenses) {
-            for (int e2 : expenses) {
-                if (e1 + e2 >= 2020) {
-                    expense2 = e2;
+        for (int i = 0; i < expenses.size(); i++) {
+            expense1 = expenses.get(i);
+            for (int j = 0; j < expenses.size(); j++) {
+                if (j != i && expense1 + expenses.get(j) >= 2020) {
+                    expense2 = expenses.get(j);
                     break;
                 }
             }
-            if (e1 + expense2 == 2020) {
-                expense1 = e1;
-                break;
-            }
+            if (expense1 + expense2 == 2020) break;
         }
-        if (expense1 == 0 || expense2 == 0) throw new IllegalArgumentException();
+        if (expense1 + expense2 != 2020) throw new IllegalArgumentException();
         return expense1 * expense2;
     }
 
-    private static void testFind2020Product() throws FileNotFoundException {
-        int result = find2020Product("2020/day1/test1a.txt");
+    private static int find2020TripleProduct(final String filename) throws FileNotFoundException {
+        List<Integer> expenses = readExpenses(filename);
+        expenses.sort(Integer::compareTo);
+        int expense1 = 0, expense2 = 0, expense3 = 0;
+        for (int i = 0; i < expenses.size(); i++) {
+            expense1 = expenses.get(i);
+            for (int j = 0; j < expenses.size(); j++) {
+                if (j == i) continue;
+                expense2 = expenses.get(j);
+                for (int k = 0; k < expenses.size(); k++) {
+                    if (k != i && k != j && expense1 + expense2 + expenses.get(k) >= 2020) {
+                        expense3 = expenses.get(k);
+                        break;
+                    }
+                }
+                if (expense1 + expense2 + expense3 == 2020) break;
+            }
+            if (expense1 + expense2 + expense3 == 2020) break;
+        }
+        if (expense1 + expense2 + expense3 != 2020) throw new IllegalArgumentException();
+        return expense1 * expense2 * expense3;
+    }
+
+    private static void testFind2020DoubleProduct() throws FileNotFoundException {
+        int result = find2020DoubleProduct("2020/day1/test1a.txt");
         assert result == 514579 : String.format("Expected result not found, was %d!", result);
     }
 
+    private static void testFind2020TripleProduct() throws FileNotFoundException {
+        int result = find2020TripleProduct("2020/day1/test1a.txt");
+        assert result == 241861950 : String.format("Expected result not found, was %d!", result);
+    }
+
     public static void main(final String[] args) throws FileNotFoundException {
-        testFind2020Product();
-        System.out.printf("Day 1, Part 1 the answer is %d.%n", find2020Product("2020/day1/input1.txt"));
+        testFind2020DoubleProduct();
+        System.out.printf("Day 1, Part 1 the answer is %d.%n", find2020DoubleProduct("2020/day1/input1.txt"));
+        testFind2020TripleProduct();
+        System.out.printf("Day 1, Part 2 the answer is %d.%n", find2020TripleProduct("2020/day1/input1.txt"));
     }
 }
