@@ -2,13 +2,13 @@
 
 Advent of Code https://adventofcode.com
 
-- 2020 - Waiting for this to start. I am going to use Java 11.
+- 2020 - In progress now using Java 11.
 
 - 2019 - Started using Python (3.x), but not completed. Need to go back and work on this.
 
-- 2018 - Not started.
+- 2018 - Not started. I hope to use Java 11.
 
-- 2017 - Not started.
+- 2017 - Not started. I hope to use Python (3.x).
 
 - 2016 - Completed using Java 11. Certainly seemed a lot harder solving these puzzles in Java rather than Python :thinking:.
 
