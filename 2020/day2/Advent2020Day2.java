@@ -12,7 +12,7 @@ abstract class PasswordValidator {
 
     final int min;
     final int max;
-    final String c;
+    final char c;
     final String password;
 
     PasswordValidator(final String line) {
@@ -24,7 +24,7 @@ abstract class PasswordValidator {
         }
         this.min = Integer.parseInt(m.group("min"));
         this.max = Integer.parseInt(m.group("max"));
-        this.c = m.group("c");
+        this.c = m.group("c").charAt(0);
         this.password = m.group("password");
     }
 
@@ -58,7 +58,7 @@ class TobogganCompanyPasswordValidator extends PasswordValidator {
     }
 
     boolean validate() {
-        return false;
+        return (this.password.charAt(this.min -1) == this.c) ^ (this.password.charAt(this.max -1) == this.c);
     }
 }
 
@@ -107,6 +107,7 @@ public class Advent2020Day2 {
         testSledCompanyPasswordValidator();
         assert countValidPasswords("Sled", "2020/day2/test2a.txt") == 2 : "Expected valid password count to be 2!";
         System.out.printf("Day 1, part 1, number of valid passwords is %d.%n", countValidPasswords("Sled", "2020/day2/input2.txt"));
+        testTobogganCompanyPasswordValidator();
         assert countValidPasswords("Toboggan", "2020/day2/test2a.txt") == 1 : "Expected valid password count to be 1!";
         System.out.printf("Day 1, part 2, number of valid passwords is %d.%n", countValidPasswords("Toboggan", "2020/day2/input2.txt"));
     }
