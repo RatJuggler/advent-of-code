@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 
 class PasswordValidator {
 
-    class PasswordLine {
+    static class PasswordLine {
 
         final int min;
         final int max;
@@ -18,6 +18,10 @@ class PasswordValidator {
             this.max = max;
             this.c = c;
             this.password = password;
+        }
+
+        String getRegExRule() {
+            return String.format("(%s){%d,%d}", this.c, this.min, this.max);
         }
 
         public String toString() {
@@ -41,10 +45,15 @@ class PasswordValidator {
         return new PasswordLine(min, max, c, password);
     }
 
+    private boolean checkRule(final String pattern, final String password) {
+        Pattern r = Pattern.compile(pattern);
+        Matcher m = r.matcher(password);
+        return m.find();
+    }
+
     boolean validate(final String passwordLine) {
-        PasswordLine line = this.parsePasswordLine(passwordLine);
-        System.out.println(line);
-        return false;
+        PasswordLine details = this.parsePasswordLine(passwordLine);
+        return this.checkRule(details.getRegExRule(), details.password);
     }
 }
 
