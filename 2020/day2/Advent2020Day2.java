@@ -8,32 +8,38 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 
-class PasswordValidator {
+abstract class PasswordValidator {
 
     final int min;
     final int max;
     final String c;
     final String password;
 
-    PasswordValidator(final int min, final int max, final String c, final String password) {
-        this.min = min;
-        this.max = max;
-        this.c = c;
-        this.password = password;
-    }
-
-    static PasswordValidator fromPasswordLine(final String line) {
+    PasswordValidator(final String line) {
         String pattern = "^(?<min>\\d+)-(?<max>\\d+) (?<c>\\w): (?<password>\\w+)$";
         Pattern r = Pattern.compile(pattern);
         Matcher m = r.matcher(line);
         if (!m.find()) {
             throw new IllegalStateException("Unable to parse password line: " + line);
         }
-        int min = Integer.parseInt(m.group("min"));
-        int max = Integer.parseInt(m.group("max"));
-        String c = m.group("c");
-        String password = m.group("password");
-        return new PasswordValidator(min, max, c, password);
+        this.min = Integer.parseInt(m.group("min"));
+        this.max = Integer.parseInt(m.group("max"));
+        this.c = m.group("c");
+        this.password = m.group("password");
+    }
+
+    abstract boolean validate();
+
+    public String toString() {
+        return String.format("{min = %d, max = %d, c = %s, password = %s}", this.min, this.max, this.c, this.password);
+    }
+}
+
+
+class SledCompanyPasswordValidator extends PasswordValidator {
+
+    SledCompanyPasswordValidator(final String line) {
+        super(line);
     }
 
     boolean validate() {
@@ -42,37 +48,67 @@ class PasswordValidator {
         long found = r.matcher(this.password).results().count();
         return found >= this.min && found <= this.max;
     }
+}
 
-    public String toString() {
-        return String.format("{min = %d, max = %d, c = %s, password = %s}", this.min, this.max, this.c, this.password);
+
+class TobogganCompanyPasswordValidator extends PasswordValidator {
+
+    TobogganCompanyPasswordValidator(final String line) {
+        super(line);
+    }
+
+    boolean validate() {
+        return false;
+    }
+}
+
+
+class CompanyPasswordValidatorFactory {
+
+    static PasswordValidator createValidator(final String company, final String line) {
+        if ("Sled".equalsIgnoreCase(company))
+            return new SledCompanyPasswordValidator(line);
+        else if ("Toboggan".equalsIgnoreCase(company))
+            return new TobogganCompanyPasswordValidator(line);
+        else
+            throw new IllegalArgumentException("Unknown company: " + company);
     }
 }
 
 
 public class Advent2020Day2 {
 
-    private static void testPasswordValidator() {
-        String testLine1 = "1-3 a: abcde";
-        assert PasswordValidator.fromPasswordLine(testLine1).validate() :
-                String.format("Expected password in line \"%s\" to be valid!", testLine1);
-        String testLine2 = "1-3 b: cdefg";
-        assert !PasswordValidator.fromPasswordLine(testLine2).validate() :
-                String.format("Expected password in line \"%s\" to be invalid!", testLine2);
-        String testLine3 = "2-9 c: ccccccccc";
-        assert PasswordValidator.fromPasswordLine(testLine3).validate() :
-                String.format("Expected password in line \"%s\" to be valid!", testLine3);
+    private static void testPasswordValidator(final String company, final String line, final boolean expected) {
+        assert CompanyPasswordValidatorFactory.createValidator(company, line).validate() == expected :
+                String.format("Expected password in line \"%s\" to be %s!", line, expected ? "valid" : "invalid");
     }
 
-    private static long countValidPasswords(final String filename) throws IOException {
+    private static void testSledCompanyPasswordValidator() {
+        testPasswordValidator("Sled", "1-3 a: abcde", true);
+        testPasswordValidator("Sled", "1-3 b: cdefg", false);
+        testPasswordValidator("Sled", "2-9 c: ccccccccc", true);
+    }
+
+    private static void testTobogganCompanyPasswordValidator() {
+        testPasswordValidator("Toboggan", "1-3 a: abcde", true);
+        testPasswordValidator("Toboggan", "1-3 b: cdefg", false);
+        testPasswordValidator("Toboggan", "2-9 c: ccccccccc", false);
+    }
+
+    private static long countValidPasswords(final String company, final String filename) throws IOException {
         try (Stream<String> stream = Files.lines(Paths.get(filename))) {
-            return stream.map(PasswordValidator::fromPasswordLine).filter(PasswordValidator::validate).count();
+            return stream.map(line -> CompanyPasswordValidatorFactory.createValidator(company, line))
+                    .filter(PasswordValidator::validate)
+                    .count();
         }
     }
 
     public static void main(final String[] args) throws IOException {
-        testPasswordValidator();
-        assert countValidPasswords("2020/day2/test2a.txt") == 2 : "Expected valid password count to be 2!";
-        System.out.printf("Day 1, part 1, number of valid passwords is %d.%n", countValidPasswords("2020/day2/input2.txt"));
+        testSledCompanyPasswordValidator();
+        assert countValidPasswords("Sled", "2020/day2/test2a.txt") == 2 : "Expected valid password count to be 2!";
+        System.out.printf("Day 1, part 1, number of valid passwords is %d.%n", countValidPasswords("Sled", "2020/day2/input2.txt"));
+        assert countValidPasswords("Toboggan", "2020/day2/test2a.txt") == 1 : "Expected valid password count to be 1!";
+        System.out.printf("Day 1, part 2, number of valid passwords is %d.%n", countValidPasswords("Toboggan", "2020/day2/input2.txt"));
     }
 
 }
