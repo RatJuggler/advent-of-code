@@ -38,9 +38,9 @@ class MapOfTrees {
 
 public class Advent2020Day3 {
 
-    private static int countTrees(final String filename, final int slopeX, final int slopeY) throws IOException {
+    private static int countTrees(final String filename) throws IOException {
         MapOfTrees mapOfTrees = MapOfTrees.fromFile(filename);
-        return mapOfTrees.countTrees(slopeX, slopeY);
+        return mapOfTrees.countTrees(3, 1);
     }
 
     private static int treeCountProduct(final String filename) throws IOException {
@@ -54,7 +54,7 @@ public class Advent2020Day3 {
 
     private static void testPart1TreeCount() throws IOException {
         int expectedTreeCount = 7;
-        int actualTreeCount = countTrees("2020/day3/test3a.txt", 3, 1);
+        int actualTreeCount = countTrees("2020/day3/test3a.txt");
         assert actualTreeCount == expectedTreeCount :
                 String.format("Expected to encounter %d trees not %d!%n", expectedTreeCount, actualTreeCount);
     }
@@ -68,7 +68,7 @@ public class Advent2020Day3 {
 
     public static void main(final String[] args) throws IOException {
         testPart1TreeCount();
-        System.out.printf("Day 3, part 1, number of trees is %d.%n", countTrees("2020/day3/input3.txt", 3, 1));
+        System.out.printf("Day 3, part 1, number of trees is %d.%n", countTrees("2020/day3/input3.txt"));
         testPart2TreeCountProduct();
         System.out.printf("Day 3, part 2, number of trees is %d.%n", treeCountProduct("2020/day3/input3.txt"));
     }
