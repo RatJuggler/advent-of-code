@@ -43,6 +43,15 @@ public class Advent2020Day3 {
         return mapOfTrees.countTrees(slopeX, slopeY);
     }
 
+    private static int treeCountProduct(final String filename) throws IOException {
+        MapOfTrees mapOfTrees = MapOfTrees.fromFile(filename);
+        return mapOfTrees.countTrees(1, 1) *
+                mapOfTrees.countTrees(3, 1) *
+                mapOfTrees.countTrees(5, 1) *
+                mapOfTrees.countTrees(7, 1) *
+                mapOfTrees.countTrees(1, 2);
+    }
+
     private static void testPart1TreeCount() throws IOException {
         int expectedTreeCount = 7;
         int actualTreeCount = countTrees("2020/day3/test3a.txt", 3, 1);
@@ -50,8 +59,16 @@ public class Advent2020Day3 {
                 String.format("Expected to encounter %d trees not %d!%n", expectedTreeCount, actualTreeCount);
     }
 
+    private static void testPart2TreeCountProduct() throws IOException {
+        int expectedTreeCountProduct = 336;
+        int actualTreeCountProduct = treeCountProduct("2020/day3/test3a.txt");
+        assert actualTreeCountProduct == expectedTreeCountProduct :
+                String.format("Expected to get %d not %d!%n", expectedTreeCountProduct, actualTreeCountProduct);
+    }
+
     public static void main(final String[] args) throws IOException {
         testPart1TreeCount();
         System.out.printf("Day 1, part 1, number of trees is %d.%n", countTrees("2020/day3/input3.txt", 3, 1));
+        testPart2TreeCountProduct();
     }
 }
