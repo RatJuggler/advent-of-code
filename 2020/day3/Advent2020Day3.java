@@ -38,15 +38,20 @@ class MapOfTrees {
 
 public class Advent2020Day3 {
 
-    static void testPart1TreeCount() throws IOException {
+    private static int countTrees(final String filename, final int slopeX, final int slopeY) throws IOException {
+        MapOfTrees mapOfTrees = MapOfTrees.fromFile(filename);
+        return mapOfTrees.countTrees(slopeX, slopeY);
+    }
+
+    private static void testPart1TreeCount() throws IOException {
         int expectedTreeCount = 7;
-        MapOfTrees mapOfTrees = MapOfTrees.fromFile("2020/day3/test3a.txt");
-        int actualTreeCount = mapOfTrees.countTrees(3, 1);
+        int actualTreeCount = countTrees("2020/day3/test3a.txt", 3, 1);
         assert actualTreeCount == expectedTreeCount :
                 String.format("Expected to encounter %d trees not %d!%n", expectedTreeCount, actualTreeCount);
     }
 
     public static void main(final String[] args) throws IOException {
         testPart1TreeCount();
+        System.out.printf("Day 1, part 1, number of trees is %d.%n", countTrees("2020/day3/input3.txt", 3, 1));
     }
 }
