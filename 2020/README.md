@@ -7,3 +7,7 @@ trust my solutions on a larger problem space without further testing though.
 ##### Day 2: Password Philosophy
 Some simple parsing and checks, but I spent longer refactoring to produce generic code usable for both parts of the problem. It's
 very Java with a factory 🤦.
+
+##### Day 3: Toboggan Trajectory
+So fairly straightforward simulation except my solution on part 2 was incorrect at first because I was calculating the product as 
+an int and not a long.
