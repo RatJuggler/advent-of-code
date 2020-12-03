@@ -68,7 +68,8 @@ public class Advent2020Day3 {
 
     public static void main(final String[] args) throws IOException {
         testPart1TreeCount();
-        System.out.printf("Day 1, part 1, number of trees is %d.%n", countTrees("2020/day3/input3.txt", 3, 1));
+        System.out.printf("Day 3, part 1, number of trees is %d.%n", countTrees("2020/day3/input3.txt", 3, 1));
         testPart2TreeCountProduct();
+        System.out.printf("Day 3, part 2, number of trees is %d.%n", treeCountProduct("2020/day3/input3.txt"));
     }
 }
