@@ -53,8 +53,8 @@ public class Advent2020Day3 {
     }
 
     private static void testPart1TreeCount() throws IOException {
-        long expectedTreeCount = 7;
-        long actualTreeCount = countTrees("2020/day3/test3a.txt");
+        int expectedTreeCount = 7;
+        int actualTreeCount = countTrees("2020/day3/test3a.txt");
         assert actualTreeCount == expectedTreeCount :
                 String.format("Expected to encounter %d trees not %d!%n", expectedTreeCount, actualTreeCount);
     }
