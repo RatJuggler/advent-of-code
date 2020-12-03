@@ -15,17 +15,11 @@ abstract class PasswordValidator {
     final char c;
     final String password;
 
-    PasswordValidator(final String line) {
-        String pattern = "^(?<min>\\d+)-(?<max>\\d+) (?<c>\\w): (?<password>\\w+)$";
-        Pattern r = Pattern.compile(pattern);
-        Matcher m = r.matcher(line);
-        if (!m.find()) {
-            throw new IllegalStateException("Unable to parse password line: " + line);
-        }
-        this.min = Integer.parseInt(m.group("min"));
-        this.max = Integer.parseInt(m.group("max"));
-        this.c = m.group("c").charAt(0);
-        this.password = m.group("password");
+    PasswordValidator(final int min, final int max, final char c, final String password) {
+        this.min = min;
+        this.max = max;
+        this.c = c;
+        this.password = password;
     }
 
     abstract boolean validate();
@@ -38,8 +32,8 @@ abstract class PasswordValidator {
 
 class SledCompanyPasswordValidator extends PasswordValidator {
 
-    SledCompanyPasswordValidator(final String line) {
-        super(line);
+    SledCompanyPasswordValidator(final int min, final int max, final char c, final String password) {
+        super(min, max, c, password);
     }
 
     boolean validate() {
@@ -53,8 +47,8 @@ class SledCompanyPasswordValidator extends PasswordValidator {
 
 class TobogganCompanyPasswordValidator extends PasswordValidator {
 
-    TobogganCompanyPasswordValidator(final String line) {
-        super(line);
+    TobogganCompanyPasswordValidator(final int min, final int max, final char c, final String password) {
+        super(min, max, c, password);
     }
 
     boolean validate() {
@@ -65,11 +59,27 @@ class TobogganCompanyPasswordValidator extends PasswordValidator {
 
 class CompanyPasswordValidatorFactory {
 
+    private static Matcher parseLine(final String line) {
+        String pattern = "^(?<min>\\d+)-(?<max>\\d+) (?<c>\\w): (?<password>\\w+)$";
+        Pattern r = Pattern.compile(pattern);
+        Matcher m = r.matcher(line);
+        if (!m.find()) {
+            throw new IllegalStateException("Unable to parse password line: " + line);
+        }
+        return m;
+    }
+
     static PasswordValidator createValidator(final String company, final String line) {
+        Matcher m = parseLine(line);
+        int min = Integer.parseInt(m.group("min"));
+        int max = Integer.parseInt(m.group("max"));
+        char c = m.group("c").charAt(0);
+        String password = m.group("password");
+
         if ("Sled".equalsIgnoreCase(company))
-            return new SledCompanyPasswordValidator(line);
+            return new SledCompanyPasswordValidator(min, max, c, password);
         else if ("Toboggan".equalsIgnoreCase(company))
-            return new TobogganCompanyPasswordValidator(line);
+            return new TobogganCompanyPasswordValidator(min, max, c, password);
         else
             throw new IllegalArgumentException("Unknown company: " + company);
     }
@@ -111,5 +121,4 @@ public class Advent2020Day2 {
         assert countValidPasswords("Toboggan", "2020/day2/test2a.txt") == 1 : "Expected valid password count to be 1!";
         System.out.printf("Day 1, part 2, number of valid passwords is %d.%n", countValidPasswords("Toboggan", "2020/day2/input2.txt"));
     }
-
 }
