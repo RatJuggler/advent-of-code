@@ -43,9 +43,9 @@ public class Advent2020Day3 {
         return mapOfTrees.countTrees(3, 1);
     }
 
-    private static int treeCountProduct(final String filename) throws IOException {
+    private static long treeCountProduct(final String filename) throws IOException {
         MapOfTrees mapOfTrees = MapOfTrees.fromFile(filename);
-        return mapOfTrees.countTrees(1, 1) *
+        return (long) mapOfTrees.countTrees(1, 1) *
                 mapOfTrees.countTrees(3, 1) *
                 mapOfTrees.countTrees(5, 1) *
                 mapOfTrees.countTrees(7, 1) *
@@ -53,15 +53,15 @@ public class Advent2020Day3 {
     }
 
     private static void testPart1TreeCount() throws IOException {
-        int expectedTreeCount = 7;
-        int actualTreeCount = countTrees("2020/day3/test3a.txt");
+        long expectedTreeCount = 7;
+        long actualTreeCount = countTrees("2020/day3/test3a.txt");
         assert actualTreeCount == expectedTreeCount :
                 String.format("Expected to encounter %d trees not %d!%n", expectedTreeCount, actualTreeCount);
     }
 
     private static void testPart2TreeCountProduct() throws IOException {
-        int expectedTreeCountProduct = 336;
-        int actualTreeCountProduct = treeCountProduct("2020/day3/test3a.txt");
+        long expectedTreeCountProduct = 336;
+        long actualTreeCountProduct = treeCountProduct("2020/day3/test3a.txt");
         assert actualTreeCountProduct == expectedTreeCountProduct :
                 String.format("Expected to get %d not %d!%n", expectedTreeCountProduct, actualTreeCountProduct);
     }
