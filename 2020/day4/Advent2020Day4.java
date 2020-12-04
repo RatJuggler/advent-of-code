@@ -1,5 +1,10 @@
 package day4;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -62,12 +67,26 @@ public class Advent2020Day4 {
                 "iyr:2011 ecl:brn hgt:59in", false);
     }
 
-    private static int countValidPassports(final String filename) {
-        return 0;
+    private static int countValidPassports(final String filename) throws IOException {
+        Path path = Paths.get(filename);
+        BufferedReader reader = Files.newBufferedReader(path);
+        int validPassports = 0;
+        StringBuffer passport = new StringBuffer();
+        String line = reader.readLine();
+        while (line != null) {
+            if ("".equals(line)) {
+                if (PassportValidator.create(passport.toString()).validate()) validPassports++;
+                passport = new StringBuffer();
+            }
+            passport.append(' ').append(line);
+            line = reader.readLine();
+        }
+        if (PassportValidator.create(passport.toString()).validate()) validPassports++;
+        return validPassports;
     }
 
-    public static void main(final String[] args) {
+    public static void main(final String[] args) throws IOException {
         testPart1PassportValidator();
         assert countValidPassports("2020/day4/test4a.txt") == 2 : "Expected valid passport count to be 2!";
     }
-}
+    }
