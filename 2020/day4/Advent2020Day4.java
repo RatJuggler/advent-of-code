@@ -26,6 +26,12 @@ abstract class FieldValidator {
         }
     }
 
+    static boolean validatePattern(final String data, final String pattern) {
+        Pattern r = Pattern.compile(pattern);
+        Matcher m = r.matcher(data);
+        return m.matches();
+    }
+
     abstract boolean validate();
 }
 
@@ -92,10 +98,7 @@ class HclValidator extends FieldValidator {
 
     @Override
     boolean validate() {
-        String pattern = "^#[0-9a-f]{6}$";
-        Pattern r = Pattern.compile(pattern);
-        Matcher m = r.matcher(this.data);
-        return m.matches();
+        return validatePattern(this.data, "^#[0-9a-f]{6}$");
     }
 }
 
@@ -107,7 +110,7 @@ class EclValidator extends FieldValidator {
 
     @Override
     boolean validate() {
-        return this.data.length() == 3 && !this.data.contains("|") && "amb|blu|brn|gry|grn|hzl|oth".contains(this.data);
+        return validatePattern(this.data, "^(amb|blu|brn|gry|grn|hzl|oth)$");
     }
 }
 
@@ -119,10 +122,7 @@ class PidValidator extends FieldValidator {
 
     @Override
     boolean validate() {
-        String pattern = "^[0-9]{9}$";
-        Pattern r = Pattern.compile(pattern);
-        Matcher m = r.matcher(this.data);
-        return m.matches();
+        return validatePattern(this.data, "^[0-9]{9}$");
     }
 }
 
