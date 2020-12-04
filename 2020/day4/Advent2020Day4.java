@@ -1,12 +1,10 @@
 package day4;
 
-import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -68,18 +66,17 @@ public class Advent2020Day4 {
     }
 
     private static int countValidPassports(final String filename) throws IOException {
-        Path path = Paths.get(filename);
-        BufferedReader reader = Files.newBufferedReader(path);
         int validPassports = 0;
         StringBuilder passport = new StringBuilder();
-        String line = reader.readLine();
-        while (line != null) {
-            if ("".equals(line)) {
-                if (PassportValidator.create(passport.toString()).validate()) validPassports++;
-                passport = new StringBuilder();
+        try (Scanner s = new Scanner(new File(filename))) {
+            while (s.hasNext()) {
+                String line = s.nextLine();
+                if ("".equals(line)) {
+                    if (PassportValidator.create(passport.toString()).validate()) validPassports++;
+                    passport = new StringBuilder();
+                }
+                passport.append(' ').append(line);
             }
-            passport.append(' ').append(line);
-            line = reader.readLine();
         }
         if (PassportValidator.create(passport.toString()).validate()) validPassports++;
         return validPassports;
