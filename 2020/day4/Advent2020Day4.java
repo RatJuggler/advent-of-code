@@ -328,5 +328,6 @@ public class Advent2020Day4 {
         testPart2FieldValidations();
         testPart2PassportValidator();
         assert part2CountValidPassports("2020/day4/test4b.txt") == 4 : "Expected valid passport count to be 4!";
+        System.out.printf("Day 4, part 2, number of valid passports is %d.%n", part2CountValidPassports("2020/day4/input4.txt"));
     }
 }

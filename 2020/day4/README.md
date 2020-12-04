@@ -110,8 +110,9 @@ ecl:brn hgt:182cm pid:021572410 eyr:2020 byr:1992 cid:277
 hgt:59cm ecl:zzz
 eyr:2038 hcl:74454a iyr:2023
 pid:3556412378 byr:2007
+```
 Here are some valid passports:
-
+```
 pid:087499704 hgt:74in ecl:grn iyr:2012 eyr:2030 byr:1980
 hcl:#623a2f
 
@@ -127,3 +128,5 @@ iyr:2010 hgt:158cm hcl:#b6652a ecl:blu byr:1944 eyr:2021 pid:093154719
 ```
 Count the number of valid passports - those that have all required fields and valid values. Continue to treat cid as optional. In 
 your batch file, how many passports are valid?
+
+Your puzzle answer was 101.
