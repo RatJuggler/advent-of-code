@@ -104,24 +104,25 @@ class FieldValidatorFactory {
     }
 
     static FieldValidator createValidator(final String field, final String data) {
-        if ("byr".equalsIgnoreCase(field))
-            return new FieldValidator(data, BYR_VALIDATOR);
-        else if ("iyr".equalsIgnoreCase(field))
-            return new FieldValidator(data, IYR_VALIDATOR);
-        else if ("eyr".equalsIgnoreCase(field))
-            return new FieldValidator(data, EYR_VALIDATOR);
-        else if ("hgt".equalsIgnoreCase(field))
-            return createHgtValidator(data);
-        else if ("hcl".equalsIgnoreCase(field))
-            return new FieldValidator(data, HCL_VALIDATOR);
-        else if ("ecl".equalsIgnoreCase(field))
-            return new FieldValidator(data, ECL_VALIDATOR);
-        else if ("pid".equalsIgnoreCase(field))
-            return new FieldValidator(data, PID_VALIDATOR);
-        else if ("cid".equalsIgnoreCase(field))
-            return new FieldValidator(data, PASS_VALIDATOR);
-        else
-            throw new IllegalArgumentException("Unknown field: " + field);
+        switch (field.toLowerCase()) {
+            case "byr":
+                return new FieldValidator(data, BYR_VALIDATOR);
+            case "iyr":
+                return new FieldValidator(data, IYR_VALIDATOR);
+            case "eyr":
+                return new FieldValidator(data, EYR_VALIDATOR);
+            case "hgt":
+                return createHgtValidator(data);
+            case "hcl":
+                return new FieldValidator(data, HCL_VALIDATOR);
+            case "ecl":
+                return new FieldValidator(data, ECL_VALIDATOR);
+            case "pid":
+                return new FieldValidator(data, PID_VALIDATOR);
+            case "cid":
+                return new FieldValidator(data, PASS_VALIDATOR);
+        }
+        throw new IllegalArgumentException("Unknown field: " + field);
     }
 }
 
