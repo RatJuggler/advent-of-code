@@ -36,6 +36,23 @@ class RangeValidator implements Validator {
 }
 
 
+class ByUnitsValidator implements Validator {
+
+    Map<String, Validator> unitValidators;
+
+    ByUnitsValidator(final Map<String, Validator> unitValidators) {
+        this.unitValidators = unitValidators;
+    }
+
+    @Override
+    public boolean validate(String data) {
+        String units = data.substring(data.length() - 2);
+        String value = data.substring(0, data.length() - 2);
+        return this.unitValidators.containsKey(units) && this.unitValidators.get(units).validate(value);
+    }
+}
+
+
 class PatternValidator implements Validator {
 
     private final String pattern;
@@ -55,11 +72,15 @@ class PatternValidator implements Validator {
 
 class PassthroughValidator implements Validator {
 
-    PassthroughValidator() {}
+    private final boolean result;
+
+    PassthroughValidator(final boolean result) {
+        this.result = result;
+    }
 
     @Override
     public boolean validate(String data) {
-        return true;
+        return result;
     }
 }
 
@@ -85,22 +106,17 @@ class FieldValidatorFactory {
     private static final Validator BYR_VALIDATOR = new RangeValidator(1920, 2002);
     private static final Validator IYR_VALIDATOR = new RangeValidator(2010, 2020);
     private static final Validator EYR_VALIDATOR = new RangeValidator(2020, 2030);
-    private static final Validator HGT_CM_VALIDATOR = new RangeValidator(150, 193);
-    private static final Validator HGT_IN_VALIDATOR = new RangeValidator(59, 76);
     private static final Validator HCL_VALIDATOR = new PatternValidator("^#[0-9a-f]{6}$");
     private static final Validator ECL_VALIDATOR = new PatternValidator("^(amb|blu|brn|gry|grn|hzl|oth)$");
     private static final Validator PID_VALIDATOR = new PatternValidator("^[0-9]{9}$");
-    private static final Validator PASS_VALIDATOR = new PassthroughValidator();
-
-    private static FieldValidator createHgtValidator(final String data) {
-        String units = data.substring(data.length() - 2);
-        String value = data.substring(0, data.length() - 2);
-        if ("cm".equals(units))
-            return new FieldValidator(value, HGT_CM_VALIDATOR);
-        else if ("in".equals(units))
-            return new FieldValidator(value, HGT_IN_VALIDATOR);
-        else
-            throw new IllegalArgumentException("Unknown height units: " + units);
+    private static final Validator PASS_VALIDATOR = new PassthroughValidator(true);
+    private static final Validator FAIL_VALIDATOR = new PassthroughValidator(false);
+    private static final Validator HGT_VALIDATOR;
+    static {
+        Map<String, Validator> unitValidators = new HashMap<>();
+        unitValidators.put("cm", new RangeValidator(150, 193));
+        unitValidators.put("in", new RangeValidator(59, 76));
+        HGT_VALIDATOR = new ByUnitsValidator(unitValidators);
     }
 
     static FieldValidator createValidator(final String field, final String data) {
@@ -112,7 +128,7 @@ class FieldValidatorFactory {
             case "eyr":
                 return new FieldValidator(data, EYR_VALIDATOR);
             case "hgt":
-                return createHgtValidator(data);
+                return new FieldValidator(data, HGT_VALIDATOR);
             case "hcl":
                 return new FieldValidator(data, HCL_VALIDATOR);
             case "ecl":
