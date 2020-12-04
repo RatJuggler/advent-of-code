@@ -71,12 +71,12 @@ public class Advent2020Day4 {
         Path path = Paths.get(filename);
         BufferedReader reader = Files.newBufferedReader(path);
         int validPassports = 0;
-        StringBuffer passport = new StringBuffer();
+        StringBuilder passport = new StringBuilder();
         String line = reader.readLine();
         while (line != null) {
             if ("".equals(line)) {
                 if (PassportValidator.create(passport.toString()).validate()) validPassports++;
-                passport = new StringBuffer();
+                passport = new StringBuilder();
             }
             passport.append(' ').append(line);
             line = reader.readLine();
