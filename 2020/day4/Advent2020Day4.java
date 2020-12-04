@@ -88,5 +88,6 @@ public class Advent2020Day4 {
     public static void main(final String[] args) throws IOException {
         testPart1PassportValidator();
         assert countValidPassports("2020/day4/test4a.txt") == 2 : "Expected valid passport count to be 2!";
+        System.out.printf("Day 4, part 1, number of valid passports is %d.%n", countValidPassports("2020/day4/input4.txt"));
     }
-    }
+}
