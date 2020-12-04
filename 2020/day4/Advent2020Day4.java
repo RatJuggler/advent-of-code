@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 
 abstract class FieldValidator {
 
-    private final String data;
+    final String data;
 
     FieldValidator(final String data) {
         this.data = data;
@@ -20,7 +20,19 @@ abstract class FieldValidator {
     abstract boolean validate();
 }
 
-class ByrValidator extends FieldValidator {
+abstract class YearFieldValidator extends FieldValidator {
+
+    YearFieldValidator(final String data) {
+        super(data);
+    }
+
+    boolean validateYear(final int fromYear, final int toYear) {
+        int year = Integer.parseInt(this.data);
+        return year >= fromYear && year <= toYear;
+    }
+}
+
+class ByrValidator extends YearFieldValidator {
 
     ByrValidator(String data) {
         super(data);
@@ -28,11 +40,11 @@ class ByrValidator extends FieldValidator {
 
     @Override
     boolean validate() {
-        return false;
+        return this.validateYear(1920, 2002);
     }
 }
 
-class IyrValidator extends FieldValidator {
+class IyrValidator extends YearFieldValidator {
 
     IyrValidator(String data) {
         super(data);
@@ -40,11 +52,11 @@ class IyrValidator extends FieldValidator {
 
     @Override
     boolean validate() {
-        return false;
+        return this.validateYear(2010, 2020);
     }
 }
 
-class EyrValidator extends FieldValidator {
+class EyrValidator extends YearFieldValidator {
 
     EyrValidator(String data) {
         super(data);
@@ -52,7 +64,7 @@ class EyrValidator extends FieldValidator {
 
     @Override
     boolean validate() {
-        return false;
+        return this.validateYear(2020, 2030);
     }
 }
 
