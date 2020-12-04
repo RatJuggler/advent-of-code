@@ -9,6 +9,138 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
+abstract class FieldValidator {
+
+    private final String data;
+
+    FieldValidator(final String data) {
+        this.data = data;
+    }
+
+    abstract boolean validate();
+}
+
+class ByrValidator extends FieldValidator {
+
+    ByrValidator(String data) {
+        super(data);
+    }
+
+    @Override
+    boolean validate() {
+        return false;
+    }
+}
+
+class IyrValidator extends FieldValidator {
+
+    IyrValidator(String data) {
+        super(data);
+    }
+
+    @Override
+    boolean validate() {
+        return false;
+    }
+}
+
+class EyrValidator extends FieldValidator {
+
+    EyrValidator(String data) {
+        super(data);
+    }
+
+    @Override
+    boolean validate() {
+        return false;
+    }
+}
+
+class HgtValidator extends FieldValidator {
+
+    HgtValidator(String data) {
+        super(data);
+    }
+
+    @Override
+    boolean validate() {
+        return false;
+    }
+}
+
+class HclValidator extends FieldValidator {
+
+    HclValidator(String data) {
+        super(data);
+    }
+
+    @Override
+    boolean validate() {
+        return false;
+    }
+}
+
+class EclValidator extends FieldValidator {
+
+    EclValidator(String data) {
+        super(data);
+    }
+
+    @Override
+    boolean validate() {
+        return false;
+    }
+}
+
+class PidValidator extends FieldValidator {
+
+    PidValidator(String data) {
+        super(data);
+    }
+
+    @Override
+    boolean validate() {
+        return false;
+    }
+}
+
+class CidValidator extends FieldValidator {
+
+    CidValidator(String data) {
+        super(data);
+    }
+
+    @Override
+    boolean validate() {
+        return true;
+    }
+}
+
+class FieldValidatorFactory {
+
+    static FieldValidator createValidator(final String field, final String data) {
+        if ("byr".equalsIgnoreCase(field))
+            return new ByrValidator(data);
+        else if ("iyr".equalsIgnoreCase(field))
+            return new IyrValidator(data);
+        else if ("eyr".equalsIgnoreCase(field))
+            return new EyrValidator(data);
+        else if ("hgt".equalsIgnoreCase(field))
+            return new HgtValidator(data);
+        else if ("hcl".equalsIgnoreCase(field))
+            return new HclValidator(data);
+        else if ("ecl".equalsIgnoreCase(field))
+            return new EclValidator(data);
+        else if ("pid".equalsIgnoreCase(field))
+            return new PidValidator(data);
+        else if ("cid".equalsIgnoreCase(field))
+            return new CidValidator(data);
+        else
+            throw new IllegalArgumentException("Unknown field: " + field);
+    }
+}
+
+
 class PassportValidator {
 
     private final Map<String, String> fields;
@@ -65,6 +197,40 @@ public class Advent2020Day4 {
                 "iyr:2011 ecl:brn hgt:59in", false);
     }
 
+    private static void testFieldValidator(final String field, final String data, final boolean expected) {
+        assert FieldValidatorFactory.createValidator(field, data).validate() == expected :
+                String.format("Expected field \"%s\" data \"%s\" to be %s!", field, data, expected ? "valid" : "invalid");
+    }
+
+    private static void testPart2FieldValidations() {
+        testFieldValidator("byr", "2002", true);
+        testFieldValidator("byr", "2003", false);
+        testFieldValidator("byr", "1920", true);
+        testFieldValidator("byr", "1919", false);
+        testFieldValidator("iyr", "2010", true);
+        testFieldValidator("iyr", "2009", false);
+        testFieldValidator("iyr", "2020", true);
+        testFieldValidator("iyr", "2021", false);
+        testFieldValidator("eyr", "2020", true);
+        testFieldValidator("eyr", "2019", false);
+        testFieldValidator("eyr", "2030", true);
+        testFieldValidator("eyr", "2031", false);
+        testFieldValidator("hgt", "60in", true);
+        testFieldValidator("hgt", "190cm", true);
+        testFieldValidator("hgt", "190in", false);
+        testFieldValidator("hgt", "190", false);
+        testFieldValidator("hcl", "#123abc", true);
+        testFieldValidator("hcl", "#123abz", false);
+        testFieldValidator("hcl", "123abc", false);
+        testFieldValidator("ecl", "brn", true);
+        testFieldValidator("ecl", "wat", false);
+        testFieldValidator("pid", "000000001", true);
+        testFieldValidator("pid", "0123456789", false);
+        testFieldValidator("cid", "", true);
+        testFieldValidator("cid", "gb", true);
+        testFieldValidator("cid", "99", true);
+    }
+
     private static void testPart2PassportValidator() {
         testPassportValidator("eyr:1972 cid:100\n" +
                 "hcl:#18171d ecl:amb hgt:170 pid:186cm iyr:2018 byr:1926", false);
@@ -108,6 +274,7 @@ public class Advent2020Day4 {
         testPart1PassportValidator();
         assert countValidPassports("2020/day4/test4a.txt") == 2 : "Expected valid passport count to be 2!";
         System.out.printf("Day 4, part 1, number of valid passports is %d.%n", countValidPassports("2020/day4/input4.txt"));
+        testPart2FieldValidations();
         testPart2PassportValidator();
         assert countValidPassports("2020/day4/test4b.txt") == 4 : "Expected valid passport count to be 4!";
     }
