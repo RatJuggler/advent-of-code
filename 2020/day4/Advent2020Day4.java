@@ -17,22 +17,19 @@ abstract class FieldValidator {
         this.data = data;
     }
 
+    static boolean validateRange(final String data, final int from, final int to) {
+        try {
+            int value = Integer.parseInt(data);
+            return value >= from && value <= to;
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
+    }
+
     abstract boolean validate();
 }
 
-abstract class YearFieldValidator extends FieldValidator {
-
-    YearFieldValidator(final String data) {
-        super(data);
-    }
-
-    boolean validateYear(final int fromYear, final int toYear) {
-        int year = Integer.parseInt(this.data);
-        return year >= fromYear && year <= toYear;
-    }
-}
-
-class ByrValidator extends YearFieldValidator {
+class ByrValidator extends FieldValidator {
 
     ByrValidator(String data) {
         super(data);
@@ -40,11 +37,11 @@ class ByrValidator extends YearFieldValidator {
 
     @Override
     boolean validate() {
-        return this.validateYear(1920, 2002);
+        return validateRange(this.data, 1920, 2002);
     }
 }
 
-class IyrValidator extends YearFieldValidator {
+class IyrValidator extends FieldValidator {
 
     IyrValidator(String data) {
         super(data);
@@ -52,11 +49,11 @@ class IyrValidator extends YearFieldValidator {
 
     @Override
     boolean validate() {
-        return this.validateYear(2010, 2020);
+        return validateRange(this.data, 2010, 2020);
     }
 }
 
-class EyrValidator extends YearFieldValidator {
+class EyrValidator extends FieldValidator {
 
     EyrValidator(String data) {
         super(data);
@@ -64,7 +61,7 @@ class EyrValidator extends YearFieldValidator {
 
     @Override
     boolean validate() {
-        return this.validateYear(2020, 2030);
+        return validateRange(this.data, 2020, 2030);
     }
 }
 
@@ -76,7 +73,14 @@ class HgtValidator extends FieldValidator {
 
     @Override
     boolean validate() {
-        return false;
+        String units = this.data.substring(this.data.length() - 2);
+        String value = this.data.substring(0, this.data.length() - 2);
+        if ("cm".equals(units))
+            return validateRange(value,150, 193);
+        else if ("in".equals(units))
+            return validateRange(value, 59, 76);
+        else
+            return false;
     }
 }
 
@@ -88,7 +92,10 @@ class HclValidator extends FieldValidator {
 
     @Override
     boolean validate() {
-        return false;
+        String pattern = "^#[0-9a-f]{6}$";
+        Pattern r = Pattern.compile(pattern);
+        Matcher m = r.matcher(this.data);
+        return m.matches();
     }
 }
 
@@ -100,7 +107,7 @@ class EclValidator extends FieldValidator {
 
     @Override
     boolean validate() {
-        return false;
+        return this.data.length() == 3 && !this.data.contains("|") && "amb|blu|brn|gry|grn|hzl|oth".contains(this.data);
     }
 }
 
@@ -112,7 +119,10 @@ class PidValidator extends FieldValidator {
 
     @Override
     boolean validate() {
-        return false;
+        String pattern = "^[0-9]{9}$";
+        Pattern r = Pattern.compile(pattern);
+        Matcher m = r.matcher(this.data);
+        return m.matches();
     }
 }
 
