@@ -9,154 +9,117 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-abstract class FieldValidator {
+interface Validator {
+    boolean validate(final String data);
+}
 
-    final String data;
 
-    FieldValidator(final String data) {
-        this.data = data;
+class RangeValidator implements Validator {
+
+    private final int from;
+    private final int to;
+
+    RangeValidator(final int from, final int to) {
+        this.from = from;
+        this.to = to;
     }
 
-    static boolean validateRange(final String data, final int from, final int to) {
+    @Override
+    public boolean validate(final String data) {
         try {
             int value = Integer.parseInt(data);
-            return value >= from && value <= to;
+            return value >= this.from && value <= this.to;
         } catch (NumberFormatException nfe) {
             return false;
         }
     }
+}
 
-    static boolean validatePattern(final String data, final String pattern) {
+
+class PatternValidator implements Validator {
+
+    private final String pattern;
+
+    PatternValidator(final String pattern) {
+        this.pattern = pattern;
+    }
+
+    @Override
+    public boolean validate(final String data) {
         Pattern r = Pattern.compile(pattern);
         Matcher m = r.matcher(data);
         return m.matches();
     }
-
-    abstract boolean validate();
 }
 
-class ByrValidator extends FieldValidator {
 
-    ByrValidator(String data) {
-        super(data);
-    }
+class PassthroughValidator implements Validator {
 
-    @Override
-    boolean validate() {
-        return validateRange(this.data, 1920, 2002);
-    }
-}
-
-class IyrValidator extends FieldValidator {
-
-    IyrValidator(String data) {
-        super(data);
-    }
+    PassthroughValidator() {}
 
     @Override
-    boolean validate() {
-        return validateRange(this.data, 2010, 2020);
-    }
-}
-
-class EyrValidator extends FieldValidator {
-
-    EyrValidator(String data) {
-        super(data);
-    }
-
-    @Override
-    boolean validate() {
-        return validateRange(this.data, 2020, 2030);
-    }
-}
-
-class HgtValidator extends FieldValidator {
-
-    HgtValidator(String data) {
-        super(data);
-    }
-
-    @Override
-    boolean validate() {
-        String units = this.data.substring(this.data.length() - 2);
-        String value = this.data.substring(0, this.data.length() - 2);
-        if ("cm".equals(units))
-            return validateRange(value,150, 193);
-        else if ("in".equals(units))
-            return validateRange(value, 59, 76);
-        else
-            return false;
-    }
-}
-
-class HclValidator extends FieldValidator {
-
-    HclValidator(String data) {
-        super(data);
-    }
-
-    @Override
-    boolean validate() {
-        return validatePattern(this.data, "^#[0-9a-f]{6}$");
-    }
-}
-
-class EclValidator extends FieldValidator {
-
-    EclValidator(String data) {
-        super(data);
-    }
-
-    @Override
-    boolean validate() {
-        return validatePattern(this.data, "^(amb|blu|brn|gry|grn|hzl|oth)$");
-    }
-}
-
-class PidValidator extends FieldValidator {
-
-    PidValidator(String data) {
-        super(data);
-    }
-
-    @Override
-    boolean validate() {
-        return validatePattern(this.data, "^[0-9]{9}$");
-    }
-}
-
-class CidValidator extends FieldValidator {
-
-    CidValidator(String data) {
-        super(data);
-    }
-
-    @Override
-    boolean validate() {
+    public boolean validate(String data) {
         return true;
     }
 }
 
+
+class FieldValidator {
+
+    private final String data;
+    private final Validator validator;
+
+    FieldValidator(final String data, final Validator validator) {
+        this.data = data;
+        this.validator = validator;
+    }
+
+    boolean validate() {
+        return this.validator.validate(this.data);
+    }
+}
+
+
 class FieldValidatorFactory {
+
+    private static final Validator BYR_VALIDATOR = new RangeValidator(1920, 2002);
+    private static final Validator IYR_VALIDATOR = new RangeValidator(2010, 2020);
+    private static final Validator EYR_VALIDATOR = new RangeValidator(2020, 2030);
+    private static final Validator HGT_CM_VALIDATOR = new RangeValidator(150, 193);
+    private static final Validator HGT_IN_VALIDATOR = new RangeValidator(59, 76);
+    private static final Validator HCL_VALIDATOR = new PatternValidator("^#[0-9a-f]{6}$");
+    private static final Validator ECL_VALIDATOR = new PatternValidator("^(amb|blu|brn|gry|grn|hzl|oth)$");
+    private static final Validator PID_VALIDATOR = new PatternValidator("^[0-9]{9}$");
+    private static final Validator PASS_VALIDATOR = new PassthroughValidator();
+
+    private static FieldValidator createHgtValidator(final String data) {
+        String units = data.substring(data.length() - 2);
+        String value = data.substring(0, data.length() - 2);
+        if ("cm".equals(units))
+            return new FieldValidator(value, HGT_CM_VALIDATOR);
+        else if ("in".equals(units))
+            return new FieldValidator(value, HGT_IN_VALIDATOR);
+        else
+            throw new IllegalArgumentException("Unknown height units: " + units);
+    }
 
     static FieldValidator createValidator(final String field, final String data) {
         if ("byr".equalsIgnoreCase(field))
-            return new ByrValidator(data);
+            return new FieldValidator(data, BYR_VALIDATOR);
         else if ("iyr".equalsIgnoreCase(field))
-            return new IyrValidator(data);
+            return new FieldValidator(data, IYR_VALIDATOR);
         else if ("eyr".equalsIgnoreCase(field))
-            return new EyrValidator(data);
+            return new FieldValidator(data, EYR_VALIDATOR);
         else if ("hgt".equalsIgnoreCase(field))
-            return new HgtValidator(data);
+            return createHgtValidator(data);
         else if ("hcl".equalsIgnoreCase(field))
-            return new HclValidator(data);
+            return new FieldValidator(data, HCL_VALIDATOR);
         else if ("ecl".equalsIgnoreCase(field))
-            return new EclValidator(data);
+            return new FieldValidator(data, ECL_VALIDATOR);
         else if ("pid".equalsIgnoreCase(field))
-            return new PidValidator(data);
+            return new FieldValidator(data, PID_VALIDATOR);
         else if ("cid".equalsIgnoreCase(field))
-            return new CidValidator(data);
+            return new FieldValidator(data, PASS_VALIDATOR);
         else
             throw new IllegalArgumentException("Unknown field: " + field);
     }
@@ -188,6 +151,7 @@ abstract class PassportValidator {
     abstract boolean validate();
 }
 
+
 class Part1PassportValidator extends PassportValidator {
 
     Part1PassportValidator(Map<String, FieldValidator> fields) {
@@ -200,6 +164,7 @@ class Part1PassportValidator extends PassportValidator {
     }
 }
 
+
 class Part2PassportValidator extends PassportValidator {
 
     Part2PassportValidator(Map<String, FieldValidator> fields) {
@@ -211,6 +176,7 @@ class Part2PassportValidator extends PassportValidator {
         return this.validateFieldsPresent() && this.validateFields();
     }
 }
+
 
 class PassportValidatorFactory {
 
@@ -241,6 +207,7 @@ class PassportValidatorFactory {
             throw new IllegalArgumentException("Unknown type: " + type);
     }
 }
+
 
 public class Advent2020Day4 {
 
