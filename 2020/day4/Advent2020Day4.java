@@ -1,16 +1,43 @@
 package day4;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 
 class PassportValidator {
 
-    PassportValidator() {}
+    private final Map<String, String> fields;
+
+    PassportValidator(final Map<String, String> fields) {
+        this.fields = fields;
+    }
 
     static PassportValidator create(final String passport) {
-        return new PassportValidator();
+        String pattern = "(?<field>\\w+):(?<data>\\S+)";
+        Pattern r = Pattern.compile(pattern);
+        Matcher m = r.matcher(passport);
+        Map<String, String> fields = new HashMap<>();
+        while (m.find()) {
+            String field = m.group("field");
+            String data = m.group("data");
+            fields.put(field, data);
+        }
+        if (fields.size() == 0) {
+            throw new IllegalStateException("No fields found in passport: " + passport);
+        }
+        return new PassportValidator(fields);
     }
 
     boolean validate() {
-        return false;
+        return this.fields.containsKey("byr") &&
+                this.fields.containsKey("iyr") &&
+                this.fields.containsKey("eyr") &&
+                this.fields.containsKey("hgt") &&
+                this.fields.containsKey("hcl") &&
+                this.fields.containsKey("ecl") &&
+                this.fields.containsKey("pid");
     }
 }
 
@@ -32,7 +59,7 @@ public class Advent2020Day4 {
                 "ecl:brn pid:760753108 byr:1931\n" +
                 "hgt:179cm", true);
         testPasportValidator("hcl:#cfa07d eyr:2025 pid:166559648\n" +
-                "iyr:2011 ecl:brn hgt:59in", true);
+                "iyr:2011 ecl:brn hgt:59in", false);
     }
 
     private static int countValidPassports(final String filename) {
