@@ -57,11 +57,11 @@ public class Advent2020Day5 {
         try (Stream<String> stream = Files.lines(Paths.get(filename))) {
             int[] seats = stream.map(Seat::createFromCode)
                     .mapToInt(Seat::id)
+                    .sorted()
                     .toArray();
-            for (int i = 0; i < seats.length; i++) {
-                if (seats[i + 1] != seats[i] + 1) return seats[i] + 1;
-            }
-            return -1;
+            int i = 0;
+            while (seats[i + 1] == seats[i] + 1) i++;
+            return seats[i] + 1;
         }
     }
 
