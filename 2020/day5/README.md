@@ -60,3 +60,5 @@ of the seats at the very front and back of the plane don't exist on this aircraf
 Your seat wasn't at the very front or back, though; the seats with IDs +1 and -1 from yours will be in your list.
 
 What is the ID of your seat?
+
+Your puzzle answer was 599.

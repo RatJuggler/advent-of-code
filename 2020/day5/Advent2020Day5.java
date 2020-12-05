@@ -53,10 +53,22 @@ public class Advent2020Day5 {
                     .orElse(-1);
         }
     }
+    private static int findMissingSeatId(String filename) throws IOException {
+        try (Stream<String> stream = Files.lines(Paths.get(filename))) {
+            int[] seats = stream.map(Seat::createFromCode)
+                    .mapToInt(Seat::id)
+                    .toArray();
+            for (int i = 0; i < seats.length; i++) {
+                if (seats[i + 1] != seats[i] + 1) return seats[i] + 1;
+            }
+            return -1;
+        }
+    }
 
     public static void main(final String[] args) throws IOException {
         testPart1SeatIdGenerator();
         assert findHighestSeatId("2020/day5/test5a.txt") == 820 : "Expected highest seat Id to be 820!";
         System.out.printf("Day 5, part 1, highest seat Id is %d.%n", findHighestSeatId("2020/day5/input5.txt"));
+        System.out.printf("Day 5, part 2, my seat Id is %d.%n", findMissingSeatId("2020/day5/input5.txt"));
     }
 }
