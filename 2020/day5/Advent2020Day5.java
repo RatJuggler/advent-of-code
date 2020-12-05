@@ -8,6 +8,9 @@ import java.util.stream.Stream;
 
 class Seat {
 
+    private static final int ROWS = 128;
+    private static final int COLUMNS = 8;
+
     private final int row;
     private final int column;
 
@@ -16,8 +19,20 @@ class Seat {
         this.column = column;
     }
 
+    private static int search(final String code, final int space, final char upper) {
+        int position = 0;
+        int partition = space;
+        for (char move : code.toCharArray()) {
+            partition /= 2;
+            if (move == upper) position += partition;
+        }
+        return position;
+    }
+
     static Seat createFromCode(final String seatCode) {
-        return new Seat(0, 0);
+        int row = search(seatCode.substring(0, 7), ROWS, 'B');
+        int column = search(seatCode.substring(7), COLUMNS, 'R');
+        return new Seat(row, column);
     }
 
     int id() {
