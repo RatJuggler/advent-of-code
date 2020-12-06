@@ -2,46 +2,53 @@ package day6;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Scanner;
-import java.util.stream.Stream;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 
 public class Advent2020Day6 {
 
-    private static long countUniqueAnswers(final String answers) {
-        return answers.chars().distinct().count();
-    }
+    private static final Function<List<String>, Long> countUniqueAnswers =
+            answers -> String.join("", answers).chars().distinct().count();
+    private static final Function<List<String>, Long> countDuplicateAnswers =
+            answers -> String.join("", answers).chars()
+                    .mapToObj(c -> (char) c)
+                    .collect(Collectors.groupingBy(k -> k, Collectors.counting())).entrySet().stream()
+                    .filter(e -> e.getValue() == answers.size())
+                    .count();
 
-    private static void testCountUniqueAnswers(final String answers, final long expected) {
-        assert countUniqueAnswers(answers) == expected :
+    private static void testCountAnswers(final String answers, final Function<List<String>, Long> count, final long expected) {
+        assert count.apply(Collections.singletonList(answers)) == expected :
                 String.format("Expected unique answer count for \"%s\" to be %d!", answers, expected);
     }
 
-    private static void testPart1CountUniqueAnswers() {
-        testCountUniqueAnswers("abcxabcyabcz", 6);
-    }
-
-    private static long totalUniqueAnswers(final String filename) throws IOException {
-        long totalUniqueAnswers = 0;
-        StringBuilder groupAnswers = new StringBuilder();
+    private static long totalAnswers(final String filename, final Function<List<String>, Long> count) throws IOException {
+        long totalAnswers = 0;
+        List<String> groupAnswers = new ArrayList<>();
         try (Scanner s = new Scanner(new File(filename))) {
             while (s.hasNext()) {
                 String line = s.nextLine();
                 if ("".equals(line)) {
-                    totalUniqueAnswers += countUniqueAnswers(groupAnswers.toString());
-                    groupAnswers = new StringBuilder();
+                    totalAnswers += count.apply(groupAnswers);
+                    groupAnswers.clear();
                 }
-                groupAnswers.append(line);
+                groupAnswers.add(line);
             }
         }
-        totalUniqueAnswers += countUniqueAnswers(groupAnswers.toString());
-        return totalUniqueAnswers;
+        totalAnswers += count.apply(groupAnswers);
+        return totalAnswers;
     }
 
     public static void main(final String[] args) throws IOException {
-        testPart1CountUniqueAnswers();
-        assert totalUniqueAnswers("2020/day6/test6a.txt") == 11 : "Expected total unique answers to be 11!";
-        System.out.printf("Day 5, part 1, total unique answer count is %d.%n", totalUniqueAnswers("2020/day6/input6.txt"));
+        testCountAnswers("abcxabcyabcz", countUniqueAnswers, 6);
+        assert totalAnswers("2020/day6/test6a.txt", countUniqueAnswers) == 11 : "Expected total unique answers to be 11!";
+        System.out.printf("Day 5, part 1, total unique answer count is %d.%n", totalAnswers("2020/day6/input6.txt", countUniqueAnswers));
+        testCountAnswers("abcxabcyabcz", countDuplicateAnswers, 3);
+        assert totalAnswers("2020/day6/test6a.txt", countDuplicateAnswers) == 6 : "Expected total duplicate answers to be 6!";
+        System.out.printf("Day 5, part 1, total duplicate answer count is %d.%n", totalAnswers("2020/day6/input6.txt", countDuplicateAnswers));
     }
 }
