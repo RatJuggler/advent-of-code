@@ -3,7 +3,6 @@ package day6;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 import java.util.function.Function;
@@ -21,8 +20,8 @@ public class Advent2020Day6 {
                     .filter(e -> e.getValue() == answers.size())
                     .count();
 
-    private static void testCountAnswers(final String answers, final Function<List<String>, Long> count, final long expected) {
-        assert count.apply(Collections.singletonList(answers)) == expected :
+    private static void testCountAnswers(final List<String> answers, final Function<List<String>, Long> count, final long expected) {
+        assert count.apply(answers) == expected :
                 String.format("Expected unique answer count for \"%s\" to be %d!", answers, expected);
     }
 
@@ -35,8 +34,9 @@ public class Advent2020Day6 {
                 if ("".equals(line)) {
                     totalAnswers += count.apply(groupAnswers);
                     groupAnswers.clear();
+                } else {
+                    groupAnswers.add(line);
                 }
-                groupAnswers.add(line);
             }
         }
         totalAnswers += count.apply(groupAnswers);
@@ -44,10 +44,10 @@ public class Advent2020Day6 {
     }
 
     public static void main(final String[] args) throws IOException {
-        testCountAnswers("abcxabcyabcz", countUniqueAnswers, 6);
+        testCountAnswers(List.of("abcx", "abcy", "abcz"), countUniqueAnswers, 6);
         assert totalAnswers("2020/day6/test6a.txt", countUniqueAnswers) == 11 : "Expected total unique answers to be 11!";
         System.out.printf("Day 5, part 1, total unique answer count is %d.%n", totalAnswers("2020/day6/input6.txt", countUniqueAnswers));
-        testCountAnswers("abcxabcyabcz", countDuplicateAnswers, 3);
+        testCountAnswers(List.of("abcx", "abcy", "abcz"), countDuplicateAnswers, 3);
         assert totalAnswers("2020/day6/test6a.txt", countDuplicateAnswers) == 6 : "Expected total duplicate answers to be 6!";
         System.out.printf("Day 5, part 1, total duplicate answer count is %d.%n", totalAnswers("2020/day6/input6.txt", countDuplicateAnswers));
     }
