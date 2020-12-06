@@ -311,8 +311,9 @@ public class Advent2020Day4 {
                 if ("".equals(line)) {
                     if (PassportValidatorFactory.createValidator(type, passport.toString()).validate()) validPassports++;
                     passport = new StringBuilder();
+                } else {
+                    passport.append(' ').append(line);
                 }
-                passport.append(' ').append(line);
             }
         }
         if (PassportValidatorFactory.createValidator(type, passport.toString()).validate()) validPassports++;
