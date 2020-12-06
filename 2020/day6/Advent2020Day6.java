@@ -42,5 +42,6 @@ public class Advent2020Day6 {
     public static void main(final String[] args) throws IOException {
         testPart1CountUniqueAnswers();
         assert totalUniqueAnswers("2020/day6/test6a.txt") == 11 : "Expected total unique answers to be 11!";
+        System.out.printf("Day 5, part 1, total unique answer count is %d.%n", totalUniqueAnswers("2020/day6/input6.txt"));
     }
 }
