@@ -22,3 +22,7 @@ fell more easily into place. Always favour composition over inheritance.
 Solved part 1 as a simulation first and then refactored to generate the solution directly from the boarding seat code. The code
 looks simpler, but I'm not sure it is any quicker in Java than the simulation with all the character replacement going on. Not 
 entirely happy with my part 2 solution but a loop seems the only way of finding the missing sequence number in Java. 
+
+##### Day 6: Custom Customs
+I spent some time looking at solving this with RegEx but couldn't see how so went with solutions using Java streams instead. For
+extra practice I used lambda's with a standard functional interface to implement the two core methods. 
