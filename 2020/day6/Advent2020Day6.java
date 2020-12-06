@@ -2,28 +2,28 @@ package day6;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Scanner;
+import java.util.stream.Stream;
 
 
 public class Advent2020Day6 {
 
-    private static int countUniqueAnswers(final String answers) {
-        return 0;
+    private static long countUniqueAnswers(final String answers) {
+        return answers.chars().distinct().count();
     }
 
-    private static void testCountUniqueAnswers(final String answers, final int expected) {
+    private static void testCountUniqueAnswers(final String answers, final long expected) {
         assert countUniqueAnswers(answers) == expected :
-                String.format("Expected unqiue answer count for \"%s\" to be %d!", answers, expected);
+                String.format("Expected unique answer count for \"%s\" to be %d!", answers, expected);
     }
 
     private static void testPart1CountUniqueAnswers() {
-        testCountUniqueAnswers("abcx\n" +
-                "abcy\n" +
-                "abcz", 11);
+        testCountUniqueAnswers("abcxabcyabcz", 6);
     }
 
-    private static int totalUniqueAnswers(final String filename) throws IOException {
-        int totalUniqueAnswers = 0;
+    private static long totalUniqueAnswers(final String filename) throws IOException {
+        long totalUniqueAnswers = 0;
         StringBuilder groupAnswers = new StringBuilder();
         try (Scanner s = new Scanner(new File(filename))) {
             while (s.hasNext()) {
