@@ -26,3 +26,8 @@ entirely happy with my part 2 solution but a loop seems the only way of finding 
 ##### Day 6: Custom Customs
 I spent some time looking at solving this with RegEx but couldn't see how so went with solutions using Java streams instead. For
 extra practice I used lambda's with a standard functional interface to implement the two core methods. 
+
+##### Day 7: Handy Haversacks
+I found this much harder than the previous days. After spending some time on parsing and storing the bag rules I had made slow 
+progress on the part 1 solution. I thought recursion would produce the best solution, but I ended up with a loop. Part 2 was much
+easier, and I had no problems with a recursion solution.
