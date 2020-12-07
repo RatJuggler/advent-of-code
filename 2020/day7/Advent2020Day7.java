@@ -101,7 +101,12 @@ class BagRules {
     }
 
     public int countContainedBags(String findId) {
-        return 0;
+        int count = 1;
+        Bag from = this.bags.get(findId);
+        for (Map.Entry<String, Integer> entry : from.contains.entrySet()) {
+            count += entry.getValue() * countContainedBags(entry.getKey());
+        }
+        return count;
     }
 
     private Matcher parseLine(final String line) {
@@ -152,8 +157,8 @@ public class Advent2020Day7 {
     public static void main(final String[] args) throws IOException {
         assert countContainingBagColours("2020/day7/test7a.txt") == 4 : "Expected containing bag colour count to be 4!";
         System.out.printf("Day 7, part 1, containing bag colour count is %d.%n", countContainingBagColours("2020/day7/input7.txt"));
-        assert countContainedBags("2020/day7/test7a.txt") == 32 : "Expected contained bag count to be 32!";
-        assert countContainedBags("2020/day7/test7b.txt") == 126 : "Expected contained bag count to be 126!";
-        System.out.printf("Day 7, part 2, contained bag count is %d.%n", countContainedBags("2020/day7/input7.txt"));
+        assert countContainedBags("2020/day7/test7a.txt") - 1 == 32 : "Expected contained bag count to be 32!";
+        assert countContainedBags("2020/day7/test7b.txt") - 1 == 126 : "Expected contained bag count to be 126!";
+        System.out.printf("Day 7, part 2, contained bag count is %d.%n", countContainedBags("2020/day7/input7.txt") - 1);
     }
 }
