@@ -4,8 +4,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -15,7 +18,7 @@ class Bag {
 
     final String adjective;
     final String colour;
-    final Map<Bag, Integer> contains = new HashMap<>();
+    final Map<String, Integer> contains = new HashMap<>();
 
     Bag(final String adjective, final String colour) {
         this.adjective = adjective;
@@ -30,8 +33,8 @@ class Bag {
         return makeId(this.adjective, this.colour);
     }
 
-    void add(final int qty, final Bag bag) {
-        this.contains.put(bag, qty);
+    void addContains(final String id, final int qty) {
+        this.contains.put(id, qty);
     }
 
     @Override
@@ -40,10 +43,10 @@ class Bag {
         if (this.contains.isEmpty()) {
             sb.append("NO OTHER BAGS");
         } else {
-            Iterator<Map.Entry<Bag, Integer>> containsBags = this.contains.entrySet().iterator();
+            Iterator<Map.Entry<String, Integer>> containsBags = this.contains.entrySet().iterator();
             while (containsBags.hasNext()) {
-                Map.Entry<Bag, Integer> entry = containsBags.next();
-                sb.append(entry.getValue()).append(' ').append(entry.getKey().getId());
+                Map.Entry<String, Integer> entry = containsBags.next();
+                sb.append(entry.getValue()).append(' ').append(entry.getKey());
                 if (containsBags.hasNext()) sb.append(", ");
             }
         }
@@ -69,6 +72,38 @@ class BagFactory {
         return this;
     }
 
+    private Set<String> count(final String findId, final Stack<Stack<String>> next, final Stack<String> history, final Set<String> found) {
+        while (!next.isEmpty()) {
+            Stack<String> contains = next.peek();
+            if (contains.isEmpty()) {
+                next.pop();
+                if (!history.isEmpty()) history.pop();
+            } else {
+                Bag bag = this.bags.get(contains.pop());
+                if (!findId.equals(bag.getId())) {
+                    history.push(bag.getId());
+                    if (bag.contains.containsKey(findId)) {
+                        found.addAll(history);
+                        history.pop();
+                    } else if (!bag.contains.isEmpty()) {
+                        next.push(new Stack<>());
+                        next.peek().addAll(bag.contains.keySet());
+                    } else {
+                        history.pop();
+                    }
+                }
+            }
+        }
+        return found;
+    }
+
+    public int countContainingBagColoursFor(String findId) {
+        Stack<Stack<String>> next = new Stack<>();
+        next.push(new Stack<>());
+        next.peek().addAll(this.bags.keySet());
+        return count(findId, next, new Stack<>(), new HashSet<>()).size();
+    }
+
     private Matcher parseLine(final String line) {
         String pattern = "(?<qty>\\d+)? ?(?<adjective>\\w+) (?<colour>\\w+) bags?";
         Pattern r = Pattern.compile(pattern);
@@ -91,9 +126,7 @@ class BagFactory {
             String containsColour = m.group("colour");
             if (!"no".equals(containsAdjective) && !"other".equals(containsColour)) {
                 int qty = Integer.parseInt(m.group("qty"));
-                Bag containsBag = this.getBag(containsAdjective, containsColour);
-                if (containsBag == null) containsBag = new Bag(containsAdjective, containsColour);
-                newBag.add(qty, containsBag);
+                newBag.addContains(Bag.makeId(containsAdjective, containsColour), qty);
             }
         }
         this.bags.put(newBag.getId(), newBag);
@@ -109,10 +142,7 @@ class BagFactory {
 public class Advent2020Day7 {
 
     private static int countContainingBagColours(final String filename) throws IOException {
-        BagFactory bagFactory = new BagFactory().readBags(filename);
-        System.out.println(bagFactory.toString());
-        int colourCount = 0;
-        return colourCount;
+        return new BagFactory().readBags(filename).countContainingBagColoursFor(Bag.makeId("shiny", "gold"));
     }
 
     public static void main(final String[] args) throws IOException {
