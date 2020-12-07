@@ -14,13 +14,13 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 
-class Bag {
+class BagRule {
 
     final String adjective;
     final String colour;
     final Map<String, Integer> contains = new HashMap<>();
 
-    Bag(final String adjective, final String colour) {
+    BagRule(final String adjective, final String colour) {
         this.adjective = adjective;
         this.colour = colour;
     }
@@ -39,7 +39,7 @@ class Bag {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder().append("Bag{'").append(this.getId()).append("', contains=(");
+        StringBuilder sb = new StringBuilder().append("BagRule{'").append(this.getId()).append("', contains=(");
         if (this.contains.isEmpty()) {
             sb.append("NO OTHER BAGS");
         } else {
@@ -57,42 +57,38 @@ class Bag {
 
 class BagRules {
 
-    final Map<String, Bag> bags = new HashMap<>();
+    final Map<String, BagRule> bagRules = new HashMap<>();
 
     BagRules() {}
 
-    Bag getBag(final String adjective, final String colour) {
-        return this.bags.get(Bag.id(adjective, colour));
-    }
-
-    BagRules readBags(final String filename) throws IOException {
+    BagRules readBagRules(final String filename) throws IOException {
         try (Stream<String> stream = Files.lines(Paths.get(filename))) {
-            stream.forEach(this::addBagFromLine);
+            stream.forEach(this::addBagRuleFromLine);
         }
         return this;
     }
 
-    public int countContainingBagColoursFor(final String findId) {
+    int countContainingBagColours(final String findId) {
         Stack<String> history = new Stack<>();
         Set<String> found = new HashSet<>();
         Stack<Stack<String>> next = new Stack<>();
         next.push(new Stack<>());
-        next.peek().addAll(this.bags.keySet());
+        next.peek().addAll(this.bagRules.keySet());
         while (!next.isEmpty()) {
             Stack<String> contains = next.peek();
             if (contains.isEmpty()) {
                 next.pop();
                 if (!history.isEmpty()) history.pop();
             } else {
-                Bag bag = this.bags.get(contains.pop());
-                if (!findId.equals(bag.getId()) && !bag.contains.isEmpty()) {
-                    history.push(bag.getId());
-                    if (bag.contains.containsKey(findId)) {
+                BagRule bagRule = this.bagRules.get(contains.pop());
+                if (!findId.equals(bagRule.getId()) && !bagRule.contains.isEmpty()) {
+                    history.push(bagRule.getId());
+                    if (bagRule.contains.containsKey(findId)) {
                         found.addAll(history);
                         history.pop();
                     } else {
                         next.push(new Stack<>());
-                        next.peek().addAll(bag.contains.keySet());
+                        next.peek().addAll(bagRule.contains.keySet());
                     }
                 }
             }
@@ -100,13 +96,17 @@ class BagRules {
         return found.size();
     }
 
-    public int countContainedBags(String findId) {
+    private int countBagsIn(String findId) {
         int count = 1;
-        Bag from = this.bags.get(findId);
+        BagRule from = this.bagRules.get(findId);
         for (Map.Entry<String, Integer> entry : from.contains.entrySet()) {
-            count += entry.getValue() * countContainedBags(entry.getKey());
+            count += entry.getValue() * countBagsIn(entry.getKey());
         }
         return count;
+    }
+
+    int countContainedBags(String findId) {
+        return countBagsIn(findId) - 1;
     }
 
     private Matcher parseLine(final String line) {
@@ -119,27 +119,31 @@ class BagRules {
         return m;
     }
 
-    private void addBagFromLine(final String line) {
+    private BagRule getBagRule(final String adjective, final String colour) {
+        return this.bagRules.get(BagRule.id(adjective, colour));
+    }
+
+    private void addBagRuleFromLine(final String line) {
         Matcher m = this.parseLine(line);
         String adjective = m.group("adjective");
         String colour = m.group("colour");
-        Bag newBag = this.getBag(adjective, colour);
-        if (newBag != null) throw new IllegalStateException();
-        newBag = new Bag(adjective, colour);
+        BagRule newBagRule = this.getBagRule(adjective, colour);
+        if (newBagRule != null) throw new IllegalStateException();
+        newBagRule = new BagRule(adjective, colour);
         while (m.find()) {
             String containsAdjective = m.group("adjective");
             String containsColour = m.group("colour");
             if (!"no".equals(containsAdjective) && !"other".equals(containsColour)) {
                 int qty = Integer.parseInt(m.group("qty"));
-                newBag.mustContain(Bag.id(containsAdjective, containsColour), qty);
+                newBagRule.mustContain(BagRule.id(containsAdjective, containsColour), qty);
             }
         }
-        this.bags.put(newBag.getId(), newBag);
+        this.bagRules.put(newBagRule.getId(), newBagRule);
     }
 
     @Override
     public String toString() {
-        return "BagRules{" + bags.values() + '}';
+        return "BagRules{" + bagRules.values() + '}';
     }
 }
 
@@ -147,18 +151,18 @@ class BagRules {
 public class Advent2020Day7 {
 
     private static int countContainingBagColours(final String filename) throws IOException {
-        return new BagRules().readBags(filename).countContainingBagColoursFor(Bag.id("shiny", "gold"));
+        return new BagRules().readBagRules(filename).countContainingBagColours(BagRule.id("shiny", "gold"));
     }
 
     private static int countContainedBags(final String filename) throws IOException {
-        return new BagRules().readBags(filename).countContainedBags(Bag.id("shiny", "gold"));
+        return new BagRules().readBagRules(filename).countContainedBags(BagRule.id("shiny", "gold"));
     }
 
     public static void main(final String[] args) throws IOException {
         assert countContainingBagColours("2020/day7/test7a.txt") == 4 : "Expected containing bag colour count to be 4!";
         System.out.printf("Day 7, part 1, containing bag colour count is %d.%n", countContainingBagColours("2020/day7/input7.txt"));
-        assert countContainedBags("2020/day7/test7a.txt") - 1 == 32 : "Expected contained bag count to be 32!";
-        assert countContainedBags("2020/day7/test7b.txt") - 1 == 126 : "Expected contained bag count to be 126!";
-        System.out.printf("Day 7, part 2, contained bag count is %d.%n", countContainedBags("2020/day7/input7.txt") - 1);
+        assert countContainedBags("2020/day7/test7a.txt") == 32 : "Expected contained bag count to be 32!";
+        assert countContainedBags("2020/day7/test7b.txt") == 126 : "Expected contained bag count to be 126!";
+        System.out.printf("Day 7, part 2, contained bag count is %d.%n", countContainedBags("2020/day7/input7.txt"));
     }
 }
