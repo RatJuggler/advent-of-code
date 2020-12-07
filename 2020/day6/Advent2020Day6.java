@@ -13,6 +13,7 @@ public class Advent2020Day6 {
 
     private static final Function<List<String>, Long> countUniqueAnswers =
             answers -> String.join("", answers).chars().distinct().count();
+
     private static final Function<List<String>, Long> countDuplicateAnswers =
             answers -> String.join("", answers).chars()
                     .mapToObj(c -> (char) c)
@@ -46,9 +47,9 @@ public class Advent2020Day6 {
     public static void main(final String[] args) throws IOException {
         testCountAnswers(List.of("abcx", "abcy", "abcz"), countUniqueAnswers, 6);
         assert totalAnswers("2020/day6/test6a.txt", countUniqueAnswers) == 11 : "Expected total unique answers to be 11!";
-        System.out.printf("Day 5, part 1, total unique answer count is %d.%n", totalAnswers("2020/day6/input6.txt", countUniqueAnswers));
+        System.out.printf("Day 6, part 1, total unique answer count is %d.%n", totalAnswers("2020/day6/input6.txt", countUniqueAnswers));
         testCountAnswers(List.of("abcx", "abcy", "abcz"), countDuplicateAnswers, 3);
         assert totalAnswers("2020/day6/test6a.txt", countDuplicateAnswers) == 6 : "Expected total duplicate answers to be 6!";
-        System.out.printf("Day 5, part 1, total duplicate answer count is %d.%n", totalAnswers("2020/day6/input6.txt", countDuplicateAnswers));
+        System.out.printf("Day 6, part 1, total duplicate answer count is %d.%n", totalAnswers("2020/day6/input6.txt", countDuplicateAnswers));
     }
 }
