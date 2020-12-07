@@ -104,6 +104,10 @@ class BagFactory {
         return count(findId, next, new Stack<>(), new HashSet<>()).size();
     }
 
+    public int countContainedBags(String findId) {
+        return 0;
+    }
+
     private Matcher parseLine(final String line) {
         String pattern = "(?<qty>\\d+)? ?(?<adjective>\\w+) (?<colour>\\w+) bags?";
         Pattern r = Pattern.compile(pattern);
@@ -145,8 +149,15 @@ public class Advent2020Day7 {
         return new BagFactory().readBags(filename).countContainingBagColoursFor(Bag.makeId("shiny", "gold"));
     }
 
+    private static int countContainedBags(final String filename) throws IOException {
+        return new BagFactory().readBags(filename).countContainedBags(Bag.makeId("shiny", "gold"));
+    }
+
     public static void main(final String[] args) throws IOException {
         assert countContainingBagColours("2020/day7/test7a.txt") == 4 : "Expected containing bag colour count to be 4!";
         System.out.printf("Day 7, part 1, containing bag colour count is %d.%n", countContainingBagColours("2020/day7/input7.txt"));
+        assert countContainedBags("2020/day7/test7a.txt") == 32 : "Expected contained bag count to be 32!";
+        assert countContainedBags("2020/day7/test7b.txt") == 126 : "Expected contained bag count to be 126!";
+        System.out.printf("Day 7, part 2, contained bag count is %d.%n", countContainedBags("2020/day7/input7.txt"));
     }
 }
