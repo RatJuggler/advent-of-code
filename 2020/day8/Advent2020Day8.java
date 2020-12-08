@@ -3,6 +3,7 @@ package day8;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -26,7 +27,9 @@ class HHGC {
 
     void bootUntilLoop() {
         int pc = 0;
-        while (true) {
+        List<Integer> pcHistory = new ArrayList<>();
+        while (!pcHistory.contains(pc)) {
+            pcHistory.add(pc);
             String instruction = this.rom.get(pc);
             String[] decode = this.decodeInstruction(instruction);
             switch (decode[0]) {
