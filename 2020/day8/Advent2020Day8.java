@@ -25,10 +25,10 @@ class HHGC {
         return instruction.split(" ");
     }
 
-    void bootUntilLoop() {
+    boolean boot() {
         int pc = 0;
         List<Integer> pcHistory = new ArrayList<>();
-        while (!pcHistory.contains(pc)) {
+        while (!pcHistory.contains(pc) && pc < this.rom.size()) {
             pcHistory.add(pc);
             String instruction = this.rom.get(pc);
             String[] decode = this.decodeInstruction(instruction);
@@ -46,6 +46,7 @@ class HHGC {
             }
             pc++;
         }
+        return pcHistory.contains(pc);
     }
 
     int getAccumulator() {
@@ -56,22 +57,33 @@ class HHGC {
 
 public class Advent2020Day8 {
 
+    private static void testPart1() throws IOException {
+        int expected = 5;
+        HHGC hhgc = HHGC.fromROMFile("2020/day8/test8a.txt");
+        boolean looping = hhgc.boot();
+        int actual = hhgc.getAccumulator();
+        assert looping && actual == expected :
+                String.format("Expected accumulator on looping to be '%s' but was '%s'!", expected, actual);
+    }
+
     private static void part1() throws IOException {
         HHGC hhgc = HHGC.fromROMFile("2020/day8/input8.txt");
-        hhgc.bootUntilLoop();
+        hhgc.boot();
         System.out.printf("Day 8, Part 1, accumulator just before infinite loop is %s\n", hhgc.getAccumulator());
     }
 
-    private static void test() throws IOException {
-        int expected = 5;
+    private static void testPart2() throws IOException {
+        int expected = 8;
         HHGC hhgc = HHGC.fromROMFile("2020/day8/test8a.txt");
-        hhgc.bootUntilLoop();
+        boolean looping = hhgc.boot();
         int actual = hhgc.getAccumulator();
-        assert actual == expected : String.format("Expected accumulator to be '%s' but was '%s'!", expected, actual);
+        assert !looping && actual == expected :
+                String.format("Expected accumulator when fixed to be '%s' but was '%s'!", expected, actual);
     }
 
     public static void main(final String[] args) throws IOException {
-        test();
+        testPart1();
         part1();
+        testPart2();
     }
 }
