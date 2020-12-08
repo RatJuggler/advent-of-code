@@ -31,3 +31,7 @@ extra practice I used lambda's with a standard functional interface to implement
 I found this much harder than the previous days. After spending some time on parsing and storing the bag rules I had made slow 
 progress on the part 1 solution. I thought recursion would produce the best solution, but I ended up with a loop. Part 2 was much
 easier, and I had no problems with a recursion solution.
+
+##### Day 8: Handheld Halting
+I love these VM/emulator type problems. Probably an over the top implementation but there might be a chance of reuse knowing how 
+previous Advent Of Code's go.
