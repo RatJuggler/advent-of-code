@@ -55,6 +55,45 @@ class HHGC {
 }
 
 
+class  HHGCTestHarness {
+
+    private final List<String> rom;
+
+    HHGCTestHarness(final String filename) throws IOException {
+        this.rom = Files.readAllLines(Paths.get(filename));
+    }
+
+    private String alterInstruction(final String newInstruction, final String currentInstruction) {
+        return newInstruction + " " + currentInstruction.split(" ")[1];
+    }
+
+    int fixBoot() {
+        HHGC hhgc;
+        int nextAlterAtPC = 0;
+        List<String> testRom = this.rom;
+        boolean looping = true;
+        do {
+            hhgc = new HHGC(testRom);
+            looping = hhgc.boot();
+            if (looping) {
+                testRom = new ArrayList<>(this.rom);
+                String instructionToAlter;
+                do {
+                    instructionToAlter = testRom.get(nextAlterAtPC);
+                    if (instructionToAlter.startsWith("nop")) {
+                        testRom.set(nextAlterAtPC, this.alterInstruction("jmp", instructionToAlter));
+                    } else if (instructionToAlter.startsWith("jmp")) {
+                        testRom.set(nextAlterAtPC, this.alterInstruction("nop", instructionToAlter));
+                    }
+                    nextAlterAtPC++;
+                } while (!instructionToAlter.startsWith("nop") && !instructionToAlter.startsWith("jmp"));
+            }
+        } while (looping);
+        return hhgc.getAccumulator();
+    }
+}
+
+
 public class Advent2020Day8 {
 
     private static void testPart1() throws IOException {
@@ -69,21 +108,25 @@ public class Advent2020Day8 {
     private static void part1() throws IOException {
         HHGC hhgc = HHGC.fromROMFile("2020/day8/input8.txt");
         hhgc.boot();
-        System.out.printf("Day 8, Part 1, accumulator just before infinite loop is %s\n", hhgc.getAccumulator());
+        System.out.printf("Day 8, Part 1, accumulator on looping is %s\n", hhgc.getAccumulator());
     }
 
     private static void testPart2() throws IOException {
         int expected = 8;
-        HHGC hhgc = HHGC.fromROMFile("2020/day8/test8a.txt");
-        boolean looping = hhgc.boot();
-        int actual = hhgc.getAccumulator();
-        assert !looping && actual == expected :
-                String.format("Expected accumulator when fixed to be '%s' but was '%s'!", expected, actual);
+        HHGCTestHarness harness = new HHGCTestHarness("2020/day8/test8a.txt");
+        int actual = harness.fixBoot();
+        assert actual == expected : String.format("Expected accumulator when fixed to be '%s' but was '%s'!", expected, actual);
+    }
+
+    private static void part2() throws IOException {
+        HHGCTestHarness harness = new HHGCTestHarness("2020/day8/input8.txt");
+        System.out.printf("Day 8, Part 2, accumulator after fixing looping is %s\n", harness.fixBoot());
     }
 
     public static void main(final String[] args) throws IOException {
         testPart1();
         part1();
         testPart2();
+        part2();
     }
 }
