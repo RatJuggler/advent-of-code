@@ -30,7 +30,7 @@ class HHGC {
         List<Integer> pcHistory = new ArrayList<>();
         while (!pcHistory.contains(pc) && pc < this.rom.size()) {
             pcHistory.add(pc);
-            String instruction = this.rom.get(pc);
+            String instruction = this.rom.get(pc++);
             String[] decode = this.decodeInstruction(instruction);
             switch (decode[0]) {
                 case "acc":
@@ -44,7 +44,6 @@ class HHGC {
                 default:
                     throw new IllegalStateException(String.format("Unknown instruction '%s'", decode[0]));
             }
-            pc++;
         }
         return pcHistory.contains(pc);
     }
@@ -57,36 +56,43 @@ class HHGC {
 
 class  HHGCTestHarness {
 
-    private final List<String> rom;
+    private final List<String> originalRom;
+    private int alterInstructionAtPC;
 
     HHGCTestHarness(final String filename) throws IOException {
-        this.rom = Files.readAllLines(Paths.get(filename));
+        this.originalRom = Files.readAllLines(Paths.get(filename));
     }
 
     private String alterInstruction(final String newInstruction, final String currentInstruction) {
         return newInstruction + " " + currentInstruction.split(" ")[1];
     }
 
+    private List<String> alterRom() {
+        List<String> newTestRom = new ArrayList<>(this.originalRom);
+        String instructionToAlter;
+        do {
+            instructionToAlter = newTestRom.get(this.alterInstructionAtPC);
+            if (instructionToAlter.startsWith("nop")) {
+                newTestRom.set(this.alterInstructionAtPC, this.alterInstruction("jmp", instructionToAlter));
+            } else if (instructionToAlter.startsWith("jmp")) {
+                newTestRom.set(this.alterInstructionAtPC, this.alterInstruction("nop", instructionToAlter));
+            }
+            if (++this.alterInstructionAtPC == newTestRom.size())
+                throw new IllegalStateException("No more instructions to alter in ROM!");
+        } while (!instructionToAlter.startsWith("nop") && !instructionToAlter.startsWith("jmp"));
+        return newTestRom;
+    }
+
     int fixBoot() {
         HHGC hhgc;
-        int nextAlterAtPC = 0;
-        List<String> testRom = this.rom;
-        boolean looping = true;
+        this.alterInstructionAtPC = 0;
+        List<String> testRom = this.originalRom;
+        boolean looping;
         do {
             hhgc = new HHGC(testRom);
             looping = hhgc.boot();
             if (looping) {
-                testRom = new ArrayList<>(this.rom);
-                String instructionToAlter;
-                do {
-                    instructionToAlter = testRom.get(nextAlterAtPC);
-                    if (instructionToAlter.startsWith("nop")) {
-                        testRom.set(nextAlterAtPC, this.alterInstruction("jmp", instructionToAlter));
-                    } else if (instructionToAlter.startsWith("jmp")) {
-                        testRom.set(nextAlterAtPC, this.alterInstruction("nop", instructionToAlter));
-                    }
-                    nextAlterAtPC++;
-                } while (!instructionToAlter.startsWith("nop") && !instructionToAlter.startsWith("jmp"));
+                testRom = this.alterRom();
             }
         } while (looping);
         return hhgc.getAccumulator();
