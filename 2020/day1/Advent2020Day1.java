@@ -19,8 +19,7 @@ final class Advent2020Day1 {
         return expenses;
     }
 
-    private static int findTwoExpensesProduct(final String filename, final int totalToFind) throws FileNotFoundException {
-        List<Integer> expenses = readExpenses(filename);
+    private static int findTwoExpensesProduct(final List<Integer> expenses, final int totalToFind) {
         int expense1 = 0;
         int i = 0, j = 0;
         while (expense1 + (i == j ? 0 : expenses.get(j)) != totalToFind && i < expenses.size()) {
@@ -33,8 +32,7 @@ final class Advent2020Day1 {
         return expense1 * expenses.get(j);
     }
 
-    private static int findThreeExpensesProduct(final String filename, final int totalToFind) throws FileNotFoundException {
-        List<Integer> expenses = readExpenses(filename);
+    private static int findThreeExpensesProduct(final List<Integer> expenses, final int totalToFind) {
         int expense1 = 0, expense2 = 0, expense3 = 0;
         expensesFound:
         for (int i = 0; i < expenses.size(); i++) {
@@ -55,20 +53,22 @@ final class Advent2020Day1 {
         return expense1 * expense2 * expense3;
     }
 
-    private static void testFind2020DoubleProduct() throws FileNotFoundException {
-        int result = findTwoExpensesProduct("2020/day1/test1a.txt", 2020);
+    private static void testFind2020DoubleProduct(final List<Integer> expenses) {
+        int result = findTwoExpensesProduct(expenses, 2020);
         assert result == 514579 : String.format("Expected result not found, was %d!", result);
     }
 
-    private static void testFind2020TripleProduct() throws FileNotFoundException {
-        int result = findThreeExpensesProduct("2020/day1/test1a.txt", 2020);
+    private static void testFind2020TripleProduct(final List<Integer> expenses) {
+        int result = findThreeExpensesProduct(expenses, 2020);
         assert result == 241861950 : String.format("Expected result not found, was %d!", result);
     }
 
     public static void main(final String[] args) throws FileNotFoundException {
-        testFind2020DoubleProduct();
-        System.out.printf("Day 1, Part 1 the answer is %d.%n", findTwoExpensesProduct("2020/day1/input1.txt", 2020));
-        testFind2020TripleProduct();
-        System.out.printf("Day 1, Part 2 the answer is %d.%n", findThreeExpensesProduct("2020/day1/input1.txt", 2020));
+        List<Integer> testExpenses = readExpenses("2020/day1/test1a.txt");
+        testFind2020DoubleProduct(testExpenses);
+        testFind2020TripleProduct(testExpenses);
+        List<Integer> expenses = readExpenses("2020/day1/input1.txt");
+        System.out.printf("Day 1, Part 1 the answer is %d.%n", findTwoExpensesProduct(expenses, 2020));
+        System.out.printf("Day 1, Part 2 the answer is %d.%n", findThreeExpensesProduct(expenses, 2020));
     }
 }
