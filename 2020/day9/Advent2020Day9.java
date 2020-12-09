@@ -14,7 +14,8 @@ public class Advent2020Day9 {
     private static List<Long> readNumbers(final String filename) throws FileNotFoundException {
         List<Long> numbers = new ArrayList<>();
         Scanner scanner = new Scanner(new File(filename));
-        while (scanner.hasNextLong()) numbers.add(scanner.nextLong());
+        while (scanner.hasNextLong())
+            numbers.add(scanner.nextLong());
         return numbers;
     }
 
@@ -27,17 +28,15 @@ public class Advent2020Day9 {
 
     private static long findEncryptionWeakness(final List<Long> numbers, final long totalToFind) {
         long total = 0;
-        int i, j = 0;
-        for (i = 0; i < numbers.size(); i++) {
-            total = numbers.get(i);
-            for (j = i + 1; j < numbers.size(); j++) {
-                total += numbers.get(j);
-                if (total >= totalToFind) break;
-            }
-            if (total == totalToFind) break;
+        int i = 0, j = 0;
+        while (total != totalToFind && i < numbers.size()) {
+            total = numbers.get(i++);
+            j = i;
+            while (total < totalToFind && j < numbers.size())
+                total += numbers.get(j++);
         }
         if (total != totalToFind) throw new IllegalStateException();
-        LongSummaryStatistics summary = numbers.subList(i, j).stream().mapToLong(l -> l).summaryStatistics();
+        LongSummaryStatistics summary = numbers.subList(i - 1, j - 1).stream().mapToLong(l -> l).summaryStatistics();
         return summary.getMin() + summary.getMax();
     }
 
