@@ -33,8 +33,7 @@ public class Advent2020Day9 {
         return number1 + number2 == totalToFind;
     }
 
-    private static long findEncryptionWeakness(final String filename, final long totalToFind) throws FileNotFoundException {
-        List<Long> numbers = readNumbers(filename);
+    private static long findEncryptionWeakness(final List<Long> numbers, final long totalToFind) {
         long total = 0;
         int i, j = 0;
         for (i = 0; i < numbers.size(); i++) {
@@ -51,8 +50,7 @@ public class Advent2020Day9 {
         return contiguousSet.get(0) + contiguousSet.get(contiguousSet.size() - 1);
     }
 
-    private static long findFirstNonSum(final String filename, final int preambleLength) throws FileNotFoundException {
-        List<Long> numbers = readNumbers(filename);
+    private static long findFirstNonSum(final List<Long> numbers, final int preambleLength) {
         for (int i = preambleLength; i < numbers.size(); i++) {
             long totalToFind = numbers.get(i);
             List<Long> preamble = numbers.subList(i - preambleLength, i);
@@ -61,22 +59,24 @@ public class Advent2020Day9 {
         throw new IllegalStateException();
     }
 
-    private static void testPart1() throws FileNotFoundException {
+    private static void testPart1(final List<Long> numbers) {
         long expected = 127;
-        long actual = findFirstNonSum("2020/day9/test9a.txt", 5);
+        long actual = findFirstNonSum(numbers, 5);
         assert actual == expected : String.format("Expected to find '%s' but found '%s'!", expected, actual);
     }
 
-    private static void testPart2() throws FileNotFoundException {
+    private static void testPart2(final List<Long> numbers) {
         long expected = 62;
-        long actual = findEncryptionWeakness("2020/day9/test9a.txt", 127);
+        long actual = findEncryptionWeakness(numbers, 127);
         assert actual == expected : String.format("Expected to find '%s' but found '%s'!", expected, actual);
     }
 
     public static void main(final String[] args) throws FileNotFoundException {
-        testPart1();
-        System.out.printf("Day 9, Part 1 found %d.%n", findFirstNonSum("2020/day9/input9.txt", 25));
-        testPart2();
-        System.out.printf("Day 9, Part 2 encryption weakness is %d.%n", findEncryptionWeakness("2020/day9/input9.txt", 731031916));
+        List<Long> testNumbers = readNumbers("2020/day9/test9a.txt");
+        testPart1(testNumbers);
+        testPart2(testNumbers);
+        List<Long> numbers = readNumbers("2020/day9/input9.txt");
+        System.out.printf("Day 9, Part 1 found %d.%n", findFirstNonSum(numbers, 25));
+        System.out.printf("Day 9, Part 2 encryption weakness is %d.%n", findEncryptionWeakness(numbers, 731031916));
     }
 }
