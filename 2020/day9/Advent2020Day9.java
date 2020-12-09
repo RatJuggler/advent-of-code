@@ -59,24 +59,21 @@ public class Advent2020Day9 {
         throw new IllegalStateException();
     }
 
-    private static void testPart1(final List<Long> numbers) {
-        long expected = 127;
-        long actual = findFirstNonSum(numbers, 5);
-        assert actual == expected : String.format("Expected to find '%s' but found '%s'!", expected, actual);
-    }
-
-    private static void testPart2(final List<Long> numbers) {
-        long expected = 62;
-        long actual = findEncryptionWeakness(numbers, 127);
-        assert actual == expected : String.format("Expected to find '%s' but found '%s'!", expected, actual);
+    private static void test(final List<Long> numbers) {
+        long expectedFirstNonSum = 127;
+        long firstNonSum = findFirstNonSum(numbers, 5);
+        assert firstNonSum == expectedFirstNonSum : String.format("Expected to find '%s' but found '%s'!", expectedFirstNonSum, firstNonSum);
+        long expectedWeakness = 62;
+        long weakness = findEncryptionWeakness(numbers, firstNonSum);
+        assert weakness == expectedWeakness : String.format("Expected weakness to be '%s' but was '%s'!", expectedWeakness, weakness);
     }
 
     public static void main(final String[] args) throws FileNotFoundException {
         List<Long> testNumbers = readNumbers("2020/day9/test9a.txt");
-        testPart1(testNumbers);
-        testPart2(testNumbers);
+        test(testNumbers);
         List<Long> numbers = readNumbers("2020/day9/input9.txt");
-        System.out.printf("Day 9, Part 1 found %d.%n", findFirstNonSum(numbers, 25));
-        System.out.printf("Day 9, Part 2 encryption weakness is %d.%n", findEncryptionWeakness(numbers, 731031916));
+        long firstNonSum = findFirstNonSum(numbers, 25);
+        System.out.printf("Day 9, Part 1 found %d.%n", firstNonSum);
+        System.out.printf("Day 9, Part 2 encryption weakness is %d.%n", findEncryptionWeakness(numbers, firstNonSum));
     }
 }
