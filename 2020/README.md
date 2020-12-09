@@ -35,3 +35,7 @@ easier, and I had no problems with a recursion solution.
 ##### Day 8: Handheld Halting
 I love these VM/emulator type problems. Probably an over the top implementation but there might be a chance of reuse knowing how 
 previous Advent Of Code's go.
+
+##### Day 9: Encoding Error
+Reusing some ideas from day 1. After finding the solutions I spent some time on refactoring, which reduced the amount of code, but 
+I'm not sure resulted in any performance improvements.
