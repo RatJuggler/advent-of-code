@@ -1,7 +1,7 @@
 package day4;
 
 import java.io.File;
-import java.io.IOException;
+import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -302,25 +302,24 @@ public class Advent2020Day4 {
         testPassportValidator("Part2", "iyr:2010 hgt:158cm hcl:#b6652a ecl:blu byr:1944 eyr:2021 pid:093154719", true);
     }
 
-    private static int countValidPassports(final String type, final String filename) throws IOException {
+    private static int countValidPassports(final String type, final String filename) throws FileNotFoundException {
         int validPassports = 0;
         StringBuilder passport = new StringBuilder();
-        try (Scanner s = new Scanner(new File(filename))) {
-            while (s.hasNext()) {
-                String line = s.nextLine();
-                if ("".equals(line)) {
-                    if (PassportValidatorFactory.createValidator(type, passport.toString()).validate()) validPassports++;
-                    passport = new StringBuilder();
-                } else {
-                    passport.append(' ').append(line);
-                }
+        Scanner s = new Scanner(new File(filename));
+        while (s.hasNext()) {
+            String line = s.nextLine();
+            if ("".equals(line)) {
+                if (PassportValidatorFactory.createValidator(type, passport.toString()).validate()) validPassports++;
+                passport = new StringBuilder();
+            } else {
+                passport.append(' ').append(line);
             }
         }
         if (PassportValidatorFactory.createValidator(type, passport.toString()).validate()) validPassports++;
         return validPassports;
     }
 
-    public static void main(final String[] args) throws IOException {
+    public static void main(final String[] args) throws FileNotFoundException {
         testPart1PassportValidator();
         assert countValidPassports("Part1", "2020/day4/test4a.txt") == 2 : "Expected valid passport count to be 2!";
         System.out.printf("Day 4, part 1, number of valid passports is %d.%n", countValidPassports("Part1", "2020/day4/input4.txt"));

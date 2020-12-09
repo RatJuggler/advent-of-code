@@ -1,7 +1,7 @@
 package day6;
 
 import java.io.File;
-import java.io.IOException;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -26,25 +26,24 @@ public class Advent2020Day6 {
                 String.format("Expected unique answer count for \"%s\" to be %d!", answers, expected);
     }
 
-    private static long totalAnswers(final String filename, final Function<List<String>, Long> count) throws IOException {
+    private static long totalAnswers(final String filename, final Function<List<String>, Long> count) throws FileNotFoundException {
         long totalAnswers = 0;
         List<String> groupAnswers = new ArrayList<>();
-        try (Scanner s = new Scanner(new File(filename))) {
-            while (s.hasNext()) {
-                String line = s.nextLine();
-                if ("".equals(line)) {
-                    totalAnswers += count.apply(groupAnswers);
-                    groupAnswers.clear();
-                } else {
-                    groupAnswers.add(line);
-                }
+        Scanner s = new Scanner(new File(filename));
+        while (s.hasNext()) {
+            String line = s.nextLine();
+            if ("".equals(line)) {
+                totalAnswers += count.apply(groupAnswers);
+                groupAnswers.clear();
+            } else {
+                groupAnswers.add(line);
             }
         }
         totalAnswers += count.apply(groupAnswers);
         return totalAnswers;
     }
 
-    public static void main(final String[] args) throws IOException {
+    public static void main(final String[] args) throws FileNotFoundException {
         testCountAnswers(List.of("abcx", "abcy", "abcz"), countUniqueAnswers, 6);
         assert totalAnswers("2020/day6/test6a.txt", countUniqueAnswers) == 11 : "Expected total unique answers to be 11!";
         System.out.printf("Day 6, part 1, total unique answer count is %d.%n", totalAnswers("2020/day6/input6.txt", countUniqueAnswers));
