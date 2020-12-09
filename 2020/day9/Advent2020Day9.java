@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.LongSummaryStatistics;
 import java.util.Scanner;
+import java.util.stream.IntStream;
 
 
 public class Advent2020Day9 {
@@ -18,18 +19,10 @@ public class Advent2020Day9 {
     }
 
     private static boolean findTwoNumbersSum(final List<Long> numbers, final long totalToFind) {
-        long number1 = 0, number2 = 0;
-        findSum:
-        for (int i = 0; i < numbers.size(); i++) {
-            number1 = numbers.get(i);
-            for (int j = 0; j < numbers.size(); j++) {
-                if (j != i && number1 + numbers.get(j) == totalToFind) {
-                    number2 = numbers.get(j);
-                    break findSum;
-                }
-            }
-        }
-        return number1 + number2 == totalToFind;
+        for (int i = 0; i < numbers.size(); i++)
+            for (int j = 0; j < numbers.size(); j++)
+                if (j != i && numbers.get(i) + numbers.get(j) == totalToFind) return true;
+        return false;
     }
 
     private static long findEncryptionWeakness(final List<Long> numbers, final long totalToFind) {
@@ -49,12 +42,11 @@ public class Advent2020Day9 {
     }
 
     private static long findFirstNonSum(final List<Long> numbers, final int preambleLength) {
-        for (int i = preambleLength; i < numbers.size(); i++) {
-            long totalToFind = numbers.get(i);
-            List<Long> preamble = numbers.subList(i - preambleLength, i);
-            if (!findTwoNumbersSum(preamble, totalToFind)) return totalToFind;
-        }
-        throw new IllegalStateException();
+        return IntStream.range(preambleLength, numbers.size())
+                .filter(i -> !findTwoNumbersSum(numbers.subList(i - preambleLength, i), numbers.get(i)))
+                .mapToLong(numbers::get)
+                .findFirst()
+                .orElseThrow();
     }
 
     private static void test(final List<Long> numbers) {
