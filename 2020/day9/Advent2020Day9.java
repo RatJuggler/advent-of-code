@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.LongSummaryStatistics;
 import java.util.Scanner;
 
 
@@ -12,9 +13,7 @@ public class Advent2020Day9 {
     private static List<Long> readNumbers(final String filename) throws FileNotFoundException {
         List<Long> numbers = new ArrayList<>();
         Scanner scanner = new Scanner(new File(filename));
-        while (scanner.hasNextLong()) {
-            numbers.add(scanner.nextLong());
-        }
+        while (scanner.hasNextLong()) numbers.add(scanner.nextLong());
         return numbers;
     }
 
@@ -45,9 +44,8 @@ public class Advent2020Day9 {
             if (total == totalToFind) break;
         }
         if (total != totalToFind) throw new IllegalStateException();
-        List<Long> contiguousSet = numbers.subList(i, j);
-        contiguousSet.sort(Long::compareTo);
-        return contiguousSet.get(0) + contiguousSet.get(contiguousSet.size() - 1);
+        LongSummaryStatistics summary = numbers.subList(i, j).stream().mapToLong(l -> l).summaryStatistics();
+        return summary.getMin() + summary.getMax();
     }
 
     private static long findFirstNonSum(final List<Long> numbers, final int preambleLength) {
