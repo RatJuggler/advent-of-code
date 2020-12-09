@@ -93,3 +93,5 @@ To find the encryption weakness, add together the smallest and largest number in
 15 and 47, producing 62.
 
 What is the encryption weakness in your XMAS-encrypted list of numbers?
+
+Your puzzle answer was 93396727.

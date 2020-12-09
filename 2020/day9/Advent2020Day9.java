@@ -33,6 +33,24 @@ public class Advent2020Day9 {
         return number1 + number2 == totalToFind;
     }
 
+    private static long findEncryptionWeakness(final String filename, final long totalToFind) throws FileNotFoundException {
+        List<Long> numbers = readNumbers(filename);
+        long total = 0;
+        int i, j = 0;
+        for (i = 0; i < numbers.size(); i++) {
+            total = numbers.get(i);
+            for (j = i + 1; j < numbers.size(); j++) {
+                total += numbers.get(j);
+                if (total >= totalToFind) break;
+            }
+            if (total == totalToFind) break;
+        }
+        if (total != totalToFind) throw new IllegalStateException();
+        List<Long> contiguousSet = numbers.subList(i, j);
+        contiguousSet.sort(Long::compareTo);
+        return contiguousSet.get(0) + contiguousSet.get(contiguousSet.size() - 1);
+    }
+
     private static long findFirstNonSum(final String filename, final int preambleLength) throws FileNotFoundException {
         List<Long> numbers = readNumbers(filename);
         for (int i = preambleLength; i < numbers.size(); i++) {
@@ -49,8 +67,16 @@ public class Advent2020Day9 {
         assert actual == expected : String.format("Expected to find '%s' but found '%s'!", expected, actual);
     }
 
+    private static void testPart2() throws FileNotFoundException {
+        long expected = 62;
+        long actual = findEncryptionWeakness("2020/day9/test9a.txt", 127);
+        assert actual == expected : String.format("Expected to find '%s' but found '%s'!", expected, actual);
+    }
+
     public static void main(final String[] args) throws FileNotFoundException {
         testPart1();
         System.out.printf("Day 9, Part 1 found %d.%n", findFirstNonSum("2020/day9/input9.txt", 25));
+        testPart2();
+        System.out.printf("Day 9, Part 2 encryption weakness is %d.%n", findEncryptionWeakness("2020/day9/input9.txt", 731031916));
     }
 }
