@@ -20,37 +20,33 @@ final class Advent2020Day1 {
     }
 
     private static int findTwoExpensesProduct(final List<Integer> expenses, final int totalToFind) {
-        int expense1 = 0;
-        int i = 0, j = 0;
-        while (expense1 + (i == j ? 0 : expenses.get(j)) != totalToFind && i < expenses.size()) {
-            expense1 = expenses.get(i);
-            j = i++;
-            while (expense1 + (j == i ? 0 : expenses.get(j)) < totalToFind && j < expenses.size())
-                j++;
-        }
-        if (expense1 + expenses.get(j) != totalToFind) throw new IllegalStateException();
-        return expense1 * expenses.get(j);
+        for (int i = 0; i < expenses.size(); i++)
+            for (int j = 0; j < expenses.size(); j++)
+                if (j != i) {
+                    if (expenses.get(i) + expenses.get(j) > totalToFind)
+                        break;
+                    if (expenses.get(i) + expenses.get(j) == totalToFind)
+                        return expenses.get(i) * expenses.get(j);
+                }
+        throw new IllegalStateException();
     }
 
     private static int findThreeExpensesProduct(final List<Integer> expenses, final int totalToFind) {
-        int expense1 = 0, expense2 = 0, expense3 = 0;
-        expensesFound:
-        for (int i = 0; i < expenses.size(); i++) {
-            expense1 = expenses.get(i);
-            for (int j = 0; j < expenses.size(); j++) {
-                if (j == i || expense1 + expenses.get(j) >= totalToFind) continue;
-                expense2 = expenses.get(j);
-                for (int k = 0; k < expenses.size(); k++) {
-                    if (k != i && k != j && expense1 + expense2 + expenses.get(k) >= totalToFind) {
-                        expense3 = expenses.get(k);
+        for (int i = 0; i < expenses.size(); i++)
+            for (int j = 0; j < expenses.size(); j++)
+                if (j != i) {
+                    int subTotal = expenses.get(i) + expenses.get(j);
+                    if (subTotal > totalToFind)
                         break;
-                    }
+                    for (int k = 0; k < expenses.size(); k++)
+                        if (k != i && k != j) {
+                            if (subTotal + expenses.get(k) > totalToFind)
+                                break;
+                            if (subTotal + expenses.get(k) == totalToFind)
+                                return expenses.get(i) * expenses.get(j) * expenses.get(k);
+                        }
                 }
-                if (expense1 + expense2 + expense3 == totalToFind) break expensesFound;
-            }
-        }
-        if (expense1 + expense2 + expense3 != totalToFind) throw new IllegalArgumentException();
-        return expense1 * expense2 * expense3;
+        throw new IllegalStateException();
     }
 
     private static void testFind2020DoubleProduct(final List<Integer> expenses) {
