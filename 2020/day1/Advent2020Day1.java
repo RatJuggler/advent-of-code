@@ -21,19 +21,16 @@ final class Advent2020Day1 {
 
     private static int findTwoExpensesProduct(final String filename, final int totalToFind) throws FileNotFoundException {
         List<Integer> expenses = readExpenses(filename);
-        int expense1 = 0, expense2 = 0;
-        for (int i = 0; i < expenses.size(); i++) {
+        int expense1 = 0;
+        int i = 0, j = 0;
+        while (expense1 + (i == j ? 0 : expenses.get(j)) != totalToFind && i < expenses.size()) {
             expense1 = expenses.get(i);
-            for (int j = 0; j < expenses.size(); j++) {
-                if (j != i && expense1 + expenses.get(j) >= totalToFind) {
-                    expense2 = expenses.get(j);
-                    break;
-                }
-            }
-            if (expense1 + expense2 == totalToFind) break;
+            j = i++;
+            while (expense1 + (j == i ? 0 : expenses.get(j)) < totalToFind && j < expenses.size())
+                j++;
         }
-        if (expense1 + expense2 != totalToFind) throw new IllegalArgumentException();
-        return expense1 * expense2;
+        if (expense1 + expenses.get(j) != totalToFind) throw new IllegalStateException();
+        return expense1 * expenses.get(j);
     }
 
     private static int findThreeExpensesProduct(final String filename, final int totalToFind) throws FileNotFoundException {
