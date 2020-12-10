@@ -156,3 +156,5 @@ You glance back down at your bag and try to remember why you brought so many ada
 ways to arrange them! Surely, there must be an efficient way to count the arrangements.
 
 What is the total number of distinct ways you can arrange the adapters to connect the charging outlet to your device?
+
+Your puzzle answer was 2024782584832.
