@@ -39,3 +39,8 @@ previous Advent Of Code's go.
 ##### Day 9: Encoding Error
 Reusing some ideas from day 1. After finding the solutions I spent some time on refactoring, which reduced the amount of code, but 
 I'm not sure resulted in any performance improvements.
+
+##### Day 10: Adapter Array
+So the first part was fairly easy, the second part not-so-much. For part two I wrote out the possible arrangements to look for, 
+then used a simple loop to detect them and accumulate the result. After using steams for most of the processing this doesn't look 
+very elegant but gets the job done.
