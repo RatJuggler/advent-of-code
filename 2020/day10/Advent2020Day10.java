@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 
 public class Advent2020Day10 {
@@ -20,21 +22,21 @@ public class Advent2020Day10 {
     }
 
     private static int findDifferencesProduct(final List<Integer> adapters) {
+        // Sort adapters with the outlet at the beginning and the device at the end.
+        adapters.add(0);
         adapters.sort(Integer::compareTo);
-        Map<Integer, Integer> differences = new HashMap<>();
-        differences.put(adapters.get(0), 1);
-        for (int i = 0; i < adapters.size() - 1; i++) {
-            int difference = adapters.get(i + 1) - adapters.get(i);
-            differences.put(difference, differences.computeIfAbsent(difference, d -> 0) + 1);
-        }
-        System.out.println(differences);
-        return differences.get(1) * (differences.get(3) + 1);
+        adapters.add(adapters.get(adapters.size() - 1) + 3);
+        // Count the differences.
+        Map<Integer, Long> differences = IntStream.range(0, adapters.size() - 1)
+                .mapToObj(i -> adapters.get(i + 1) - adapters.get(i))
+                .collect(Collectors.groupingBy(i -> i, Collectors.counting()));
+        return (int) (differences.get(1) * differences.get(3));
     }
 
     private static void testDifferencesProduct(final String filename, final int expectedDifferencesProduct)
             throws FileNotFoundException {
         List<Integer> testAdapters = readAdapters(filename);
-        long differencesProduct = findDifferencesProduct(testAdapters);
+        int differencesProduct = findDifferencesProduct(testAdapters);
         assert differencesProduct == expectedDifferencesProduct :
                 String.format("Expected to find difference product of '%s' but was '%s'!", expectedDifferencesProduct, differencesProduct);
     }
