@@ -36,6 +36,7 @@ class SledCompanyPasswordValidator extends PasswordValidator {
         super(min, max, c, password);
     }
 
+    @Override
     boolean validate() {
         String pattern = String.format("(%s)", this.c);
         Pattern r = Pattern.compile(pattern);
@@ -51,6 +52,7 @@ class TobogganCompanyPasswordValidator extends PasswordValidator {
         super(min, max, c, password);
     }
 
+    @Override
     boolean validate() {
         return (this.password.charAt(this.min -1) == this.c) ^ (this.password.charAt(this.max -1) == this.c);
     }
@@ -58,6 +60,8 @@ class TobogganCompanyPasswordValidator extends PasswordValidator {
 
 
 class CompanyPasswordValidatorFactory {
+
+    private CompanyPasswordValidatorFactory() {}
 
     private static Matcher parseLine(final String line) {
         String pattern = "^(?<min>\\d+)-(?<max>\\d+) (?<c>\\w): (?<password>\\w+)$";
