@@ -11,10 +11,10 @@ import java.util.stream.IntStream;
 
 abstract class SeatingSystem {
 
-    protected char[] layout;
-    protected final int rows;
-    protected final int columns;
-    private final int occupationTolerance;
+    char[] layout;
+    final int rows;
+    final int columns;
+    final int occupationTolerance;
 
     SeatingSystem(final String layout, final int rows, final int occupationTolerance) {
         this.layout = layout.toCharArray();
@@ -64,7 +64,8 @@ abstract class SeatingSystem {
     }
 
     long seatPeople() {
-        while (this.applySeatingRules());
+        while (this.applySeatingRules())
+            assert true;
         return IntStream.range(0, this.layout.length)
                 .mapToObj(i -> this.layout[i])
                 .filter(c -> c == '#')
