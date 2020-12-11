@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 
@@ -21,39 +23,44 @@ abstract class SeatingSystem {
         this.occupationTolerance = occupationTolerance;
     }
 
+    boolean validPosition(final int row, final int column) {
+        return  row >= 0 && column >= 0 && row < this.rows && column < this.columns;
+    }
+
     abstract int checkPosition(final int position, final int dRow, final int dColumn);
 
-    int countOccupied(final int position) {
-        return checkPosition(position, -1, -1) +
-                checkPosition(position, -1, 0) +
-                checkPosition(position, -1, 1) +
-                checkPosition(position, 0, -1) +
-                checkPosition(position, 0, 1) +
-                checkPosition(position, 1, -1) +
-                checkPosition(position, 1, 0) +
-                checkPosition(position, 1, 1);
+    private int countOccupied(final int position) {
+        int occupied = 0;
+        int[][] dOffsets = {{-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1}};
+        for (int[] dOffset : dOffsets)
+            occupied += checkPosition(position, dOffset[0], dOffset[1]);
+        return occupied;
+    }
+
+    private char seatOccupied(final int position) {
+        char c = this.layout[position];
+        if (c != '.') {
+            int adjacentOccupied = this.countOccupied(position);
+            if (c == 'L' && adjacentOccupied == 0)
+                return '#';
+            else if (c == '#' && adjacentOccupied >= this.occupationTolerance)
+                return 'L';
+        }
+        return c;
     }
 
     private boolean applySeatingRules() {
-        boolean seatChange = false;
-        char[] newLayout = new char[this.layout.length];
-        for (int i = 0; i < this.layout.length; i++) {
-            char oldContent = this.layout[i];
-            char newContent = oldContent;
-            if (oldContent != '.') {
-                int adjacentOccupied = this.countOccupied(i);
-                if (oldContent == 'L' && adjacentOccupied == 0) {
-                    newContent = '#';
-                    seatChange = true;
-                } else if (oldContent == '#' && adjacentOccupied >= this.occupationTolerance) {
-                    newContent = 'L';
-                    seatChange = true;
-                }
-            }
-            newLayout[i] = newContent;
-        }
-        this.layout = newLayout;
-        return seatChange;
+        AtomicBoolean seatChange = new AtomicBoolean(false);
+        this.layout = IntStream.range(0, this.layout.length)
+                .mapToObj(i -> {
+                    char newC = this.seatOccupied(i);
+                    if (newC != this.layout[i]) seatChange.set(true);
+                    return newC;
+                })
+                .map(String::valueOf)
+                .collect(Collectors.joining())
+                .toCharArray();
+        return seatChange.get();
     }
 
     long seatPeople() {
@@ -76,10 +83,10 @@ class AdjacentSeatingSystem extends SeatingSystem {
     int checkPosition(final int position, final int dRow, final int dColumn) {
         int row = position / this.columns + dRow;
         int column = position % this.columns + dColumn;
-        if (row < 0 || column < 0 || row >= this.rows || column >= this.columns)
-            return 0;
-        else
+        if (this.validPosition(row, column))
             return this.layout[row * this.columns + column] == '#' ? 1 : 0;
+        else
+            return 0;
     }
 }
 
@@ -94,7 +101,7 @@ class LineOfSightSeatingSystem extends SeatingSystem {
     int checkPosition(final int position, final int dRow, final int dColumn) {
         int row = position / this.columns + dRow;
         int column = position % this.columns + dColumn;
-        while (row >= 0 && column >= 0 && row < this.rows && column < this.columns) {
+        while (this.validPosition(row, column)) {
             char content = this.layout[row * this.columns + column];
             if (content != '.') return content == '#' ? 1 : 0;
             row += dRow;
