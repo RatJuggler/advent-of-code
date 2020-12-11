@@ -38,7 +38,7 @@ class RangeValidator implements Validator {
 
 class ByUnitsValidator implements Validator {
 
-    Map<String, Validator> unitValidators;
+    private final Map<String, Validator> unitValidators;
 
     ByUnitsValidator(final Map<String, Validator> unitValidators) {
         this.unitValidators = unitValidators;
@@ -152,13 +152,11 @@ abstract class PassportValidator {
     }
 
     boolean validateFieldsPresent() {
-        return this.fields.containsKey("byr") &&
-                this.fields.containsKey("iyr") &&
-                this.fields.containsKey("eyr") &&
-                this.fields.containsKey("hgt") &&
-                this.fields.containsKey("hcl") &&
-                this.fields.containsKey("ecl") &&
-                this.fields.containsKey("pid");
+        boolean valid = true;
+        String[] fields = {"byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"};
+        for (String field : fields)
+            valid = valid && this.fields.containsKey(field);
+        return valid;
     }
 
     boolean validateFields() {
@@ -205,7 +203,7 @@ class PassportValidatorFactory {
         return r.matcher(passport);
     }
 
-    static PassportValidator createValidator(final String type, final String passport) {
+    private static Map<String, FieldValidator> createFieldValidator(final String passport) {
         Matcher m = parsePassport(passport);
         Map<String, FieldValidator> fields = new HashMap<>();
         while (m.find()) {
@@ -213,9 +211,13 @@ class PassportValidatorFactory {
             String data = m.group("data");
             fields.put(field, FieldValidatorFactory.createValidator(field, data));
         }
-        if (fields.size() == 0) {
+        return fields;
+    }
+
+    static PassportValidator createValidator(final String type, final String passport) {
+        Map<String, FieldValidator> fields = createFieldValidator(passport);
+        if (fields.size() == 0)
             throw new IllegalStateException("No fields found in passport: " + passport);
-        }
         if ("Part1".equalsIgnoreCase(type))
             return new Part1PassportValidator(fields);
         else if ("Part2".equalsIgnoreCase(type))
