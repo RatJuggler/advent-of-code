@@ -44,3 +44,7 @@ I'm not sure resulted in any performance improvements.
 So the first part was fairly easy, the second part not-so-much. For part two I wrote out the possible arrangements to look for, 
 then used a simple loop to detect them and accumulate the result. After using steams for most of the processing this doesn't look 
 very elegant but gets the job done.
+
+##### Day 11: Seating System
+Game of life type simulation. I tried to keep things simple by using a char array but Java doesn't like streaming those so there is
+some converting back forth.
