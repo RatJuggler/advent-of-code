@@ -219,3 +219,5 @@ seats.
 
 Given the new visibility method and the rule change for occupied seats becoming empty, once equilibrium is reached, how many seats 
 end up occupied?
+
+Your puzzle answer was 2089.

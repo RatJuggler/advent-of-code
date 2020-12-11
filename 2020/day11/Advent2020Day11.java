@@ -12,32 +12,45 @@ abstract class SeatingSystem {
     protected char[] layout;
     protected final int rows;
     protected final int columns;
+    private final int occupationTolerance;
 
-    SeatingSystem(final String layout, final int rows) {
+    SeatingSystem(final String layout, final int rows, final int occupationTolerance) {
         this.layout = layout.toCharArray();
         this.rows = rows;
         this.columns = layout.length() / rows;
+        this.occupationTolerance = occupationTolerance;
     }
 
-    abstract int countOccupied(final int position);
+    abstract int checkPosition(final int position, final int dRow, final int dColumn);
+
+    int countOccupied(final int position) {
+        return checkPosition(position, -1, -1) +
+                checkPosition(position, -1, 0) +
+                checkPosition(position, -1, 1) +
+                checkPosition(position, 0, -1) +
+                checkPosition(position, 0, 1) +
+                checkPosition(position, 1, -1) +
+                checkPosition(position, 1, 0) +
+                checkPosition(position, 1, 1);
+    }
 
     private boolean applySeatingRules() {
         boolean seatChange = false;
         char[] newLayout = new char[this.layout.length];
         for (int i = 0; i < this.layout.length; i++) {
-            char oldPosition = this.layout[i];
-            char newPosition = oldPosition;
-            if (oldPosition != '.') {
+            char oldContent = this.layout[i];
+            char newContent = oldContent;
+            if (oldContent != '.') {
                 int adjacentOccupied = this.countOccupied(i);
-                if (oldPosition == 'L' && adjacentOccupied == 0) {
-                    newPosition = '#';
+                if (oldContent == 'L' && adjacentOccupied == 0) {
+                    newContent = '#';
                     seatChange = true;
-                } else if (oldPosition == '#' && adjacentOccupied > 3) {
-                    newPosition = 'L';
+                } else if (oldContent == '#' && adjacentOccupied >= this.occupationTolerance) {
+                    newContent = 'L';
                     seatChange = true;
                 }
             }
-            newLayout[i] = newPosition;
+            newLayout[i] = newContent;
         }
         this.layout = newLayout;
         return seatChange;
@@ -56,10 +69,11 @@ abstract class SeatingSystem {
 class AdjacentSeatingSystem extends SeatingSystem {
 
     AdjacentSeatingSystem(final String layout, final int rows) {
-        super(layout, rows);
+        super(layout, rows, 4);
     }
 
-    private int checkPosition(final int position, final int dRow, final int dColumn) {
+    @Override
+    int checkPosition(final int position, final int dRow, final int dColumn) {
         int row = position / this.columns + dRow;
         int column = position % this.columns + dColumn;
         if (row < 0 || column < 0 || row >= this.rows || column >= this.columns)
@@ -67,29 +81,25 @@ class AdjacentSeatingSystem extends SeatingSystem {
         else
             return this.layout[row * this.columns + column] == '#' ? 1 : 0;
     }
-
-    @Override
-    int countOccupied(final int position) {
-        return checkPosition(position, -1, -1) +
-                checkPosition(position, -1, 0) +
-                checkPosition(position, -1, 1) +
-                checkPosition(position, 0, -1) +
-                checkPosition(position, 0, 1) +
-                checkPosition(position, 1, -1) +
-                checkPosition(position, 1, 0) +
-                checkPosition(position, 1, 1);
-    }
 }
 
 
 class LineOfSightSeatingSystem extends SeatingSystem {
 
     LineOfSightSeatingSystem(final String layout, final int rows) {
-        super(layout, rows);
+        super(layout, rows, 5);
     }
 
     @Override
-    int countOccupied(final int postion) {
+    int checkPosition(final int position, final int dRow, final int dColumn) {
+        int row = position / this.columns + dRow;
+        int column = position % this.columns + dColumn;
+        while (row >= 0 && column >= 0 && row < this.rows && column < this.columns) {
+            char content = this.layout[row * this.columns + column];
+            if (content != '.') return content == '#' ? 1 : 0;
+            row += dRow;
+            column += dColumn;
+        }
         return 0;
     }
 }
