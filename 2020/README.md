@@ -48,3 +48,8 @@ very elegant but gets the job done.
 ##### Day 11: Seating System
 Game of life type simulation. I tried to keep things simple by using a char array but Java doesn't like streaming those so there is
 some converting back forth.
+
+##### Day 12: Rain Risk
+So I ended doing exactly what I did on Day 4 again. Completed the first part quickly and without issue, then got side tracked 
+faffing about with how best to implement a combined solution for both parts and getting nowhere. Of course once I'd actually 
+bothered to generate a solution I was able to go back and refactor it into what I was looking for.
