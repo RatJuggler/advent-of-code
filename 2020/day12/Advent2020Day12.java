@@ -8,8 +8,8 @@ import java.util.stream.Stream;
 
 class Position {
 
-    private int nsPosition;
-    private int ewPosition;
+    int nsPosition;
+    int ewPosition;
 
     Position(final int nsPosition, final int ewPosition) {
         this.nsPosition = nsPosition;
@@ -35,6 +35,14 @@ class Position {
         }
     }
 
+    char nsDirection() {
+        return this.nsPosition > 0 ? 'N' : 'S';
+    }
+
+    char ewDirection() {
+        return this.ewPosition > 0 ? 'E' : 'W';
+    }
+
     int manhattan() {
         return Math.abs(this.nsPosition) + Math.abs(this.ewPosition);
     }
@@ -51,7 +59,6 @@ class Ship {
 
     private void rotateShip(final int value) {
         this.angle = (this.angle + value) % 360;
-        if (this.angle < 0) this.angle += 360;
     }
 
     private char translateAngle() {
@@ -70,7 +77,7 @@ class Ship {
         if ("NSEW".indexOf(action) >= 0)
             this.shipPosition.movePosition(action, value);
         else if (action == 'L')
-            this.rotateShip(-value);
+            this.rotateShip(360 - value);
         else if (action == 'R')
             this.rotateShip(value);
         else if (action == 'F')
@@ -79,13 +86,37 @@ class Ship {
             throw new IllegalArgumentException("Unknown action: " + action);
     }
 
+    private void rotateWaypoint(final int angle) {
+        int tempEW = this.waypointPosition.ewPosition;
+        switch (angle) {
+            case 90:
+                this.waypointPosition.ewPosition = this.waypointPosition.nsPosition;
+                this.waypointPosition.nsPosition = -tempEW;
+                break;
+            case 180:
+                this.waypointPosition.ewPosition = -tempEW;
+                this.waypointPosition.nsPosition = -this.waypointPosition.nsPosition;
+                break;
+            case 270:
+                this.waypointPosition.ewPosition = -this.waypointPosition.nsPosition;
+                this.waypointPosition.nsPosition = tempEW;
+                break;
+            default: throw new IllegalArgumentException("Unexpected angle: " + this.angle);
+        }
+    }
+
+    private void moveShipToWaypoint(final int value) {
+        this.shipPosition.movePosition(this.waypointPosition.nsDirection(), value * Math.abs(this.waypointPosition.nsPosition));
+        this.shipPosition.movePosition(this.waypointPosition.ewDirection(), value * Math.abs(this.waypointPosition.ewPosition));
+    }
+
     void moveViaWaypoint(final String instruction) {
         char action = instruction.charAt(0);
         int value = Integer.parseInt(instruction.substring(1));
         if ("NSEW".indexOf(action) >= 0)
             this.waypointPosition.movePosition(action, value);
         else if (action == 'L')
-            this.rotateWaypoint(-value);
+            this.rotateWaypoint(360 - value);
         else if (action == 'R')
             this.rotateWaypoint(value);
         else if (action == 'F')
@@ -140,6 +171,6 @@ public class Advent2020Day12 {
         testShipMovement();
         System.out.printf("Day 12, Part 1 Manhattan distance is %d.%n", followNavigationInstructionsWithShip("2020/day12/input12.txt"));
         testWaypointMovement();
-        System.out.printf("Day 12, Part 1 Manhattan distance is %d.%n", followNavigationInstructionsWithWaypoint("2020/day12/input12.txt"));
+        System.out.printf("Day 12, Part 2 Manhattan distance is %d.%n", followNavigationInstructionsWithWaypoint("2020/day12/input12.txt"));
     }
 }
