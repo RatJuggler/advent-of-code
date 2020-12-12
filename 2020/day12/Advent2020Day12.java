@@ -6,7 +6,7 @@ import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 
-class Position {
+abstract class Position {
 
     int nsPosition;
     int ewPosition;
@@ -45,7 +45,22 @@ class ShipPosition extends Position {
         super(0, 0);
     }
 
-    void rotate(final int angle) {
+    void action(final String instruction) {
+        char action = instruction.charAt(0);
+        int value = Integer.parseInt(instruction.substring(1));
+        if ("NSEW".indexOf(action) >= 0)
+            this.move(action, value);
+        else if (action == 'L')
+            this.rotate(360 - value);
+        else if (action == 'R')
+            this.rotate(value);
+        else if (action == 'F')
+            this.move(translateAngle(), value);
+        else
+            throw new IllegalArgumentException("Unknown action: " + action);
+    }
+
+    private void rotate(final int angle) {
         this.angle = (this.angle + angle) % 360;
     }
 
@@ -57,10 +72,6 @@ class ShipPosition extends Position {
             case 270: return 'W';
             default: throw new IllegalArgumentException("Unexpected angle: " + this.angle);
         }
-    }
-
-    void moveForward(final int value) {
-        this.move(translateAngle(), value);
     }
 
     void moveToWaypoint(final Waypoint waypoint, final int value) {
@@ -76,8 +87,26 @@ class ShipPosition extends Position {
 
 class Waypoint extends Position {
 
-    Waypoint() {
+    private final ShipPosition shipPosition;
+
+    Waypoint(final ShipPosition shipPosition) {
         super(1, 10);
+        this.shipPosition = shipPosition;
+    }
+
+    void action(final String instruction) {
+        char action = instruction.charAt(0);
+        int value = Integer.parseInt(instruction.substring(1));
+        if ("NSEW".indexOf(action) >= 0)
+            this.move(action, value);
+        else if (action == 'L')
+            this.rotate(360 - value);
+        else if (action == 'R')
+            this.rotate(value);
+        else if (action == 'F')
+            this.shipPosition.moveToWaypoint(this, value);
+        else
+            throw new IllegalArgumentException("Unknown action: " + action);
     }
 
     void rotate(final int angle) {
@@ -112,38 +141,16 @@ class Waypoint extends Position {
 class Ship {
 
     private final ShipPosition shipPosition = new ShipPosition();
-    private final Waypoint waypoint = new Waypoint();
+    private final Waypoint waypoint = new Waypoint(this.shipPosition);
 
     Ship() {}
 
     void moveShipDirectly(final String instruction) {
-        char action = instruction.charAt(0);
-        int value = Integer.parseInt(instruction.substring(1));
-        if ("NSEW".indexOf(action) >= 0)
-            this.shipPosition.move(action, value);
-        else if (action == 'L')
-            this.shipPosition.rotate(360 - value);
-        else if (action == 'R')
-            this.shipPosition.rotate(value);
-        else if (action == 'F')
-            this.shipPosition.moveForward(value);
-        else
-            throw new IllegalArgumentException("Unknown action: " + action);
+        this.shipPosition.action(instruction);
     }
 
     void moveViaWaypoint(final String instruction) {
-        char action = instruction.charAt(0);
-        int value = Integer.parseInt(instruction.substring(1));
-        if ("NSEW".indexOf(action) >= 0)
-            this.waypoint.move(action, value);
-        else if (action == 'L')
-            this.waypoint.rotate(360 - value);
-        else if (action == 'R')
-            this.waypoint.rotate(value);
-        else if (action == 'F')
-            this.shipPosition.moveToWaypoint(this.waypoint, value);
-        else
-            throw new IllegalArgumentException("Unknown action: " + action);
+        this.waypoint.action(instruction);
     }
 
     int manhattan() {
