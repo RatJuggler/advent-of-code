@@ -92,8 +92,16 @@ public class Advent2020Day12 {
                 String.format("Expected Manhattan distance to be %d not %d!%n", expectedManhattan, actualManhattan);
     }
 
+    private static void testWaypointMovement() {
+        int expectedManhattan = 286;
+        int actualManhattan = followNavigationInstructions("2020/day12/test12a.txt");
+        assert actualManhattan == expectedManhattan :
+                String.format("Expected Manhattan distance to be %d not %d!%n", expectedManhattan, actualManhattan);
+    }
+
     public static void main(final String[] args) {
         testShipMovement();
         System.out.printf("Day 12, Part 1 Manhattan distance is %d.%n", followNavigationInstructions("2020/day12/input12.txt"));
+        testWaypointMovement();
     }
 }
