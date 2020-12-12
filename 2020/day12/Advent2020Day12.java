@@ -34,16 +34,10 @@ abstract class Position {
                 throw new IllegalArgumentException("Unknown direction: " + direction);
         }
     }
-}
 
+    abstract void rotate(final int angle);
 
-class ShipPosition extends Position {
-
-    private int angle = 90;
-
-    ShipPosition() {
-        super(0, 0);
-    }
+    abstract void forward(final int value);
 
     void action(final String instruction) {
         char action = instruction.charAt(0);
@@ -55,13 +49,27 @@ class ShipPosition extends Position {
         else if (action == 'R')
             this.rotate(value);
         else if (action == 'F')
-            this.move(translateAngle(), value);
+            this.forward(value);
         else
             throw new IllegalArgumentException("Unknown action: " + action);
     }
+}
 
-    private void rotate(final int angle) {
+
+class ShipPosition extends Position {
+
+    private int angle = 90;
+
+    ShipPosition() {
+        super(0, 0);
+    }
+
+    void rotate(final int angle) {
         this.angle = (this.angle + angle) % 360;
+    }
+
+    void forward(final int value) {
+        this.move(translateAngle(), value);
     }
 
     private char translateAngle() {
@@ -72,11 +80,6 @@ class ShipPosition extends Position {
             case 270: return 'W';
             default: throw new IllegalArgumentException("Unexpected angle: " + this.angle);
         }
-    }
-
-    void moveToWaypoint(final Waypoint waypoint, final int value) {
-        this.move(waypoint.nsDirection(), value * Math.abs(waypoint.nsPosition));
-        this.move(waypoint.ewDirection(), value * Math.abs(waypoint.ewPosition));
     }
 
     int manhattan() {
@@ -92,21 +95,6 @@ class Waypoint extends Position {
     Waypoint(final ShipPosition shipPosition) {
         super(1, 10);
         this.shipPosition = shipPosition;
-    }
-
-    void action(final String instruction) {
-        char action = instruction.charAt(0);
-        int value = Integer.parseInt(instruction.substring(1));
-        if ("NSEW".indexOf(action) >= 0)
-            this.move(action, value);
-        else if (action == 'L')
-            this.rotate(360 - value);
-        else if (action == 'R')
-            this.rotate(value);
-        else if (action == 'F')
-            this.shipPosition.moveToWaypoint(this, value);
-        else
-            throw new IllegalArgumentException("Unknown action: " + action);
     }
 
     void rotate(final int angle) {
@@ -128,12 +116,9 @@ class Waypoint extends Position {
         }
     }
 
-    char nsDirection() {
-        return this.nsPosition > 0 ? 'N' : 'S';
-    }
-
-    char ewDirection() {
-        return this.ewPosition > 0 ? 'E' : 'W';
+    void forward(final int value) {
+        this.shipPosition.move(this.nsPosition > 0 ? 'N' : 'S', value * Math.abs(this.nsPosition));
+        this.shipPosition.move(this.ewPosition > 0 ? 'E' : 'W', value * Math.abs(this.ewPosition));
     }
 }
 
@@ -145,7 +130,7 @@ class Ship {
 
     Ship() {}
 
-    void moveShipDirectly(final String instruction) {
+    void moveDirectly(final String instruction) {
         this.shipPosition.action(instruction);
     }
 
@@ -161,17 +146,17 @@ class Ship {
 
 public class Advent2020Day12 {
 
-    private static int followNavigationInstructionsWithShip(final String filename) {
+    private static int shipMovement(final String filename) {
         Ship ship = new Ship();
         try (Stream<String> stream = Files.lines(Paths.get(filename))) {
-            stream.forEach(ship::moveShipDirectly);
+            stream.forEach(ship::moveDirectly);
         } catch (IOException ioe) {
             throw new IllegalArgumentException("Problem reading navigation file: " + filename, ioe);
         }
         return ship.manhattan();
     }
 
-    private static int followNavigationInstructionsWithWaypoint(final String filename) {
+    private static int waypointMovement(final String filename) {
         Ship ship = new Ship();
         try (Stream<String> stream = Files.lines(Paths.get(filename))) {
             stream.forEach(ship::moveViaWaypoint);
@@ -183,22 +168,22 @@ public class Advent2020Day12 {
 
     private static void testShipMovement() {
         int expectedManhattan = 25;
-        int actualManhattan = followNavigationInstructionsWithShip("2020/day12/test12a.txt");
+        int actualManhattan = shipMovement("2020/day12/test12a.txt");
         assert actualManhattan == expectedManhattan :
                 String.format("Expected Manhattan distance to be %d not %d!%n", expectedManhattan, actualManhattan);
     }
 
     private static void testWaypointMovement() {
         int expectedManhattan = 286;
-        int actualManhattan = followNavigationInstructionsWithWaypoint("2020/day12/test12a.txt");
+        int actualManhattan = waypointMovement("2020/day12/test12a.txt");
         assert actualManhattan == expectedManhattan :
                 String.format("Expected Manhattan distance to be %d not %d!%n", expectedManhattan, actualManhattan);
     }
 
     public static void main(final String[] args) {
         testShipMovement();
-        System.out.printf("Day 12, Part 1 Manhattan distance is %d.%n", followNavigationInstructionsWithShip("2020/day12/input12.txt"));
+        System.out.printf("Day 12, Part 1 Manhattan distance is %d.%n", shipMovement("2020/day12/input12.txt"));
         testWaypointMovement();
-        System.out.printf("Day 12, Part 2 Manhattan distance is %d.%n", followNavigationInstructionsWithWaypoint("2020/day12/input12.txt"));
+        System.out.printf("Day 12, Part 2 Manhattan distance is %d.%n", waypointMovement("2020/day12/input12.txt"));
     }
 }
