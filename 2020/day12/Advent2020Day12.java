@@ -49,16 +49,16 @@ class Position {
 }
 
 
-class Ship {
+class ShipPosition extends Position {
 
-    private final Position shipPosition = new Position(0, 0);
-    private final Position waypointPosition = new Position(1, 10);
     private int angle = 90;
 
-    Ship() {}
+    ShipPosition(int nsPosition, int ewPosition) {
+        super(nsPosition, ewPosition);
+    }
 
-    private void rotateShip(final int value) {
-        this.angle = (this.angle + value) % 360;
+    void rotateShip(final int angle) {
+        this.angle = (this.angle + angle) % 360;
     }
 
     private char translateAngle() {
@@ -71,17 +71,30 @@ class Ship {
         }
     }
 
+    void moveForward(final int value) {
+        this.movePosition(translateAngle(), value);
+    }
+}
+
+
+class Ship {
+
+    private final ShipPosition shipPosition = new ShipPosition(0, 0);
+    private final Position waypointPosition = new Position(1, 10);
+
+    Ship() {}
+
     void moveShipDirectly(final String instruction) {
         char action = instruction.charAt(0);
         int value = Integer.parseInt(instruction.substring(1));
         if ("NSEW".indexOf(action) >= 0)
             this.shipPosition.movePosition(action, value);
         else if (action == 'L')
-            this.rotateShip(360 - value);
+            this.shipPosition.rotateShip(360 - value);
         else if (action == 'R')
-            this.rotateShip(value);
+            this.shipPosition.rotateShip(value);
         else if (action == 'F')
-            this.shipPosition.movePosition(translateAngle(), value);
+            this.shipPosition.moveForward(value);
         else
             throw new IllegalArgumentException("Unknown action: " + action);
     }
@@ -101,7 +114,7 @@ class Ship {
                 this.waypointPosition.ewPosition = -this.waypointPosition.nsPosition;
                 this.waypointPosition.nsPosition = tempEW;
                 break;
-            default: throw new IllegalArgumentException("Unexpected angle: " + this.angle);
+            default: throw new IllegalArgumentException("Unexpected angle: " + angle);
         }
     }
 
