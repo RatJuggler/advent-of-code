@@ -1,16 +1,16 @@
 package day12;
 
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
 
+
 class Ship {
 
     private int nsPosition = 0;
     private int ewPosition = 0;
-    private int direction = 90;
+    private int angle = 90;
 
     Ship() {}
 
@@ -33,20 +33,18 @@ class Ship {
         }
     }
 
-    private char translateDirection() {
-        switch (this.direction) {
+    private void updateAngle(final int value) {
+        this.angle = (this.angle + value) % 360;
+        if (this.angle < 0) this.angle += 360;
+    }
+
+    private char translateAngle() {
+        switch (this.angle) {
             case 0: return 'N';
-            case 90:
-            case -270:
-                return 'E';
-            case 180:
-            case -180:
-                return 'S';
-            case 270:
-            case -90:
-                return 'W';
-            default:
-                throw new IllegalArgumentException("Unknown direction: " + this.direction);
+            case 90: return 'E';
+            case 180: return 'S';
+            case 270: return 'W';
+            default: throw new IllegalArgumentException("Unexpected angle: " + this.angle);
         }
     }
 
@@ -54,11 +52,11 @@ class Ship {
         if ("NSEW".indexOf(action) >= 0)
             this.moveInDirection(action, value);
         else if (action == 'L')
-            this.direction = (this.direction - value) % 360;
+            this.updateAngle(-value);
         else if (action == 'R')
-            this.direction = (this.direction + value) % 360;
+            this.updateAngle(value);
         else if (action == 'F')
-            this.moveInDirection(translateDirection(), value);
+            this.moveInDirection(translateAngle(), value);
         else
             throw new IllegalArgumentException("Unknown action: " + action);
     }
