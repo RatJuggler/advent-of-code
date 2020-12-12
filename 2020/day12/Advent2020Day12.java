@@ -16,7 +16,7 @@ class Position {
         this.ewPosition = ewPosition;
     }
 
-    void movePosition(final char direction, final int value) {
+    void move(final char direction, final int value) {
         switch (direction) {
             case 'N':
                 this.nsPosition += value;
@@ -34,18 +34,6 @@ class Position {
                 throw new IllegalArgumentException("Unknown direction: " + direction);
         }
     }
-
-    char nsDirection() {
-        return this.nsPosition > 0 ? 'N' : 'S';
-    }
-
-    char ewDirection() {
-        return this.ewPosition > 0 ? 'E' : 'W';
-    }
-
-    int manhattan() {
-        return Math.abs(this.nsPosition) + Math.abs(this.ewPosition);
-    }
 }
 
 
@@ -53,11 +41,11 @@ class ShipPosition extends Position {
 
     private int angle = 90;
 
-    ShipPosition(int nsPosition, int ewPosition) {
-        super(nsPosition, ewPosition);
+    ShipPosition() {
+        super(0, 0);
     }
 
-    void rotateShip(final int angle) {
+    void rotate(final int angle) {
         this.angle = (this.angle + angle) % 360;
     }
 
@@ -72,15 +60,59 @@ class ShipPosition extends Position {
     }
 
     void moveForward(final int value) {
-        this.movePosition(translateAngle(), value);
+        this.move(translateAngle(), value);
+    }
+
+    void moveToWaypoint(final Waypoint waypoint, final int value) {
+        this.move(waypoint.nsDirection(), value * Math.abs(waypoint.nsPosition));
+        this.move(waypoint.ewDirection(), value * Math.abs(waypoint.ewPosition));
+    }
+
+    int manhattan() {
+        return Math.abs(this.nsPosition) + Math.abs(this.ewPosition);
+    }
+}
+
+
+class Waypoint extends Position {
+
+    Waypoint() {
+        super(1, 10);
+    }
+
+    void rotate(final int angle) {
+        int tempEW = this.ewPosition;
+        switch (angle) {
+            case 90:
+                this.ewPosition = this.nsPosition;
+                this.nsPosition = -tempEW;
+                break;
+            case 180:
+                this.ewPosition = -tempEW;
+                this.nsPosition = -this.nsPosition;
+                break;
+            case 270:
+                this.ewPosition = -this.nsPosition;
+                this.nsPosition = tempEW;
+                break;
+            default: throw new IllegalArgumentException("Unexpected angle: " + angle);
+        }
+    }
+
+    char nsDirection() {
+        return this.nsPosition > 0 ? 'N' : 'S';
+    }
+
+    char ewDirection() {
+        return this.ewPosition > 0 ? 'E' : 'W';
     }
 }
 
 
 class Ship {
 
-    private final ShipPosition shipPosition = new ShipPosition(0, 0);
-    private final Position waypointPosition = new Position(1, 10);
+    private final ShipPosition shipPosition = new ShipPosition();
+    private final Waypoint waypoint = new Waypoint();
 
     Ship() {}
 
@@ -88,52 +120,28 @@ class Ship {
         char action = instruction.charAt(0);
         int value = Integer.parseInt(instruction.substring(1));
         if ("NSEW".indexOf(action) >= 0)
-            this.shipPosition.movePosition(action, value);
+            this.shipPosition.move(action, value);
         else if (action == 'L')
-            this.shipPosition.rotateShip(360 - value);
+            this.shipPosition.rotate(360 - value);
         else if (action == 'R')
-            this.shipPosition.rotateShip(value);
+            this.shipPosition.rotate(value);
         else if (action == 'F')
             this.shipPosition.moveForward(value);
         else
             throw new IllegalArgumentException("Unknown action: " + action);
     }
 
-    private void rotateWaypoint(final int angle) {
-        int tempEW = this.waypointPosition.ewPosition;
-        switch (angle) {
-            case 90:
-                this.waypointPosition.ewPosition = this.waypointPosition.nsPosition;
-                this.waypointPosition.nsPosition = -tempEW;
-                break;
-            case 180:
-                this.waypointPosition.ewPosition = -tempEW;
-                this.waypointPosition.nsPosition = -this.waypointPosition.nsPosition;
-                break;
-            case 270:
-                this.waypointPosition.ewPosition = -this.waypointPosition.nsPosition;
-                this.waypointPosition.nsPosition = tempEW;
-                break;
-            default: throw new IllegalArgumentException("Unexpected angle: " + angle);
-        }
-    }
-
-    private void moveShipToWaypoint(final int value) {
-        this.shipPosition.movePosition(this.waypointPosition.nsDirection(), value * Math.abs(this.waypointPosition.nsPosition));
-        this.shipPosition.movePosition(this.waypointPosition.ewDirection(), value * Math.abs(this.waypointPosition.ewPosition));
-    }
-
     void moveViaWaypoint(final String instruction) {
         char action = instruction.charAt(0);
         int value = Integer.parseInt(instruction.substring(1));
         if ("NSEW".indexOf(action) >= 0)
-            this.waypointPosition.movePosition(action, value);
+            this.waypoint.move(action, value);
         else if (action == 'L')
-            this.rotateWaypoint(360 - value);
+            this.waypoint.rotate(360 - value);
         else if (action == 'R')
-            this.rotateWaypoint(value);
+            this.waypoint.rotate(value);
         else if (action == 'F')
-            this.moveShipToWaypoint(value);
+            this.shipPosition.moveToWaypoint(this.waypoint, value);
         else
             throw new IllegalArgumentException("Unknown action: " + action);
     }
