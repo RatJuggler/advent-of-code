@@ -42,16 +42,35 @@ public class Advent2020Day13 {
         } while (true);
     }
 
+    private static long findOrderedDeparture(final Notes notes) {
+        return 0;
+    }
+
     private static void testFindWaitProduct() throws IOException {
-        int expectedTime = 295;
+        int expectedProduct = 295;
         Notes notes = Notes.fromFile("2020/day13/test13a.txt");
-        int actualTime = findWaitProduct(notes);
-        assert actualTime == expectedTime : String.format("Expected wait product to be %d not %d!%n", expectedTime, actualTime);
+        int actualProduct = findWaitProduct(notes);
+        assert actualProduct == expectedProduct :
+                String.format("Expected wait product to be %d not %d!%n", expectedProduct, actualProduct);
+    }
+
+    private static void testFindOrderedDeparture(final String filename, final long expectedDeparture) throws IOException {
+        Notes notes = Notes.fromFile(filename);
+        long actualDeparture = findOrderedDeparture(notes);
+        assert actualDeparture == expectedDeparture :
+                String.format("Expected earliest departure to be %d not %d!%n", expectedDeparture, actualDeparture);
     }
 
     public static void main(final String[] args) throws IOException {
         testFindWaitProduct();
+        testFindOrderedDeparture("2020/day13/test13a.txt", 1068781);
+        testFindOrderedDeparture("2020/day13/test13b.txt", 3417);
+        testFindOrderedDeparture("2020/day13/test13c.txt", 754018);
+        testFindOrderedDeparture("2020/day13/test13d.txt", 779210);
+        testFindOrderedDeparture("2020/day13/test13e.txt", 1261476);
+        testFindOrderedDeparture("2020/day13/test13f.txt", 1202161486);
         Notes notes = Notes.fromFile("2020/day13/input13.txt");
-        System.out.printf("Day 13, Part 1 earliest wait product is %d.%n", findWaitProduct(notes));
+        System.out.printf("Day 13, Part 1 wait product is %d.%n", findWaitProduct(notes));
+        System.out.printf("Day 13, Part 2 earliest departure is %d.%n", findOrderedDeparture(notes));
     }
 }
