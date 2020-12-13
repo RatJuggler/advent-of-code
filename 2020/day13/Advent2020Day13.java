@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 class Notes {
@@ -41,15 +43,30 @@ public class Advent2020Day13 {
         } while (true);
     }
 
+    //  7    13    x    x   59    x   31   19
+    //  n   n+1  n+2  n+3  n+4  n+5  n+6  n+7
+    // n-4  n-3  n-2  n-1    n  n+1  n+2  n+3
+
     private static long findOrderedDeparture(final Notes notes) {
         long time = 0;
+        // Convert the input bus primitive long array to a list of long objects.
+        List<Long> index = Arrays.stream(notes.buses).boxed().collect(Collectors.toList());
+        // Filter and sort in descending order back to an array of primitive long.
+        long[] check = index.stream().filter(n -> n != 0).sorted(Collections.reverseOrder()).mapToLong(Long::longValue).toArray();
+        long increment = check[0];
+        int[] offset = new int[check.length];
+        int incIndex = index.indexOf(increment);
+        for (int i = 0; i < check.length; i++)
+            offset[i] = index.indexOf(check[i]) - incIndex;
+        System.out.println(Arrays.toString(check));
+        System.out.println(Arrays.toString(offset));
         nextTime:
         do {
-            time += notes.buses[0];
-            for (int i = 1; i < notes.buses.length; i++)
-                if (notes.buses[i] != 0 && (time + i) % notes.buses[i] != 0)
+            time += increment;
+            for (int i = 0; i < check.length; i++)
+                if ((time + offset[i]) % check[i] != 0)
                     continue nextTime;
-            return time;
+            return time - incIndex;
         } while (true);
     }
 
