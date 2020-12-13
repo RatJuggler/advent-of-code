@@ -35,10 +35,9 @@ public class Advent2020Day13 {
         long time = notes.startTime;
         do {
             for (int i = 0; i < notes.buses.length; i++) {
-                if (notes.buses[i] != 0) {
-                    long nextDepart = (time / notes.buses[i]) * notes.buses[i];
-                    if (nextDepart == time) return (time - notes.startTime) * notes.buses[i];
-                }
+                if (notes.buses[i] != 0)
+                    if (time % notes.buses[i] == 0)
+                        return (time - notes.startTime) * notes.buses[i];
             }
             time++;
         } while (true);
@@ -49,10 +48,9 @@ public class Advent2020Day13 {
         do {
             int i = 0;
             for (; i < notes.buses.length; i++) {
-                if (notes.buses[i] != 0) {
-                    long nextDepart = ((time + i) / notes.buses[i]) * notes.buses[i];
-                    if (nextDepart != time + i) break;
-                }
+                if (notes.buses[i] != 0)
+                    if ((time + i) % notes.buses[i] != 0)
+                        break;
             }
             if (i == notes.buses.length) return time;
             time++;
