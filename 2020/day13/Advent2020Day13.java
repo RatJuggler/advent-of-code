@@ -43,13 +43,13 @@ public class Advent2020Day13 {
 
     private static long findOrderedDeparture(final Notes notes) {
         long time = 0;
+        nextTime:
         do {
             time += notes.buses[0];
-            int i = 0;
-            for (; i < notes.buses.length; i++)
+            for (int i = 1; i < notes.buses.length; i++)
                 if (notes.buses[i] != 0 && (time + i) % notes.buses[i] != 0)
-                    break;
-            if (i == notes.buses.length) return time;
+                    continue nextTime;
+            return time;
         } while (true);
     }
 
