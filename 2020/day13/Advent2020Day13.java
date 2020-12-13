@@ -21,7 +21,7 @@ class Notes {
         List<String> notes = Files.readAllLines(Paths.get(filename));
         long startTime = Long.parseLong(notes.get(0));
         long[] buses = Arrays.stream(notes.get(1).split(","))
-                .filter(i -> !"x".equals(i))
+                .map(n -> "x".equals(n) ? "0" : n)
                 .mapToLong(Long::parseLong)
                 .toArray();
         return new Notes(startTime, buses);
@@ -35,15 +35,28 @@ public class Advent2020Day13 {
         long time = notes.startTime;
         do {
             for (int i = 0; i < notes.buses.length; i++) {
-                long nextDepart = (time / notes.buses[i]) * notes.buses[i];
-                if (nextDepart == time) return (time - notes.startTime) * notes.buses[i];
+                if (notes.buses[i] != 0) {
+                    long nextDepart = (time / notes.buses[i]) * notes.buses[i];
+                    if (nextDepart == time) return (time - notes.startTime) * notes.buses[i];
+                }
             }
             time++;
         } while (true);
     }
 
     private static long findOrderedDeparture(final Notes notes) {
-        return 0;
+        long time = 1;
+        do {
+            int i = 0;
+            for (; i < notes.buses.length; i++) {
+                if (notes.buses[i] != 0) {
+                    long nextDepart = ((time + i) / notes.buses[i]) * notes.buses[i];
+                    if (nextDepart != time + i) break;
+                }
+            }
+            if (i == notes.buses.length) return time;
+            time++;
+        } while (true);
     }
 
     private static void testFindWaitProduct() throws IOException {
