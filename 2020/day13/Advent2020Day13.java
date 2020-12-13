@@ -9,20 +9,20 @@ import java.util.List;
 
 class Notes {
 
-    final int startTime;
-    final int[] buses;
+    final long startTime;
+    final long[] buses;
 
-    Notes(final int startTIme, final int[] buses) {
+    Notes(final long startTIme, final long[] buses) {
         this.startTime = startTIme;
         this.buses = buses;
     }
 
     static Notes fromFile(final String filename) throws IOException {
         List<String> notes = Files.readAllLines(Paths.get(filename));
-        int startTime = Integer.parseInt(notes.get(0));
-        int[] buses = Arrays.stream(notes.get(1).split(","))
+        long startTime = Long.parseLong(notes.get(0));
+        long[] buses = Arrays.stream(notes.get(1).split(","))
                 .filter(i -> !"x".equals(i))
-                .mapToInt(Integer::parseInt)
+                .mapToLong(Long::parseLong)
                 .toArray();
         return new Notes(startTime, buses);
     }
@@ -31,11 +31,11 @@ class Notes {
 
 public class Advent2020Day13 {
 
-    private static int findWaitProduct(final Notes notes) {
-        int time = notes.startTime;
+    private static long findWaitProduct(final Notes notes) {
+        long time = notes.startTime;
         do {
             for (int i = 0; i < notes.buses.length; i++) {
-                int nextDepart = (time / notes.buses[i]) * notes.buses[i];
+                long nextDepart = (time / notes.buses[i]) * notes.buses[i];
                 if (nextDepart == time) return (time - notes.startTime) * notes.buses[i];
             }
             time++;
@@ -47,9 +47,9 @@ public class Advent2020Day13 {
     }
 
     private static void testFindWaitProduct() throws IOException {
-        int expectedProduct = 295;
+        long expectedProduct = 295;
         Notes notes = Notes.fromFile("2020/day13/test13a.txt");
-        int actualProduct = findWaitProduct(notes);
+        long actualProduct = findWaitProduct(notes);
         assert actualProduct == expectedProduct :
                 String.format("Expected wait product to be %d not %d!%n", expectedProduct, actualProduct);
     }
