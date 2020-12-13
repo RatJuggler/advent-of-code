@@ -33,21 +33,16 @@ public class Advent2020Day13 {
 
     private static int findWaitProduct(final Notes notes) {
         int time = notes.startTime;
-        int busFound = 0;
         do {
             for (int i = 0; i < notes.buses.length; i++) {
                 int nextDepart = (time / notes.buses[i]) * notes.buses[i];
-                if (nextDepart == time) {
-                    busFound = notes.buses[i];
-                    break;
-                }
+                if (nextDepart == time) return (time - notes.startTime) * notes.buses[i];
             }
             time++;
-        } while (busFound == 0);
-        return (time - 1 - notes.startTime) * busFound;
+        } while (true);
     }
 
-    private static void testFindDepartureTime() throws IOException {
+    private static void testFindWaitProduct() throws IOException {
         int expectedTime = 295;
         Notes notes = Notes.fromFile("2020/day13/test13a.txt");
         int actualTime = findWaitProduct(notes);
@@ -55,7 +50,7 @@ public class Advent2020Day13 {
     }
 
     public static void main(final String[] args) throws IOException {
-        testFindDepartureTime();
+        testFindWaitProduct();
         Notes notes = Notes.fromFile("2020/day13/input13.txt");
         System.out.printf("Day 13, Part 1 earliest wait product is %d.%n", findWaitProduct(notes));
     }
