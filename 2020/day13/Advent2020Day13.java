@@ -34,26 +34,22 @@ public class Advent2020Day13 {
     private static long findWaitProduct(final Notes notes) {
         long time = notes.startTime;
         do {
-            for (int i = 0; i < notes.buses.length; i++) {
-                if (notes.buses[i] != 0)
-                    if (time % notes.buses[i] == 0)
-                        return (time - notes.startTime) * notes.buses[i];
-            }
+            for (int i = 0; i < notes.buses.length; i++)
+                if (notes.buses[i] != 0 && time % notes.buses[i] == 0)
+                    return (time - notes.startTime) * notes.buses[i];
             time++;
         } while (true);
     }
 
     private static long findOrderedDeparture(final Notes notes) {
-        long time = 1;
+        long time = 0;
         do {
+            time += notes.buses[0];
             int i = 0;
-            for (; i < notes.buses.length; i++) {
-                if (notes.buses[i] != 0)
-                    if ((time + i) % notes.buses[i] != 0)
-                        break;
-            }
+            for (; i < notes.buses.length; i++)
+                if (notes.buses[i] != 0 && (time + i) % notes.buses[i] != 0)
+                    break;
             if (i == notes.buses.length) return time;
-            time++;
         } while (true);
     }
 
