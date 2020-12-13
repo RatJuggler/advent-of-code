@@ -21,7 +21,7 @@ class Notes {
         List<String> notes = Files.readAllLines(Paths.get(filename));
         int startTime = Integer.parseInt(notes.get(0));
         int[] buses = Arrays.stream(notes.get(1).split(","))
-                .filter("x"::equals)
+                .filter(i -> !"x".equals(i))
                 .mapToInt(Integer::parseInt)
                 .toArray();
         return new Notes(startTime, buses);
@@ -32,7 +32,19 @@ class Notes {
 public class Advent2020Day13 {
 
     private static int findDepartureTime(final Notes notes) {
-        return 0;
+        int time = notes.startTime;
+        int departureFound = 0;
+        do {
+            for (int i = 0; i < notes.buses.length; i++) {
+                int nextDepart = (time / notes.buses[i]) * notes.buses[i];
+                if (nextDepart == time) {
+                    departureFound = time;
+                    break;
+                }
+            }
+            time++;
+        } while (departureFound == 0);
+        return departureFound;
     }
 
     private static void testFindDepartureTime() throws IOException {
