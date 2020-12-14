@@ -50,6 +50,16 @@ Game of life type simulation. I tried to keep things simple by using a char arra
 some converting back forth.
 
 ##### Day 12: Rain Risk
-So I ended doing exactly what I did on Day 4 again. Completed the first part quickly and without issue, then got side tracked 
+I ended doing exactly what I did on Day 4 again. Completed the first part quickly and without issue, then got side tracked 
 faffing about with how best to implement a combined solution for both parts and getting nowhere. Of course once I'd actually 
 bothered to generate a solution I was able to go back and refactor it into what I was looking for.
+
+##### Day 13: Shuttle Search
+My original code for part one wasn't very elegant to start with, but I managed to knock it into shape with some refactoring after 
+generating the solution. Looking at part two it was immediately obvious that something other than brute force would be required to
+generate a solution in a reasonable timeframe but at this point I was completely stuck. I spent some time refactoring, to eke a bit 
+more performance out of my brute forcing and to see if I could gain any insights on how to proceed, but didn't come up with 
+anything. Taking a peek at the #AdventOfCode tag on Twitter and people were mentioning the Chinese Remainder Theorem. I Googled 
+this but after a quick read decided that the time it would take me to understand it was more than I wanted to spend at this moment. 
+Instead, I kicked off the brute force solution on my desktop PC (i7-6700K@4.6GHz), and it produced a result within a couple of 
+hours (I didn't time it). I will revisit this at some point to implement a proper solution. 
