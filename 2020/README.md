@@ -46,8 +46,8 @@ then used a simple loop to detect them and accumulate the result. After using st
 very elegant but gets the job done.
 
 ##### Day 11: Seating System
-Game of life type simulation. I tried to keep things simple by using a char array but Java doesn't like streaming those so there is
-some converting back forth.
+Game of life type simulation. I tried to keep things simple by using a char array, instead of Lists/Strings, but Java doesn't like 
+streaming those so there is some converting back forth.
 
 ##### Day 12: Rain Risk
 I ended doing exactly what I did on Day 4 again. Completed the first part quickly and without issue, then got side tracked 
@@ -63,3 +63,9 @@ anything. Taking a peek at the #AdventOfCode tag on Twitter and people were ment
 this but after a quick read decided that the time it would take me to understand it was more than I wanted to spend at this moment. 
 Instead, I kicked off the brute force solution on my desktop PC (i7-6700K@4.6GHz), and it produced a result within a couple of 
 hours (I didn't time it). I will revisit this at some point to implement a proper solution. 
+
+##### Day 14: Docking Data
+My only issue solving today's problem was using a primitive integer array of arbitrary size for the memory. Whilst this worked for 
+the first part it failed completely with the second as the memory addresses to be accessed far exceeded the maximum array size. It 
+was also wasting memory as only comparatively few addresses were actually being used. In the end I used a map as a kind of sparse 
+array.
