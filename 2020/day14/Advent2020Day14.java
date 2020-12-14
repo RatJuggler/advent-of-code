@@ -9,34 +9,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-class DockingEmulator {
+interface Decoder {
+    void apply(final long[] memory, final String mask, final int address, final long value);
+}
 
-    private final List<String> program;
-    private final long[] memory = new long[65536];
 
-    DockingEmulator(final List<String> program) {
-        this.program = program;
-    }
+class DecoderV1 implements Decoder {
 
-    static DockingEmulator fromFile(final String filename) {
-        List<String> program;
-        try {
-            program = Files.readAllLines(Paths.get(filename));
-        } catch (IOException ioe) {
-            throw new IllegalArgumentException("Unable to read program file!", ioe);
-        }
-        return new DockingEmulator(program);
-    }
-
-    private Matcher parseMemInstruction(final String instruction) {
-        String pattern = "^mem\\[(?<address>\\d+)\\] = (?<value>\\d+)$";
-        Pattern r = Pattern.compile(pattern);
-        Matcher m = r.matcher(instruction);
-        if (!m.find()) {
-            throw new IllegalStateException("Unable to parse instruction: " + instruction);
-        }
-        return m;
-    }
+    DecoderV1() {}
 
     private long applyMask(final String mask, final long value) {
         long result = value;
@@ -58,12 +38,58 @@ class DockingEmulator {
         return result;
     }
 
-    private void setMemory(final String instruction, final String mask) {
+    public void apply(final long[] memory, final String mask, final int address, final long value) {
+        memory[address] = this.applyMask(mask, value);
+    }
+}
+
+
+class DecoderV2 implements Decoder {
+
+    DecoderV2() {}
+
+    public void apply(final long[] memory, final String mask, final int address, final long value) {
+
+    }
+}
+
+
+class DockingEmulator {
+
+    private final List<String> program;
+    private final Decoder decoder;
+    private final long[] memory = new long[65536];
+
+    DockingEmulator(final List<String> program, final Decoder decoder) {
+        this.program = program;
+        this.decoder = decoder;
+    }
+
+    static DockingEmulator fromFile(final String filename, final Decoder decoder) {
+        List<String> program;
+        try {
+            program = Files.readAllLines(Paths.get(filename));
+        } catch (IOException ioe) {
+            throw new IllegalArgumentException("Unable to read program file!", ioe);
+        }
+        return new DockingEmulator(program, decoder);
+    }
+
+    private Matcher parseMemInstruction(final String instruction) {
+        String pattern = "^mem\\[(?<address>\\d+)\\] = (?<value>\\d+)$";
+        Pattern r = Pattern.compile(pattern);
+        Matcher m = r.matcher(instruction);
+        if (!m.find()) {
+            throw new IllegalStateException("Unable to parse instruction: " + instruction);
+        }
+        return m;
+    }
+
+    private void execute(final String instruction, final String mask) {
         Matcher m = this.parseMemInstruction(instruction);
         int address = Integer.parseInt(m.group("address"));
         long value = Long.parseLong(m.group("value"));
-        value = this.applyMask(mask, value);
-        this.memory[address] = value;
+        this.decoder.apply(this.memory, mask, address, value);
     }
 
     long run() {
@@ -74,7 +100,7 @@ class DockingEmulator {
             if (instruction.startsWith("mask = ")) {
                 mask = instruction.substring(7);
             } else if (instruction.startsWith("mem")) {
-                this.setMemory(instruction, mask);
+                this.execute(instruction, mask);
             } else {
                 throw new IllegalStateException(String.format("Unknown instruction '%s'", instruction));
             }
@@ -86,16 +112,26 @@ class DockingEmulator {
 
 public class Advent2020Day14 {
 
-    public static void testDockingEmulator() {
+    public static void testDockingEmulatorV1() {
         long expectedSum = 165L;
-        DockingEmulator emulator = DockingEmulator.fromFile("2020/day14/test14a.txt");
+        DockingEmulator emulator = DockingEmulator.fromFile("2020/day14/test14a.txt", new DecoderV1());
+        long actualSum = emulator.run();
+        assert actualSum == expectedSum : String.format("Expected memory sum to be %d not %d!%n", expectedSum, actualSum);
+    }
+
+    public static void testDockingEmulatorV2() {
+        long expectedSum = 208L;
+        DockingEmulator emulator = DockingEmulator.fromFile("2020/day14/test14b.txt", new DecoderV2());
         long actualSum = emulator.run();
         assert actualSum == expectedSum : String.format("Expected memory sum to be %d not %d!%n", expectedSum, actualSum);
     }
 
     public static void main(final String[] args) {
-        testDockingEmulator();
-        DockingEmulator emulator = DockingEmulator.fromFile("2020/day14/input14.txt");
-        System.out.printf("Day 14, Part 1, sum of memory is %s\n", emulator.run());
+        testDockingEmulatorV1();
+        DockingEmulator emulatorV1 = DockingEmulator.fromFile("2020/day14/input14.txt", new DecoderV1());
+        System.out.printf("Day 14, Part 1, sum of memory is %s\n", emulatorV1.run());
+        testDockingEmulatorV2();
+        DockingEmulator emulatorV2 = DockingEmulator.fromFile("2020/day14/input14.txt", new DecoderV2());
+        System.out.printf("Day 14, Part 2, sum of memory is %s\n", emulatorV2.run());
     }
 }
