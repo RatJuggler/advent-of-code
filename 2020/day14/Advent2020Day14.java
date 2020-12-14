@@ -3,6 +3,7 @@ package day14;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -21,7 +22,7 @@ class DecoderV1 implements Decoder {
     private long applyMask(final String mask, final long value) {
         long result = value;
         for (int i = 0; i < mask.length(); i++) {
-            long bitMask = 1L << (35 - i);
+            long bitMask = 1L << (mask.length() - 1 - i);
             switch (mask.charAt(i)) {
                 case '1':
                     result = result | bitMask;
@@ -38,6 +39,7 @@ class DecoderV1 implements Decoder {
         return result;
     }
 
+    @Override
     public void apply(final long[] memory, final String mask, final int address, final long value) {
         memory[address] = this.applyMask(mask, value);
     }
@@ -48,8 +50,36 @@ class DecoderV2 implements Decoder {
 
     DecoderV2() {}
 
-    public void apply(final long[] memory, final String mask, final int address, final long value) {
+    private List<Long> applyMask(final String mask, final long originalAddress) {
+        List<Long> results = new ArrayList<>();
+        results.add(originalAddress);
+        for (int i = 0; i < mask.length(); i++) {
+            long bitMask = 1L << (mask.length() - 1 - i);
+            List<Long> newResults = new ArrayList<>(results.size());
+            for (long address : results) {
+                switch (mask.charAt(i)) {
+                    case '1':
+                        newResults.add(address | bitMask);
+                        break;
+                    case '0':
+                        newResults.add(address);
+                        break;
+                    case 'X':
+                        newResults.add(address | bitMask);
+                        newResults.add(address & ~bitMask);
+                        break;
+                    default:
+                        throw new IllegalArgumentException("Unknown bit type!");
+                }
+            }
+            results = newResults;
+        }
+        return results;
+    }
 
+    @Override
+    public void apply(final long[] memory, final String mask, final int address, final long value) {
+        for (long j : this.applyMask(mask, address)) memory[(int) j] = value;
     }
 }
 
