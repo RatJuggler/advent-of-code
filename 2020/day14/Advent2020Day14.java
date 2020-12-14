@@ -5,13 +5,15 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
 interface Decoder {
-    void apply(final long[] memory, final String mask, final int address, final long value);
+    void apply(final Map<Long, Long> memory, final String mask, final long address, final long value);
 }
 
 
@@ -40,8 +42,8 @@ class DecoderV1 implements Decoder {
     }
 
     @Override
-    public void apply(final long[] memory, final String mask, final int address, final long value) {
-        memory[address] = this.applyMask(mask, value);
+    public void apply(final Map<Long, Long> memory, final String mask, final long address, final long value) {
+        memory.put(address, this.applyMask(mask, value));
     }
 }
 
@@ -78,8 +80,8 @@ class DecoderV2 implements Decoder {
     }
 
     @Override
-    public void apply(final long[] memory, final String mask, final int address, final long value) {
-        for (long j : this.applyMask(mask, address)) memory[(int) j] = value;
+    public void apply(final Map<Long, Long> memory, final String mask, final long address, final long value) {
+        for (Long newAddress : this.applyMask(mask, address)) memory.put(newAddress, value);
     }
 }
 
@@ -88,7 +90,7 @@ class DockingEmulator {
 
     private final List<String> program;
     private final Decoder decoder;
-    private final long[] memory = new long[65536];
+    private final Map<Long, Long> memory = new HashMap<>();
 
     DockingEmulator(final List<String> program, final Decoder decoder) {
         this.program = program;
@@ -117,7 +119,7 @@ class DockingEmulator {
 
     private void execute(final String instruction, final String mask) {
         Matcher m = this.parseMemInstruction(instruction);
-        int address = Integer.parseInt(m.group("address"));
+        long address = Long.parseLong(m.group("address"));
         long value = Long.parseLong(m.group("value"));
         this.decoder.apply(this.memory, mask, address, value);
     }
@@ -135,7 +137,7 @@ class DockingEmulator {
                 throw new IllegalStateException(String.format("Unknown instruction '%s'", instruction));
             }
         }
-        return Arrays.stream(this.memory).sum();
+        return this.memory.values().stream().mapToLong(Long::longValue).sum();
     }
 }
 

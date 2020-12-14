@@ -113,3 +113,5 @@ left in memory at the end of the program. In this example, the sum is 208.
 
 Execute the initialization program using an emulator for a version 2 decoder chip. What is the sum of all values left in memory 
 after it completes?
+
+Your puzzle answer was 3618217244644.
