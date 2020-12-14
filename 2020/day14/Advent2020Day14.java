@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,30 +53,30 @@ class DecoderV2 implements Decoder {
     DecoderV2() {}
 
     private List<Long> applyMask(final String mask, final long originalAddress) {
-        List<Long> results = new ArrayList<>();
-        results.add(originalAddress);
+        List<Long> addresses = new ArrayList<>();
+        addresses.add(originalAddress);
         for (int i = 0; i < mask.length(); i++) {
             long bitMask = 1L << (mask.length() - 1 - i);
-            List<Long> newResults = new ArrayList<>(results.size());
-            for (long address : results) {
+            List<Long> newAddresses = new ArrayList<>(addresses.size());
+            for (long address : addresses) {
                 switch (mask.charAt(i)) {
                     case '1':
-                        newResults.add(address | bitMask);
+                        newAddresses.add(address | bitMask);
                         break;
                     case '0':
-                        newResults.add(address);
+                        newAddresses.add(address);
                         break;
                     case 'X':
-                        newResults.add(address | bitMask);
-                        newResults.add(address & ~bitMask);
+                        newAddresses.add(address | bitMask);
+                        newAddresses.add(address & ~bitMask);
                         break;
                     default:
                         throw new IllegalArgumentException("Unknown bit type!");
                 }
             }
-            results = newResults;
+            addresses = newAddresses;
         }
-        return results;
+        return addresses;
     }
 
     @Override
@@ -90,10 +90,9 @@ class DockingEmulator {
 
     private final List<String> program;
     private final Decoder decoder;
-    private final Map<Long, Long> memory = new HashMap<>();
 
     DockingEmulator(final List<String> program, final Decoder decoder) {
-        this.program = program;
+        this.program = Collections.unmodifiableList(program);
         this.decoder = decoder;
     }
 
@@ -117,27 +116,28 @@ class DockingEmulator {
         return m;
     }
 
-    private void execute(final String instruction, final String mask) {
+    private void execute(final String instruction, final String mask, final Map<Long, Long> memory) {
         Matcher m = this.parseMemInstruction(instruction);
         long address = Long.parseLong(m.group("address"));
         long value = Long.parseLong(m.group("value"));
-        this.decoder.apply(this.memory, mask, address, value);
+        this.decoder.apply(memory, mask, address, value);
     }
 
     long run() {
         int pc = 0;
         String mask = "";
+        Map<Long, Long> memory = new HashMap<>();
         while (pc < this.program.size()) {
             String instruction = this.program.get(pc++);
             if (instruction.startsWith("mask = ")) {
                 mask = instruction.substring(7);
             } else if (instruction.startsWith("mem")) {
-                this.execute(instruction, mask);
+                this.execute(instruction, mask, memory);
             } else {
                 throw new IllegalStateException(String.format("Unknown instruction '%s'", instruction));
             }
         }
-        return this.memory.values().stream().mapToLong(Long::longValue).sum();
+        return memory.values().stream().mapToLong(Long::longValue).sum();
     }
 }
 
