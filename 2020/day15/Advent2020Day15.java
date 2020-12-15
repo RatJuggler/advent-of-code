@@ -11,7 +11,7 @@ import java.util.stream.IntStream;
 public class Advent2020Day15 {
 
     private static int numberGame(final String starting) {
-        List<Integer> spoken = Arrays.stream(starting.split(" ")).map(Integer::parseInt).collect(Collectors.toList());
+        List<Integer> spoken = Arrays.stream(starting.split(",")).map(Integer::parseInt).collect(Collectors.toList());
         while (spoken.size() < 2020) {
             Integer lastSpoken = spoken.get(spoken.size() - 1);
             int[] occurrences = IntStream.range(0, spoken.size())
@@ -32,12 +32,13 @@ public class Advent2020Day15 {
     }
 
     public static void main(final String[] args) {
-        testNumberGame("0 3 6", 436);
-        testNumberGame("1 3 2", 1);
-        testNumberGame("2 1 3", 10);
-        testNumberGame("1 2 3", 27);
-        testNumberGame("2 3 1", 78);
-        testNumberGame("3 2 1", 438);
-        testNumberGame("3 1 2", 1836);
+        testNumberGame("0,3,6", 436);
+        testNumberGame("1,3,2", 1);
+        testNumberGame("2,1,3", 10);
+        testNumberGame("1,2,3", 27);
+        testNumberGame("2,3,1", 78);
+        testNumberGame("3,2,1", 438);
+        testNumberGame("3,1,2", 1836);
+        System.out.printf("Day 15, Part 1, last number spoken is %s\n", numberGame("11,18,0,20,1,7,16"));
     }
 }
