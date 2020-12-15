@@ -66,3 +66,5 @@ above:
 - Given 3,1,2, the 30000000th number spoken is 362.
 
 Given your starting numbers, what will be the 30000000th number spoken?
+
+Your puzzle answer was 266.

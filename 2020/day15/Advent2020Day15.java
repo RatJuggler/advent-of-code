@@ -1,28 +1,36 @@
 package day15;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 
 public class Advent2020Day15 {
 
     private static int numberGame(final String starting, final int toTurn) {
-        List<Integer> spoken = Arrays.stream(starting.split(",")).map(Integer::parseInt).collect(Collectors.toList());
-        while (spoken.size() < toTurn) {
-            Integer lastSpoken = spoken.get(spoken.size() - 1);
-            int[] occurrences = IntStream.range(0, spoken.size())
-                    .filter(i -> Objects.equals(lastSpoken, spoken.get(i)))
-                    .toArray();
-            if (occurrences.length == 1) {
-                spoken.add(0);
-            } else {
-                spoken.add(occurrences[occurrences.length - 1] - occurrences[occurrences.length - 2]);
-            }
+        List<Integer> start = Arrays.stream(starting.split(",")).map(Integer::parseInt).collect(Collectors.toList());
+        Map<Integer, List<Integer>> spoken = new HashMap<>();
+        for (int i = 0; i < start.size(); i++) {
+            List<Integer> indexes = new ArrayList<>();
+            indexes.add(i);
+            spoken.put(start.get(i), indexes);
         }
-        return spoken.get(spoken.size() - 1);
+        int index = start.size();
+        Integer lastSpoken = start.get(index - 1);
+        while (index < toTurn) {
+            List<Integer> occurrences = spoken.get(lastSpoken);
+            if (occurrences.size() == 1)
+                lastSpoken = 0;
+            else
+                lastSpoken = occurrences.get(occurrences.size() - 1) - occurrences.get(occurrences.size() - 2);
+            occurrences = spoken.computeIfAbsent(lastSpoken, o -> new ArrayList<>());
+            occurrences.add(index);
+            index++;
+        }
+        return lastSpoken;
     }
 
     private static void testNumberGame2020(final String starting, final int expected) {
@@ -51,5 +59,6 @@ public class Advent2020Day15 {
         testNumberGame30000000("2,3,1", 6895259);
         testNumberGame30000000("3,2,1", 18);
         testNumberGame30000000("3,1,2", 362);
+        System.out.printf("Day 15, Part 2, last number spoken is %s\n", numberGame("11,18,0,20,1,7,16", 30000000));
     }
 }
