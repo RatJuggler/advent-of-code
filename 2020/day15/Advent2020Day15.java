@@ -1,9 +1,29 @@
 package day15;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+
 public class Advent2020Day15 {
 
     private static int numberGame(final String starting) {
-        return 0;
+        List<Integer> spoken = Arrays.stream(starting.split(" ")).map(Integer::parseInt).collect(Collectors.toList());
+        while (spoken.size() < 2020) {
+            Integer lastSpoken = spoken.get(spoken.size() - 1);
+            int[] occurrences = IntStream.range(0, spoken.size())
+                    .filter(i -> Objects.equals(lastSpoken, spoken.get(i)))
+                    .toArray();
+            if (occurrences.length == 1) {
+                spoken.add(0);
+            } else {
+                spoken.add(occurrences[occurrences.length - 1] - occurrences[occurrences.length - 2]);
+            }
+        }
+        return spoken.get(spoken.size() - 1);
     }
 
     private static void testNumberGame(final String starting, final int expected) {
