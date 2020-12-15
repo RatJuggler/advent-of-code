@@ -69,3 +69,6 @@ My only issue solving today's problem was using a primitive integer array of arb
 the first part it failed completely with the second as the memory addresses to be accessed far exceeded the maximum array size. It 
 was also wasting memory as only comparatively few addresses were actually being used. In the end I used a map as a kind of sparse 
 array.
+
+##### Day 15: Rambunctious Recitation
+Didn't spend long on this. Made some minor improvements to speed it up but didn't consider other solutions than brute force.
