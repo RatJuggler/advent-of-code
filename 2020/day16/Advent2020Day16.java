@@ -14,6 +14,21 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 
+class Parser {
+
+    private Parser() {}
+
+    static Matcher parse(final String toParse, final String pattern) {
+        Pattern r = Pattern.compile(pattern);
+        Matcher m = r.matcher(toParse);
+        if (!m.find()) {
+            throw new IllegalStateException("Unable to parse: " + toParse);
+        }
+        return m;
+    }
+}
+
+
 class Range {
 
     private final int from;
@@ -24,18 +39,8 @@ class Range {
         this.to = to;
     }
 
-    private static Matcher parseRange(final String rangeToParse) {
-        String pattern = "^(?<from>\\d+)-(?<to>\\d+)$";
-        Pattern r = Pattern.compile(pattern);
-        Matcher m = r.matcher(rangeToParse);
-        if (!m.find()) {
-            throw new IllegalStateException("Unable to parse range: " + rangeToParse);
-        }
-        return m;
-    }
-
     static Range fromString(final String rangeToParse) {
-        Matcher m = parseRange(rangeToParse);
+        Matcher m = Parser.parse(rangeToParse, "^(?<from>\\d+)-(?<to>\\d+)$");
         int from = Integer.parseInt(m.group("from"));
         int to = Integer.parseInt(m.group("to"));
         return new Range(from, to);
@@ -57,18 +62,8 @@ class FieldRule {
         this.ranges = Collections.unmodifiableList(ranges);
     }
 
-    private static Matcher parseFieldRule(final String ruleToParse) {
-        String pattern = "^(?<name>.+): (?<range1>\\d+-\\d+) or (?<range2>\\d+-\\d+)$";
-        Pattern r = Pattern.compile(pattern);
-        Matcher m = r.matcher(ruleToParse);
-        if (!m.find()) {
-            throw new IllegalStateException("Unable to parse field rule: " + ruleToParse);
-        }
-        return m;
-    }
-
     private static FieldRule fromString(final String ruleToParse) {
-        Matcher m = parseFieldRule(ruleToParse);
+        Matcher m = Parser.parse(ruleToParse, "^(?<name>.+): (?<range1>\\d+-\\d+) or (?<range2>\\d+-\\d+)$");
         List<Range> ranges = new ArrayList<>();
         ranges.add(Range.fromString(m.group("range1")));
         ranges.add(Range.fromString(m.group("range2")));
