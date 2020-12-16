@@ -73,11 +73,14 @@ class FieldRule {
     }
 
     static List<FieldRule> fromList(final List<String> rulesToParse) {
-        return rulesToParse.stream().map(FieldRule::fromString).collect(Collectors.toList());
+        return rulesToParse.stream()
+                .map(FieldRule::fromString)
+                .collect(Collectors.toList());
     }
 
     boolean inRange(final int field) {
-        return this.ranges.stream().anyMatch(r -> r.inRange(field));
+        return this.ranges.stream()
+                .anyMatch(r -> r.inRange(field));
     }
 }
 
@@ -91,28 +94,36 @@ class Ticket {
     }
 
     static Ticket fromString(final String fieldsToParse) {
-        List<Integer> fields = Arrays.stream(fieldsToParse.split(",")).map(Integer::parseInt).collect(Collectors.toList());
+        List<Integer> fields = Arrays.stream(fieldsToParse.split(","))
+                .map(Integer::parseInt)
+                .collect(Collectors.toList());
         return new Ticket(fields);
     }
 
     static List<Ticket> fromList(final List<String> ticketsToParse) {
-        return ticketsToParse.stream().map(Ticket::fromString).collect(Collectors.toList());
+        return ticketsToParse.stream()
+                .map(Ticket::fromString)
+                .collect(Collectors.toList());
     }
 
     int errorRate(final List<FieldRule> fieldRules) {
-        return this.fields.stream().filter(f -> fieldRules.stream().noneMatch(r -> r.inRange(f))).mapToInt(Integer::intValue).sum();
+        return this.fields.stream()
+                .filter(f -> fieldRules.stream().noneMatch(r -> r.inRange(f)))
+                .mapToInt(Integer::intValue).sum();
     }
 
     List<Integer> validFields(final FieldRule fieldRule, final Collection<Integer> alreadyClassified) {
-        List<Integer> validFields = new ArrayList<>();
-        for (int i = 0; i < this.fields.size(); i++) {
-            if (!alreadyClassified.contains(i) && fieldRule.inRange(this.fields.get(i))) validFields.add(i);
-        }
-        return validFields;
+        return IntStream.range(0, this.fields.size())
+                .filter(i -> !alreadyClassified.contains(i))
+                .filter(i -> fieldRule.inRange(this.fields.get(i)))
+                .boxed().collect(Collectors.toList());
     }
 
     long fieldProduct(final List<Integer> fields) {
-        return fields.stream().map((this.fields::get)).mapToLong(Long::valueOf).reduce(1, (a, v) -> a*v);
+        return fields.stream()
+                .map((this.fields::get))
+                .mapToLong(Long::valueOf)
+                .reduce(1, (a, v) -> a * v);
     }
 }
 
@@ -162,22 +173,34 @@ class TicketScanner {
     }
 
     long myDepartureFieldProduct() {
-        Map<String, Integer> classifiedFields = this.classifyFields();
-        List<Integer> fields = classifiedFields.entrySet().stream().filter(e -> e.getKey().startsWith("departure")).map(Map.Entry::getValue).collect(Collectors.toList());
+        List<Integer> fields = this.classifyFields().entrySet().stream()
+                .filter(e -> e.getKey().startsWith("departure"))
+                .map(Map.Entry::getValue)
+                .collect(Collectors.toList());
         return this.myTicket.fieldProduct(fields);
     }
 
     Map<String, Integer> classifyFields() {
         Map<String, Integer> classifiedFields = new HashMap<>();
-        List<Ticket> validTickets = this.otherTickets.stream().filter(t -> t.errorRate(this.fieldRules) == 0).collect(Collectors.toList());
-        List<String> fields = this.fieldRules.stream().map(r -> r.name).collect(Collectors.toList());
+        List<Ticket> validTickets = this.otherTickets.stream()
+                .filter(t -> t.errorRate(this.fieldRules) == 0)
+                .collect(Collectors.toList());
+        List<String> fields = this.fieldRules.stream()
+                .map(r -> r.name)
+                .collect(Collectors.toList());
         while (fields.size() > 0) {
-            List<FieldRule> remainingFields = this.fieldRules.stream().filter(r -> fields.contains(r.name)).collect(Collectors.toList());
+            List<FieldRule> remainingFields = this.fieldRules.stream()
+                    .filter(r -> fields.contains(r.name))
+                    .collect(Collectors.toList());
             for (FieldRule fieldRule : remainingFields) {
-                List<Integer> validFields = IntStream.range(0, this.fieldRules.size()).boxed().collect(Collectors.toList());
+                List<Integer> validFields = IntStream.range(0, this.fieldRules.size())
+                        .boxed()
+                        .collect(Collectors.toList());
                 for (Ticket ticket : validTickets) {
                     List<Integer> ticketValidFields = ticket.validFields(fieldRule, classifiedFields.values());
-                    validFields = validFields.stream().filter(ticketValidFields::contains).collect(Collectors.toList());
+                    validFields = validFields.stream()
+                            .filter(ticketValidFields::contains)
+                            .collect(Collectors.toList());
                 }
                 if (validFields.size() == 1) {
                     classifiedFields.put(fieldRule.name, validFields.get(0));
