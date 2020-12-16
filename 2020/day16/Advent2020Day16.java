@@ -5,7 +5,9 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -159,6 +161,10 @@ class TicketScanner {
     int errorRate() {
         return this.otherTickets.stream().mapToInt(t -> t.errorRate(this.fieldRules)).sum();
     }
+
+    Map<String, Integer> classifyFields() {
+        return new HashMap<>();
+    }
 }
 
 
@@ -171,9 +177,18 @@ public class Advent2020Day16 {
         assert actualRate == expectedRate : String.format("Expected ticket error rate to be %d not %d!%n", expectedRate, actualRate);
     }
 
+    public static void testTickerScannerFieldClassifier() {
+        TicketScanner scanner = TicketScanner.fromFile("2020/day16/test16b.txt");
+        Map<String, Integer> myFields = scanner.classifyFields();
+        assert myFields.get("class") == 12 : "Expected 'class' field to be 12!";
+        assert myFields.get("row") == 11 : "Expected 'row' field to be 11!";
+        assert myFields.get("seat") == 13 : "Expected 'seat' field to be 13!";
+    }
+
     public static void main(final String[] args) {
         testTickerScannerErrorRate();
         TicketScanner scanner = TicketScanner.fromFile("2020/day16/input16.txt");
         System.out.printf("Day 16, Part 1, ticket error rate is %s\n", scanner.errorRate());
+        testTickerScannerFieldClassifier();
     }
 }
