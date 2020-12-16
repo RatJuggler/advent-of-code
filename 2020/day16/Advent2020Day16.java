@@ -112,10 +112,7 @@ class Ticket {
     }
 
     long fieldProduct(final List<Integer> fields) {
-        long product = 1;
-        for (Integer field: fields)
-            product *= this.fields.get(field);
-        return product;
+        return fields.stream().map((this.fields::get)).mapToLong(Long::valueOf).reduce(1, (a, v) -> a*v);
     }
 }
 
