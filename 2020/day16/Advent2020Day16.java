@@ -38,6 +38,10 @@ class Range {
         int to = Integer.parseInt(m.group("to"));
         return new Range(from, to);
     }
+
+    boolean inRange(final int field) {
+        return this.from <= field && field <= this.to;
+    }
 }
 
 
@@ -72,6 +76,13 @@ class FieldRule {
     static List<FieldRule> fromList(final List<String> rulesToParse) {
         return rulesToParse.stream().map(FieldRule::fromString).collect(Collectors.toList());
     }
+
+    boolean inRange(final int field) {
+        boolean inRange = false;
+        for (Range range : this.ranges)
+            inRange = inRange || range.inRange(field);
+        return inRange;
+    }
 }
 
 
@@ -90,6 +101,17 @@ class Ticket {
 
     static List<Ticket> fromList(final List<String> ticketsToParse) {
         return ticketsToParse.stream().map(Ticket::fromString).collect(Collectors.toList());
+    }
+
+    int errorRate(final List<FieldRule> fieldRules) {
+        int errorRate = 0;
+        for (int field: this.fields) {
+            boolean inRange = false;
+            for (FieldRule rule: fieldRules)
+                inRange = inRange || rule.inRange(field);
+            if (!inRange) errorRate += field;
+        }
+        return errorRate;
     }
 }
 
@@ -135,7 +157,7 @@ class TicketScanner {
     }
 
     int errorRate() {
-        return 0;
+        return this.otherTickets.stream().mapToInt(t -> t.errorRate(this.fieldRules)).sum();
     }
 }
 
