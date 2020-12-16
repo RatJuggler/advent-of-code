@@ -1,12 +1,62 @@
 package day16;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+
+class Range {
+
+    final int from;
+    final int to;
+
+    Range(final int from, final int to) {
+        this.from = from;
+        this.to = to;
+    }
+}
+
+
+class FieldRule {
+
+    final String name;
+    final List<Range> ranges;
+
+    FieldRule(final String name, final List<Range> ranges) {
+        this.name = name;
+        this.ranges = Collections.unmodifiableList(ranges);
+    }
+}
+
+
+class Ticket {
+
+    final List<Integer> fields;
+
+    Ticket(final List<Integer> fields) {
+        this.fields = Collections.unmodifiableList(fields);
+    }
+}
+
 
 class TicketScanner {
 
-    TicketScanner() {}
+    final List<FieldRule> fieldRules;
+    final Ticket myTicket;
+    final List<Ticket> otherTickets;
+
+    TicketScanner(final List<FieldRule> fieldRules, final Ticket myTicket, final List<Ticket> otherTickets) {
+        this.fieldRules = Collections.unmodifiableList(fieldRules);
+        this.myTicket = myTicket;
+        this.otherTickets = Collections.unmodifiableList(otherTickets);
+    }
 
     static TicketScanner fromFile(final String filename) {
-        return new TicketScanner();
+        List<FieldRule> fieldRules = new ArrayList<>();
+        List<Integer> myFields = new ArrayList<>();
+        Ticket myTicket = new Ticket(myFields);
+        List<Ticket> otherTickets = new ArrayList<>();
+        return new TicketScanner(fieldRules, myTicket, otherTickets);
     }
 
     int errorRate() {
