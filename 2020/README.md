@@ -72,3 +72,6 @@ array.
 
 ##### Day 15: Rambunctious Recitation
 Didn't spend long on this. Made some minor improvements to speed it up but didn't consider other solutions than brute force.
+
+##### Day 16: Ticket Translation
+Java to the maximum! I ended up creating six additional classes whilst solving this.
