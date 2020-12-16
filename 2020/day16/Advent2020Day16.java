@@ -100,14 +100,7 @@ class Ticket {
     }
 
     int errorRate(final List<FieldRule> fieldRules) {
-        int errorRate = 0;
-        for (int field: this.fields) {
-            boolean inRange = false;
-            for (FieldRule rule: fieldRules)
-                inRange = inRange || rule.inRange(field);
-            if (!inRange) errorRate += field;
-        }
-        return errorRate;
+        return this.fields.stream().filter(f -> fieldRules.stream().noneMatch(r -> r.inRange(f))).mapToInt(Integer::intValue).sum();
     }
 
     List<Integer> validFields(final FieldRule fieldRule, final Collection<Integer> alreadyClassified) {
