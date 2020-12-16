@@ -31,21 +31,21 @@ class Parser {
 }
 
 
-class Range {
+class RangeRule {
 
     private final int from;
     private final int to;
 
-    Range(final int from, final int to) {
+    RangeRule(final int from, final int to) {
         this.from = from;
         this.to = to;
     }
 
-    static Range fromString(final String rangeToParse) {
+    static RangeRule fromString(final String rangeToParse) {
         Matcher m = Parser.parse(rangeToParse, "^(?<from>\\d+)-(?<to>\\d+)$");
         int from = Integer.parseInt(m.group("from"));
         int to = Integer.parseInt(m.group("to"));
-        return new Range(from, to);
+        return new RangeRule(from, to);
     }
 
     boolean inRange(final int field) {
@@ -54,32 +54,32 @@ class Range {
 }
 
 
-class FieldRule {
+class FieldDefinition {
 
     final String name;
-    private final List<Range> ranges;
+    private final List<RangeRule> rangeRules;
 
-    FieldRule(final String name, final List<Range> ranges) {
+    FieldDefinition(final String name, final List<RangeRule> rangeRules) {
         this.name = name;
-        this.ranges = Collections.unmodifiableList(ranges);
+        this.rangeRules = Collections.unmodifiableList(rangeRules);
     }
 
-    private static FieldRule fromString(final String ruleToParse) {
-        Matcher m = Parser.parse(ruleToParse, "^(?<name>.+): (?<range1>\\d+-\\d+) or (?<range2>\\d+-\\d+)$");
-        List<Range> ranges = new ArrayList<>();
-        ranges.add(Range.fromString(m.group("range1")));
-        ranges.add(Range.fromString(m.group("range2")));
-        return new FieldRule(m.group("name"), ranges);
+    private static FieldDefinition fromString(final String definitionToParse) {
+        Matcher m = Parser.parse(definitionToParse, "^(?<name>.+): (?<range1>\\d+-\\d+) or (?<range2>\\d+-\\d+)$");
+        List<RangeRule> rangeRules = new ArrayList<>();
+        rangeRules.add(RangeRule.fromString(m.group("range1")));
+        rangeRules.add(RangeRule.fromString(m.group("range2")));
+        return new FieldDefinition(m.group("name"), rangeRules);
     }
 
-    static List<FieldRule> fromList(final List<String> rulesToParse) {
-        return rulesToParse.stream()
-                .map(FieldRule::fromString)
+    static List<FieldDefinition> fromList(final List<String> defintionsToParse) {
+        return defintionsToParse.stream()
+                .map(FieldDefinition::fromString)
                 .collect(Collectors.toList());
     }
 
     boolean inRange(final int field) {
-        return this.ranges.stream()
+        return this.rangeRules.stream()
                 .anyMatch(r -> r.inRange(field));
     }
 }
@@ -93,8 +93,8 @@ class Ticket {
         this.fields = Collections.unmodifiableList(fields);
     }
 
-    static Ticket fromString(final String fieldsToParse) {
-        List<Integer> fields = Arrays.stream(fieldsToParse.split(","))
+    static Ticket fromString(final String ticketToParse) {
+        List<Integer> fields = Arrays.stream(ticketToParse.split(","))
                 .map(Integer::parseInt)
                 .collect(Collectors.toList());
         return new Ticket(fields);
@@ -106,16 +106,16 @@ class Ticket {
                 .collect(Collectors.toList());
     }
 
-    int errorRate(final List<FieldRule> fieldRules) {
+    int errorRate(final List<FieldDefinition> fieldDefinitions) {
         return this.fields.stream()
-                .filter(f -> fieldRules.stream().noneMatch(r -> r.inRange(f)))
+                .filter(f -> fieldDefinitions.stream().noneMatch(r -> r.inRange(f)))
                 .mapToInt(Integer::intValue).sum();
     }
 
-    List<Integer> validFields(final FieldRule fieldRule, final Collection<Integer> alreadyClassified) {
+    List<Integer> validFields(final FieldDefinition fieldDefinition, final Collection<Integer> alreadyClassified) {
         return IntStream.range(0, this.fields.size())
                 .filter(i -> !alreadyClassified.contains(i))
-                .filter(i -> fieldRule.inRange(this.fields.get(i)))
+                .filter(i -> fieldDefinition.inRange(this.fields.get(i)))
                 .boxed().collect(Collectors.toList());
     }
 
@@ -130,12 +130,12 @@ class Ticket {
 
 class TicketScanner {
 
-    private final List<FieldRule> fieldRules;
+    private final List<FieldDefinition> fieldDefinitions;
     private final Ticket myTicket;
     private final List<Ticket> otherTickets;
 
-    TicketScanner(final List<FieldRule> fieldRules, final Ticket myTicket, final List<Ticket> otherTickets) {
-        this.fieldRules = Collections.unmodifiableList(fieldRules);
+    TicketScanner(final List<FieldDefinition> fieldDefinitions, final Ticket myTicket, final List<Ticket> otherTickets) {
+        this.fieldDefinitions = Collections.unmodifiableList(fieldDefinitions);
         this.myTicket = myTicket;
         this.otherTickets = Collections.unmodifiableList(otherTickets);
     }
@@ -162,14 +162,16 @@ class TicketScanner {
 
     static TicketScanner fromFile(final String filename) {
         List<List<String>> fileSections = readFileSections(filename);
-        List<FieldRule> fieldRules = FieldRule.fromList(fileSections.get(0));
+        List<FieldDefinition> fieldDefinitions = FieldDefinition.fromList(fileSections.get(0));
         Ticket myTicket = Ticket.fromString(fileSections.get(1).get(1));
         List<Ticket> otherTickets = Ticket.fromList(fileSections.get(2).subList(1, fileSections.get(2).size()));
-        return new TicketScanner(fieldRules, myTicket, otherTickets);
+        return new TicketScanner(fieldDefinitions, myTicket, otherTickets);
     }
 
     int totalErrorRate() {
-        return this.otherTickets.stream().mapToInt(t -> t.errorRate(this.fieldRules)).sum();
+        return this.otherTickets.stream()
+                .mapToInt(t -> t.errorRate(this.fieldDefinitions))
+                .sum();
     }
 
     long myDepartureFieldProduct() {
@@ -183,28 +185,28 @@ class TicketScanner {
     Map<String, Integer> classifyFields() {
         Map<String, Integer> classifiedFields = new HashMap<>();
         List<Ticket> validTickets = this.otherTickets.stream()
-                .filter(t -> t.errorRate(this.fieldRules) == 0)
+                .filter(t -> t.errorRate(this.fieldDefinitions) == 0)
                 .collect(Collectors.toList());
-        List<String> fields = this.fieldRules.stream()
+        List<String> fields = this.fieldDefinitions.stream()
                 .map(r -> r.name)
                 .collect(Collectors.toList());
         while (fields.size() > 0) {
-            List<FieldRule> remainingFields = this.fieldRules.stream()
+            List<FieldDefinition> remainingFields = this.fieldDefinitions.stream()
                     .filter(r -> fields.contains(r.name))
                     .collect(Collectors.toList());
-            for (FieldRule fieldRule : remainingFields) {
-                List<Integer> validFields = IntStream.range(0, this.fieldRules.size())
+            for (FieldDefinition fieldDefinition : remainingFields) {
+                List<Integer> validFields = IntStream.range(0, this.fieldDefinitions.size())
                         .boxed()
                         .collect(Collectors.toList());
                 for (Ticket ticket : validTickets) {
-                    List<Integer> ticketValidFields = ticket.validFields(fieldRule, classifiedFields.values());
+                    List<Integer> ticketValidFields = ticket.validFields(fieldDefinition, classifiedFields.values());
                     validFields = validFields.stream()
                             .filter(ticketValidFields::contains)
                             .collect(Collectors.toList());
                 }
                 if (validFields.size() == 1) {
-                    classifiedFields.put(fieldRule.name, validFields.get(0));
-                    fields.remove(fieldRule.name);
+                    classifiedFields.put(fieldDefinition.name, validFields.get(0));
+                    fields.remove(fieldDefinition.name);
                 }
             }
         }
