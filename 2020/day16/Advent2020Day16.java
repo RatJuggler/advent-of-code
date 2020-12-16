@@ -64,18 +64,12 @@ class FieldDefinition {
         this.rangeRules = Collections.unmodifiableList(rangeRules);
     }
 
-    private static FieldDefinition fromString(final String definitionToParse) {
+    static FieldDefinition fromString(final String definitionToParse) {
         Matcher m = Parser.parse(definitionToParse, "^(?<name>.+): (?<range1>\\d+-\\d+) or (?<range2>\\d+-\\d+)$");
         List<RangeRule> rangeRules = new ArrayList<>();
         rangeRules.add(RangeRule.fromString(m.group("range1")));
         rangeRules.add(RangeRule.fromString(m.group("range2")));
         return new FieldDefinition(m.group("name"), rangeRules);
-    }
-
-    static List<FieldDefinition> fromList(final List<String> defintionsToParse) {
-        return defintionsToParse.stream()
-                .map(FieldDefinition::fromString)
-                .collect(Collectors.toList());
     }
 
     boolean inRange(final int field) {
@@ -85,12 +79,67 @@ class FieldDefinition {
 }
 
 
+class FieldDefinitions {
+
+    private final List<FieldDefinition> definitions;
+
+    FieldDefinitions(final List<FieldDefinition> definitions) {
+        this.definitions = Collections.unmodifiableList(definitions);
+    }
+
+    static FieldDefinitions fromList(final List<String> defintionsToParse) {
+        List<FieldDefinition> definitions = defintionsToParse.stream()
+                .map(FieldDefinition::fromString)
+                .collect(Collectors.toList());
+        return new FieldDefinitions(definitions);
+    }
+
+    boolean nonMatch(final int fieldValue) {
+        return this.definitions.stream()
+                .noneMatch(r -> r.inRange(fieldValue));
+    }
+
+    private List<String> names() {
+        return this.definitions.stream()
+                .map(r -> r.name)
+                .collect(Collectors.toList());
+    }
+
+    private List<FieldDefinition> definitions(final List<String> names) {
+        return this.definitions.stream()
+                .filter(r -> names.contains(r.name))
+                .collect(Collectors.toList());
+    }
+
+    Map<String, Integer> classifyFields(final List<Ticket> tickets) {
+        Map<String, Integer> classifiedFields = new HashMap<>();
+        List<String> fieldsNotClassified = this.names();
+        while (fieldsNotClassified.size() > 0) {
+            for (FieldDefinition fieldDefinition : this.definitions(fieldsNotClassified)) {
+                List<Integer> validFields = IntStream.range(0, this.definitions.size()).boxed().collect(Collectors.toList());
+                for (Ticket ticket : tickets) {
+                    List<Integer> ticketValidFields = ticket.validFields(fieldDefinition, classifiedFields.values());
+                    validFields = validFields.stream()
+                            .filter(ticketValidFields::contains)
+                            .collect(Collectors.toList());
+                }
+                if (validFields.size() == 1) {
+                    classifiedFields.put(fieldDefinition.name, validFields.get(0));
+                    fieldsNotClassified.remove(fieldDefinition.name);
+                }
+            }
+        }
+        return classifiedFields;
+    }
+}
+
+
 class Ticket {
 
-    private final List<Integer> fields;
+    private final List<Integer> fieldValues;
 
-    Ticket(final List<Integer> fields) {
-        this.fields = Collections.unmodifiableList(fields);
+    Ticket(final List<Integer> fieldValues) {
+        this.fieldValues = Collections.unmodifiableList(fieldValues);
     }
 
     static Ticket fromString(final String ticketToParse) {
@@ -106,22 +155,22 @@ class Ticket {
                 .collect(Collectors.toList());
     }
 
-    int errorRate(final List<FieldDefinition> fieldDefinitions) {
-        return this.fields.stream()
-                .filter(f -> fieldDefinitions.stream().noneMatch(r -> r.inRange(f)))
+    int errorRate(final FieldDefinitions fieldDefinitions) {
+        return this.fieldValues.stream()
+                .filter(fieldDefinitions::nonMatch)
                 .mapToInt(Integer::intValue).sum();
     }
 
     List<Integer> validFields(final FieldDefinition fieldDefinition, final Collection<Integer> alreadyClassified) {
-        return IntStream.range(0, this.fields.size())
+        return IntStream.range(0, this.fieldValues.size())
                 .filter(i -> !alreadyClassified.contains(i))
-                .filter(i -> fieldDefinition.inRange(this.fields.get(i)))
+                .filter(i -> fieldDefinition.inRange(this.fieldValues.get(i)))
                 .boxed().collect(Collectors.toList());
     }
 
-    long fieldProduct(final List<Integer> fields) {
+    long fieldValueProduct(final List<Integer> fields) {
         return fields.stream()
-                .map((this.fields::get))
+                .map((this.fieldValues::get))
                 .mapToLong(Long::valueOf)
                 .reduce(1, (a, v) -> a * v);
     }
@@ -130,12 +179,12 @@ class Ticket {
 
 class TicketScanner {
 
-    private final List<FieldDefinition> fieldDefinitions;
+    private final FieldDefinitions fieldDefinitions;
     private final Ticket myTicket;
     private final List<Ticket> otherTickets;
 
-    TicketScanner(final List<FieldDefinition> fieldDefinitions, final Ticket myTicket, final List<Ticket> otherTickets) {
-        this.fieldDefinitions = Collections.unmodifiableList(fieldDefinitions);
+    TicketScanner(final FieldDefinitions fieldDefinitions, final Ticket myTicket, final List<Ticket> otherTickets) {
+        this.fieldDefinitions = fieldDefinitions;
         this.myTicket = myTicket;
         this.otherTickets = Collections.unmodifiableList(otherTickets);
     }
@@ -162,7 +211,7 @@ class TicketScanner {
 
     static TicketScanner fromFile(final String filename) {
         List<List<String>> fileSections = readFileSections(filename);
-        List<FieldDefinition> fieldDefinitions = FieldDefinition.fromList(fileSections.get(0));
+        FieldDefinitions fieldDefinitions = FieldDefinitions.fromList(fileSections.get(0));
         Ticket myTicket = Ticket.fromString(fileSections.get(1).get(1));
         List<Ticket> otherTickets = Ticket.fromList(fileSections.get(2).subList(1, fileSections.get(2).size()));
         return new TicketScanner(fieldDefinitions, myTicket, otherTickets);
@@ -179,38 +228,14 @@ class TicketScanner {
                 .filter(e -> e.getKey().startsWith("departure"))
                 .map(Map.Entry::getValue)
                 .collect(Collectors.toList());
-        return this.myTicket.fieldProduct(fields);
+        return this.myTicket.fieldValueProduct(fields);
     }
 
     Map<String, Integer> classifyFields() {
-        Map<String, Integer> classifiedFields = new HashMap<>();
         List<Ticket> validTickets = this.otherTickets.stream()
                 .filter(t -> t.errorRate(this.fieldDefinitions) == 0)
                 .collect(Collectors.toList());
-        List<String> fields = this.fieldDefinitions.stream()
-                .map(r -> r.name)
-                .collect(Collectors.toList());
-        while (fields.size() > 0) {
-            List<FieldDefinition> remainingFields = this.fieldDefinitions.stream()
-                    .filter(r -> fields.contains(r.name))
-                    .collect(Collectors.toList());
-            for (FieldDefinition fieldDefinition : remainingFields) {
-                List<Integer> validFields = IntStream.range(0, this.fieldDefinitions.size())
-                        .boxed()
-                        .collect(Collectors.toList());
-                for (Ticket ticket : validTickets) {
-                    List<Integer> ticketValidFields = ticket.validFields(fieldDefinition, classifiedFields.values());
-                    validFields = validFields.stream()
-                            .filter(ticketValidFields::contains)
-                            .collect(Collectors.toList());
-                }
-                if (validFields.size() == 1) {
-                    classifiedFields.put(fieldDefinition.name, validFields.get(0));
-                    fields.remove(fieldDefinition.name);
-                }
-            }
-        }
-        return classifiedFields;
+        return this.fieldDefinitions.classifyFields(validTickets);
     }
 }
 
