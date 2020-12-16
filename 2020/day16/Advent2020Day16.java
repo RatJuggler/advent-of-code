@@ -77,10 +77,7 @@ class FieldRule {
     }
 
     boolean inRange(final int field) {
-        boolean inRange = false;
-        for (Range range : this.ranges)
-            inRange = inRange || range.inRange(field);
-        return inRange;
+        return this.ranges.stream().anyMatch(r -> r.inRange(field));
     }
 }
 
