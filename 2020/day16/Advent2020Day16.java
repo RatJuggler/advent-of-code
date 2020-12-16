@@ -14,8 +14,8 @@ import java.util.stream.Collectors;
 
 class Range {
 
-    final int from;
-    final int to;
+    private final int from;
+    private final int to;
 
     Range(final int from, final int to) {
         this.from = from;
@@ -27,7 +27,7 @@ class Range {
         Pattern r = Pattern.compile(pattern);
         Matcher m = r.matcher(rangeToParse);
         if (!m.find()) {
-            throw new IllegalStateException("Unable to parse instruction: " + rangeToParse);
+            throw new IllegalStateException("Unable to parse range: " + rangeToParse);
         }
         return m;
     }
@@ -47,8 +47,8 @@ class Range {
 
 class FieldRule {
 
-    final String name;
-    final List<Range> ranges;
+    private final String name;
+    private final List<Range> ranges;
 
     FieldRule(final String name, final List<Range> ranges) {
         this.name = name;
@@ -56,7 +56,7 @@ class FieldRule {
     }
 
     private static Matcher parseFieldRule(final String ruleToParse) {
-        String pattern = "^(?<name>\\w+): (?<range1>\\d+-\\d+) or (?<range2>\\d+-\\d+)$";
+        String pattern = "^(?<name>.+): (?<range1>\\d+-\\d+) or (?<range2>\\d+-\\d+)$";
         Pattern r = Pattern.compile(pattern);
         Matcher m = r.matcher(ruleToParse);
         if (!m.find()) {
@@ -88,7 +88,7 @@ class FieldRule {
 
 class Ticket {
 
-    final List<Integer> fields;
+    private final List<Integer> fields;
 
     Ticket(final List<Integer> fields) {
         this.fields = Collections.unmodifiableList(fields);
@@ -118,9 +118,9 @@ class Ticket {
 
 class TicketScanner {
 
-    final List<FieldRule> fieldRules;
-    final Ticket myTicket;
-    final List<Ticket> otherTickets;
+    private final List<FieldRule> fieldRules;
+    private final Ticket myTicket;
+    private final List<Ticket> otherTickets;
 
     TicketScanner(final List<FieldRule> fieldRules, final Ticket myTicket, final List<Ticket> otherTickets) {
         this.fieldRules = Collections.unmodifiableList(fieldRules);
@@ -173,5 +173,7 @@ public class Advent2020Day16 {
 
     public static void main(final String[] args) {
         testTickerScannerErrorRate();
+        TicketScanner scanner = TicketScanner.fromFile("2020/day16/input16.txt");
+        System.out.printf("Day 16, Part 1, ticket error rate is %s\n", scanner.errorRate());
     }
 }
