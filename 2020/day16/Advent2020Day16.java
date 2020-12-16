@@ -120,6 +120,13 @@ class Ticket {
         }
         return validFields;
     }
+
+    long fieldProduct(final List<Integer> fields) {
+        long product = 1;
+        for (Integer field: fields)
+            product *= this.fields.get(field);
+        return product;
+    }
 }
 
 
@@ -167,8 +174,10 @@ class TicketScanner {
         return this.otherTickets.stream().mapToInt(t -> t.errorRate(this.fieldRules)).sum();
     }
 
-    int myDepartureFieldProduct() {
-        return 0;
+    long myDepartureFieldProduct() {
+        Map<String, Integer> classifiedFields = this.classifyFields();
+        List<Integer> fields = classifiedFields.entrySet().stream().filter(e -> e.getKey().startsWith("departure")).map(Map.Entry::getValue).collect(Collectors.toList());
+        return this.myTicket.fieldProduct(fields);
     }
 
     Map<String, Integer> classifyFields() {
@@ -245,7 +254,7 @@ public class Advent2020Day16 {
         assert actualRate == expectedRate : String.format("Expected ticket error rate to be %d not %d!%n", expectedRate, actualRate);
     }
 
-    public static void testTickerScannerMyDepartureFieldProduct() {
+    public static void testTickerScannerClassifyFields() {
         TicketScanner scanner = TicketScanner.fromFile("2020/day16/test16b.txt");
         Map<String, Integer> myFields = scanner.classifyFields();
         assert myFields.get("class") == 1 : "Expected 'class' field to be 1!";
@@ -255,7 +264,7 @@ public class Advent2020Day16 {
 
     public static void main(final String[] args) {
         testTickerScannerErrorRate();
-        testTickerScannerMyDepartureFieldProduct();
+        testTickerScannerClassifyFields();
         TicketScanner scanner = TicketScanner.fromFile("2020/day16/input16.txt");
         System.out.printf("Day 16, Part 1, ticket error rate is %s\n", scanner.totalErrorRate());
         System.out.printf("Day 16, Part 2, my departure field product is %s\n", scanner.myDepartureFieldProduct());
