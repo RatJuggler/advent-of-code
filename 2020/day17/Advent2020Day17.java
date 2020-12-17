@@ -20,7 +20,8 @@ class EnergySource3D {
                 Arrays.fill(yDimension, '.');
         for (int y = 0; y < initialState.size(); y++)
             for (int x = 0; x < initialState.get(y).length(); x++)
-                this.pocketDimensions[CENTER_POINT]
+                this.pocketDimensions
+                        [CENTER_POINT]
                         [CENTER_POINT - initialState.size() + y]
                         [CENTER_POINT - initialState.get(y).length() + x] = initialState.get(y).charAt(x);
     }
@@ -104,18 +105,21 @@ class EnergySource3D {
 
 class EnergySource4D {
 
-    private static final int DIMENSION_SIZE = 29;
+    private static final int DIMENSION_SIZE = 39;
     private static final int CENTER_POINT = (DIMENSION_SIZE + 1) / 2;
 
-    private char[][][] pocketDimensions = new char[DIMENSION_SIZE][DIMENSION_SIZE][DIMENSION_SIZE];
+    private char[][][][] pocketDimensions = new char[DIMENSION_SIZE][DIMENSION_SIZE][DIMENSION_SIZE][DIMENSION_SIZE];
 
     EnergySource4D(final List<String> initialState) {
-        for (char[][] zDimension : this.pocketDimensions)
-            for (char[] yDimension : zDimension)
-                Arrays.fill(yDimension, '.');
+        for (char[][][] wDimension : this.pocketDimensions)
+            for (char[][] zDimension : wDimension)
+                for (char[] yDimension : zDimension)
+                    Arrays.fill(yDimension, '.');
         for (int y = 0; y < initialState.size(); y++)
             for (int x = 0; x < initialState.get(y).length(); x++)
-                this.pocketDimensions[CENTER_POINT]
+                this.pocketDimensions
+                        [CENTER_POINT]
+                        [CENTER_POINT]
                         [CENTER_POINT - initialState.size() + y]
                         [CENTER_POINT - initialState.get(y).length() + x] = initialState.get(y).charAt(x);
     }
@@ -132,35 +136,58 @@ class EnergySource4D {
 
     private void dumpDimensions(final int generation) {
         System.out.println("\nGeneration: " + generation);
-        for (int z = 0; z < this.pocketDimensions.length; z++) {
-            System.out.println("\nz=" + z);
-            for (int y = 0; y < this.pocketDimensions[z].length; y++)
-                System.out.println(String.valueOf(this.pocketDimensions[z][y]));
+        for (int w = 0; w < this.pocketDimensions.length; w++) {
+            for (int z = 0; z < this.pocketDimensions.length; z++) {
+                System.out.println("\nz=" + z + ", w=" + w);
+                for (int y = 0; y < this.pocketDimensions[z].length; y++)
+                    System.out.println(String.valueOf(this.pocketDimensions[w][z][y]));
+            }
         }
     }
 
-    private char[][][] copyDimensions() {
-        char[][][] newDimensions = new char[DIMENSION_SIZE][DIMENSION_SIZE][DIMENSION_SIZE];
-        for (int z = 0; z < this.pocketDimensions.length; z++)
-            for (int y = 0; y < this.pocketDimensions[z].length; y++)
-                System.arraycopy(this.pocketDimensions[z][y], 0, newDimensions[z][y], 0, this.pocketDimensions[z][y].length);
+    private char[][][][] copyDimensions() {
+        char[][][][] newDimensions = new char[DIMENSION_SIZE][DIMENSION_SIZE][DIMENSION_SIZE][DIMENSION_SIZE];
+        for (int w = 0; w < this.pocketDimensions.length; w++)
+            for (int z = 0; z < this.pocketDimensions[w].length; z++)
+                for (int y = 0; y < this.pocketDimensions[w][z].length; y++)
+                    System.arraycopy(this.pocketDimensions[w][z][y], 0, newDimensions[w][z][y], 0, this.pocketDimensions[w][z][y].length);
         return newDimensions;
     }
 
-    private char newStatus(final int z, final int y, final int x) {
-        int[][] dOffsets = {{-1, -1, -1}, {-1, -1,  0}, {-1, -1, 1},
-                            {-1,  0, -1}, {-1,  0,  0}, {-1,  0, 1},
-                            {-1,  1, -1}, {-1,  1,  0}, {-1,  1, 1},
-                            { 0, -1, -1}, { 0, -1,  0}, { 0, -1, 1},
-                            { 0,  0, -1},               { 0,  0, 1},
-                            { 0,  1, -1}, { 0,  1,  0}, { 0,  1, 1},
-                            { 1, -1, -1}, { 1, -1,  0}, { 1, -1, 1},
-                            { 1,  0, -1}, { 1,  0,  0}, { 1,  0, 1},
-                            { 1,  1, -1}, { 1,  1,  0}, { 1,  1, 1}};
+    private char newStatus(final int w, final int z, final int y, final int x) {
+        int[][] dOffsets = {{-1, -1, -1, -1}, {-1, -1, -1,  0}, {-1, -1, -1, 1},
+                            {-1, -1,  0, -1}, {-1, -1,  0,  0}, {-1, -1,  0, 1},
+                            {-1, -1,  1, -1}, {-1, -1,  1,  0}, {-1, -1,  1, 1},
+                            {-1,  0, -1, -1}, {-1,  0, -1,  0}, {-1,  0, -1, 1},
+                            {-1,  0,  0, -1}, {-1,  0,  0,  0}, { -1, 0,  0, 1},
+                            {-1,  0,  1, -1}, {-1,  0,  1,  0}, {-1,  0,  1, 1},
+                            {-1,  1, -1, -1}, {-1,  1, -1,  0}, {-1,  1, -1, 1},
+                            {-1,  1,  0, -1}, {-1,  1,  0,  0}, {-1,  1,  0, 1},
+                            {-1,  1,  1, -1}, {-1,  1,  1,  0}, {-1,  1,  1, 1},
+
+                            { 0, -1, -1, -1}, { 0, -1, -1,  0}, { 0, -1, -1, 1},
+                            { 0, -1,  0, -1}, { 0, -1,  0,  0}, { 0, -1,  0, 1},
+                            { 0, -1,  1, -1}, { 0, -1,  1,  0}, { 0, -1,  1, 1},
+                            { 0,  0, -1, -1}, { 0,  0, -1,  0}, { 0,  0, -1, 1},
+                            { 0,  0,  0, -1},                   { 0,  0,  0, 1},
+                            { 0,  0,  1, -1}, { 0,  0,  1,  0}, { 0,  0,  1, 1},
+                            { 0,  1, -1, -1}, { 0,  1, -1,  0}, { 0,  1, -1, 1},
+                            { 0,  1,  0, -1}, { 0,  1,  0,  0}, { 0,  1,  0, 1},
+                            { 0,  1,  1, -1}, { 0,  1,  1,  0}, { 0,  1,  1, 1},
+
+                            { 1, -1, -1, -1}, { 1, -1, -1,  0}, { 1, -1, -1, 1},
+                            { 1, -1,  0, -1}, { 1, -1,  0,  0}, { 1, -1,  0, 1},
+                            { 1, -1,  1, -1}, { 1, -1,  1,  0}, { 1, -1,  1, 1},
+                            { 1,  0, -1, -1}, { 1,  0, -1,  0}, { 1,  0, -1, 1},
+                            { 1,  0,  0, -1}, { 1,  0,  0,  0}, { 1,  0,  0, 1},
+                            { 1,  0,  1, -1}, { 1,  0,  1,  0}, { 1,  0,  1, 1},
+                            { 1,  1, -1, -1}, { 1,  1, -1,  0}, { 1,  1, -1, 1},
+                            { 1,  1,  0, -1}, { 1,  1,  0,  0}, { 1,  1,  0, 1},
+                            { 1,  1,  1, -1}, { 1,  1,  1,  0}, { 1,  1,  1, 1}};
         int activeNeighbours = 0;
         for (int[] dOffset : dOffsets)
-            activeNeighbours += this.pocketDimensions[z + dOffset[0]][y + dOffset[1]][x + dOffset[2]] == '#' ? 1 : 0;
-        char current = this.pocketDimensions[z][y][x];
+            activeNeighbours += this.pocketDimensions[w + dOffset[0]][z + dOffset[1]][y + dOffset[2]][x + dOffset[3]] == '#' ? 1 : 0;
+        char current = this.pocketDimensions[w][z][y][x];
         if (current == '.')
             return activeNeighbours == 3 ? '#' : '.';
         else if (current == '#')
@@ -170,20 +197,22 @@ class EnergySource4D {
     }
 
     private void cycle() {
-        char[][][] newDimensions = copyDimensions();
-        for (int z = 1; z < this.pocketDimensions.length - 1; z++)
-            for (int y = 1; y < this.pocketDimensions[z].length - 1; y++)
-                for (int x = 1; x < this.pocketDimensions[z][y].length - 1; x++)
-                    newDimensions[z][y][x] = this.newStatus(z, y, x);
+        char[][][][] newDimensions = copyDimensions();
+        for (int w = 1; w < this.pocketDimensions.length - 1; w++)
+            for (int z = 1; z < this.pocketDimensions[w].length - 1; z++)
+                for (int y = 1; y < this.pocketDimensions[w][z].length - 1; y++)
+                    for (int x = 1; x < this.pocketDimensions[w][z][y].length - 1; x++)
+                        newDimensions[w][z][y][x] = this.newStatus(w, z, y, x);
         this.pocketDimensions = newDimensions;
     }
 
     private int countCubes() {
         int cubeCount = 0;
-        for (char[][] zDimension : this.pocketDimensions)
-            for (char[] yDimension : zDimension)
-                for (char xDimension : yDimension)
-                    if (xDimension == '#') cubeCount++;
+        for (char[][][] wDimension : this.pocketDimensions)
+            for (char[][] zDimension : wDimension)
+                for (char[] yDimension : zDimension)
+                    for (char xDimension : yDimension)
+                        if (xDimension == '#') cubeCount++;
         return cubeCount;
     }
 
