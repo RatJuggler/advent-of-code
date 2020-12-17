@@ -3,18 +3,26 @@ package day17;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 
 
 class EnergySource {
 
-    private char[][][] pocketDimensions = new char[1][][];
+    private static final int DIMENSION_SIZE = 99;
+    private static final int CENTER_POINT = (DIMENSION_SIZE + 1) / 2;
+
+    private char[][][] pocketDimensions = new char[DIMENSION_SIZE][DIMENSION_SIZE][DIMENSION_SIZE];
 
     EnergySource(final List<String> initialState) {
-        char[][] initialPlane = new char[initialState.size()][];
+        for (char[][] zDimension : this.pocketDimensions)
+            for (char[] yDimension : zDimension)
+                Arrays.fill(yDimension, '.');
         for (int y = 0; y < initialState.size(); y++)
-            initialPlane[y] = initialState.get(y).toCharArray();
-        this.pocketDimensions[0] = initialPlane;
+            for (int x = 0; x < initialState.get(y).length(); x++)
+                this.pocketDimensions[CENTER_POINT]
+                        [CENTER_POINT - initialState.size() + y]
+                        [CENTER_POINT - initialState.get(y).length() + x] = initialState.get(y).charAt(x);
     }
 
     static EnergySource fromFile(final String filename) {
@@ -27,38 +35,6 @@ class EnergySource {
         return new EnergySource(initialState);
     }
 
-    private char[] buildEmptyLine(final int size) {
-        return ".".repeat(size).toCharArray();
-    }
-
-    private char[][] buildEmptyPlane(final int ySize, final int xSize) {
-        char[][] emptyPlane = new char[ySize][];
-        for (int y = 0; y < ySize; y++)
-            emptyPlane[y] = buildEmptyLine(xSize);
-        return emptyPlane;
-    }
-
-    private char[][] buildNewPlane(final int ySize, final int xSize, final int fromZ) {
-        char[][] newPlane = new char[ySize][];
-        newPlane[0] = buildEmptyLine(xSize);
-        for (int y = 1; y < ySize - 1; y++)
-            newPlane[y] = ('.' + String.valueOf(this.pocketDimensions[fromZ][y - 1]) + '.').toCharArray();
-        newPlane[ySize - 1] = buildEmptyLine(xSize);
-        return newPlane;
-    }
-
-    private char[][][] expandDimensions() {
-        int newZSize = this.pocketDimensions.length + 2;
-        char[][][] newDimensions = new char[newZSize][][];
-        int newYSize = this.pocketDimensions[0].length + 2;
-        int newXSize = this.pocketDimensions[0][0].length + 2;
-        newDimensions[0] = buildEmptyPlane(newYSize, newXSize);
-        for (int z = 1; z < newZSize - 1; z++)
-            newDimensions[z] = buildNewPlane(newYSize, newXSize, z - 1);
-        newDimensions[newZSize - 1] = buildEmptyPlane(newYSize, newXSize);
-        return newDimensions;
-    }
-
     private void dumpDimensions(final int generation) {
         System.out.println("\nGeneration: " + generation);
         for (int z = 0; z < this.pocketDimensions.length; z++) {
@@ -68,17 +44,12 @@ class EnergySource {
         }
     }
 
-    boolean validPosition(final int z, final int y, final int x) {
-        return 0 <= z && z < this.pocketDimensions.length &&
-               0 <= y && y < this.pocketDimensions[0].length &&
-               0 <= x && x < this.pocketDimensions[0][0].length;
-    }
-
-    int checkPosition(final int z, final int y, final int x) {
-        if (validPosition(z, y, x))
-            return this.pocketDimensions[z][y][x] == '#' ? 1 : 0;
-        else
-            return 0;
+    private char[][][] copyDimensions() {
+        char[][][] newDimensions = new char[DIMENSION_SIZE][DIMENSION_SIZE][DIMENSION_SIZE];
+        for (int z = 0; z < this.pocketDimensions.length; z++)
+            for (int y = 0; y < this.pocketDimensions[z].length; y++)
+                System.arraycopy(this.pocketDimensions[z][y], 0, newDimensions[z][y], 0, this.pocketDimensions[z][y].length);
+        return newDimensions;
     }
 
     private char newStatus(final int z, final int y, final int x) {
@@ -93,7 +64,7 @@ class EnergySource {
                             { 1,  1, -1}, { 1,  1,  0}, { 1,  1, 1}};
         int activeNeighbours = 0;
         for (int[] dOffset : dOffsets)
-            activeNeighbours += checkPosition(z + dOffset[0], y + dOffset[1], x + dOffset[2]);
+            activeNeighbours += this.pocketDimensions[z + dOffset[0]][y + dOffset[1]][x + dOffset[2]] == '#' ? 1 : 0;
         char current = this.pocketDimensions[z][y][x];
         if (current == '.')
             return activeNeighbours == 3 ? '#' : '.';
@@ -104,11 +75,10 @@ class EnergySource {
     }
 
     private void cycle() {
-        char[][][] newDimensions = this.expandDimensions();
-        this.pocketDimensions = this.expandDimensions();
-        for (int z = 0; z < this.pocketDimensions.length; z++)
-            for (int y = 0; y < this.pocketDimensions[z].length; y++)
-                for (int x = 0; x < this.pocketDimensions[z][y].length; x++)
+        char[][][] newDimensions = copyDimensions();
+        for (int z = 1; z < this.pocketDimensions.length - 1; z++)
+            for (int y = 1; y < this.pocketDimensions[z].length - 1; y++)
+                for (int x = 1; x < this.pocketDimensions[z][y].length - 1; x++)
                     newDimensions[z][y][x] = this.newStatus(z, y, x);
         this.pocketDimensions = newDimensions;
     }
@@ -123,10 +93,10 @@ class EnergySource {
     }
 
     int cycles(final int runFor) {
-        dumpDimensions(0);
+//        dumpDimensions(0);
         for (int i = 0; i < runFor; i++) {
             cycle();
-            dumpDimensions(i + 1);
+//            dumpDimensions(i + 1);
         }
         return this.countCubes();
     }
@@ -138,7 +108,7 @@ public class Advent2020Day17 {
     private static void testEnergySource() {
         int expectedCubes = 112;
         EnergySource source = EnergySource.fromFile("2020/day17/test17a.txt");
-        int actualCubes = source.cycles(3);
+        int actualCubes = source.cycles(6);
         assert actualCubes == expectedCubes : String.format("Expected number of cubes to be %d not %d!%n", expectedCubes, actualCubes);
     }
 
