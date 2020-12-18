@@ -11,47 +11,49 @@ import java.util.regex.Pattern;
 //    Operand    => [0-9]+ / '(' Expression ')'
 
 
-class Operand {
+abstract class Node {
+
+    Node() {}
+
+    abstract long evaluate();
+}
+
+
+class Operand extends Node {
 
     private final String operand;
 
     Operand(final String operand) {
+        super();
         this.operand = operand;
     }
 
-    private boolean isNumeric() {
-        if (this.operand == null) return false;
-        Pattern pattern = Pattern.compile("^-?\\d+$");
-        return pattern.matcher(this.operand).matches();
-    }
-
-    long value() {
-        if (this.isNumeric()) return Long.parseLong(this.operand);
-        Expression expression = new Expression(new Tokeniser(this.operand));
-        return expression.evaluate();
+    @Override
+    long evaluate() {
+        return Long.parseLong(this.operand);
     }
 }
 
 
-class Operation {
+class Operation extends Node {
 
-    private final Operand operand1;
+    private final Node operand1;
     private final String operator;
-    private final Operand operand2;
+    private final Node operand2;
 
-    Operation(final Operand operand1, final String operator, final Operand operand2) {
+    Operation(final Node operand1, final String operator, final Node operand2) {
+        super();
         this.operand1 = operand1;
         this.operator = operator;
         this.operand2 = operand2;
     }
 
+    @Override
     long evaluate() {
         if ("+".equals(this.operator))
-            return this.operand1.value() + this.operand2.value();
-        else if ("-".equals(this.operator))
-            return this.operand1.value() - this.operand2.value();
+            return this.operand1.evaluate() + this.operand2.evaluate();
         else if ("*".equals(this.operator))
-            return this.operand1.value() * this.operand2.value();
+            return this.operand1.evaluate() * this.operand2.evaluate();
         else
             throw new IllegalArgumentException("Unknown operator found!");
     }
@@ -70,12 +72,12 @@ class Tokeniser {
     private String parseBrackets() {
         int n = 1;
         int j = ++this.i;
-        while (n > 0) {
+        while (n > 0 && j < this.expression.length()) {
             if (this.expression.charAt(j) == '(') n++;
             if (this.expression.charAt(j) == ')') n--;
             j++;
         }
-        if (n < 0) throw new IllegalArgumentException("Brackets don't match in expression!");
+        if (n != 0) throw new IllegalArgumentException("Brackets don't match in expression!");
         String token = this.expression.substring(this.i, j - 1);
         this.i = j + 1;
         return token;
@@ -103,7 +105,10 @@ class Tokeniser {
     }
 }
 
+
 class Expression {
+
+    private static final Pattern PATTERN = Pattern.compile("^-?\\d+$");
 
     private final Tokeniser tokeniser;
 
@@ -111,20 +116,33 @@ class Expression {
         this.tokeniser = tokeniser;
     }
 
-    long evaluate() {
-        Operand operand1 = new Operand(this.tokeniser.nextToken());
-        String operator = this.tokeniser.nextToken();
-        Operand operand2 = new Operand(this.tokeniser.nextToken());
-        Operation operation = new Operation(operand1, operator, operand2);
-        long result = operation.evaluate();
-        while (this.tokeniser.hasNextToken()) {
-            operand1 = new Operand(String.valueOf(result));
-            operator = this.tokeniser.nextToken();
-            operand2 = new Operand(this.tokeniser.nextToken());
-            operation = new Operation(operand1, operator, operand2);
-            result = operation.evaluate();
+    private boolean isNumeric(final String token) {
+        if (token == null)
+            return false;
+        else
+            return PATTERN.matcher(token).matches();
+    }
+
+    Node buildNode() {
+        String token = this.tokeniser.nextToken();
+        if (this.isNumeric(token)) {
+            return new Operand(token);
+        } else {
+            return new Expression(new Tokeniser((token))).buildTree();
         }
-        return result;
+    }
+
+    Node buildTree() {
+        Node node = buildNode();
+        while (this.tokeniser.hasNextToken()) {
+            node = new Operation(node, this.tokeniser.nextToken(), buildNode());
+        }
+        return node;
+    }
+
+    long evaluate() {
+        Node node = buildTree();
+        return node.evaluate();
     }
 }
 
