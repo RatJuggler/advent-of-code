@@ -112,9 +112,11 @@ class Expression {
     private static final Pattern PATTERN = Pattern.compile("^-?\\d+$");
 
     private final Tokeniser tokeniser;
+    private final String operatorPrecedence;
 
-    Expression(final Tokeniser tokeniser) {
+    Expression(final Tokeniser tokeniser, final String operatorPrecedence) {
         this.tokeniser = tokeniser;
+        this.operatorPrecedence = operatorPrecedence;
     }
 
     private boolean isNumeric(final String token) {
@@ -124,49 +126,42 @@ class Expression {
             return PATTERN.matcher(token).matches();
     }
 
-    Node buildNode() {
-        String token = this.tokeniser.nextToken();
-        if (this.isNumeric(token)) {
+    private Node buildNode(final String token) {
+        if (this.isNumeric(token))
             return new Operand(token);
-        } else {
-            return new Expression(new Tokeniser((token))).buildTree();
-        }
+        else
+            return new Expression(new Tokeniser(token), this.operatorPrecedence).buildTree();
     }
 
-    Node buildTree() {
+    private Node buildTree() {
         Stack<Node> nodes = new Stack<>();
         while (this.tokeniser.hasNextToken()) {
             String token = this.tokeniser.nextToken();
-            if (this.isNumeric(token)) {
-                nodes.push(new Operand(token));
-            } else if ("+".equals(token)) {
-                nodes.push(new Operation(nodes.pop(), token, buildNode()));
-            } else if (!"*".equals(token)) {
-                nodes.push(new Expression(new Tokeniser((token))).buildTree());
-            }
+            if (!"+*".contains(token))
+                nodes.push(this.buildNode(token));
+            else if (this.operatorPrecedence.contains(token))
+                nodes.push(new Operation(nodes.pop(), token, this.buildNode(this.tokeniser.nextToken())));
         }
         Node node = nodes.remove(0);
-        while (!nodes.isEmpty()) {
+        while (!nodes.isEmpty())
             node = new Operation(node, "*", nodes.remove(0));
-        }
         return node;
     }
 
     long evaluate() {
-        Node node = buildTree();
-        return node.evaluate();
+        return this.buildTree().evaluate();
     }
 }
 
 
 public class Advent2020Day18 {
 
-    private static long sumExpressions(final String filename) {
+    private static long sumExpressions(final String filename, final String operatorPrecedence) {
         long sum = 0;
         try (Scanner scanner = new Scanner(new File(filename))) {
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
-                Expression expression = new Expression(new Tokeniser(line));
+                Expression expression = new Expression(new Tokeniser(line), operatorPrecedence);
                 sum += expression.evaluate();
             }
         } catch (FileNotFoundException fnf) {
@@ -175,15 +170,15 @@ public class Advent2020Day18 {
         return sum;
     }
 
-    private static void testSumExpressions(final long expectedSum) {
-        long actualSum = sumExpressions("2020/day18/test18a.txt");
+    private static void testSumExpressions(final String operatorPrecedence, final long expectedSum) {
+        long actualSum = sumExpressions("2020/day18/test18a.txt", operatorPrecedence);
         assert actualSum == expectedSum : String.format("Expected sum of expressions to be %d not %d!%n", expectedSum, actualSum);
     }
 
     public static void main(final String[] args) {
-//        testSumExpressions(26457);
-//        System.out.printf("Day 18, Part 1 sum of expressions is %d.%n", sumExpressions("2020/day18/input18.txt"));
-        testSumExpressions(694173);
-        System.out.printf("Day 18, Part 2 sum of expressions is %d.%n", sumExpressions("2020/day18/input18.txt"));
+        testSumExpressions("+*", 26457);
+        System.out.printf("Day 18, Part 1 sum of expressions is %d.%n", sumExpressions("2020/day18/input18.txt", "+*"));
+        testSumExpressions("+", 694173);
+        System.out.printf("Day 18, Part 2 sum of expressions is %d.%n", sumExpressions("2020/day18/input18.txt", "+"));
     }
 }
