@@ -1,50 +1,57 @@
 package day17;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
+
+class CubeLocation {
+
+    final int z;
+    final int y;
+    final int x;
+
+    CubeLocation(final int z, final int y, final int x) {
+        this.z = z;
+        this.y = y;
+        this.x = x;
+    }
+
+    CubeLocation offsetCube(final int dZ, final int dY, final int dX) {
+        return new CubeLocation(this.z + dZ, this.y + dY, this.x + dX);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CubeLocation that = (CubeLocation) o;
+        return z == that.z && y == that.y && x == that.x;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(z, y, x);
+    }
+}
 
 
 class EnergySource {
 
     private static final int CYCLES = 6;
-    private static final int DIMENSION_SIZE = 29;
-    private static final int CENTER_POINT = DIMENSION_SIZE / 2;
 
     private int dimensions;
-    private char[] pocketDimensions;
-    private int[][] dOffsets;
-
-//    {-1, -1, -1}, {-1, -1,  0}, {-1, -1, 1}
-//    {-1,  0, -1}, {-1,  0,  0}, {-1,  0, 1}
-//    {-1,  1, -1}, {-1,  1,  0}, {-1,  1, 1}
-//    { 0, -1, -1}, { 0, -1,  0}, { 0, -1, 1}
-//    { 0,  0, -1},               { 0,  0, 1}
-//    { 0,  1, -1}, { 0,  1,  0}, { 0,  1, 1}
-//    { 1, -1, -1}, { 1, -1,  0}, { 1, -1, 1}
-//    { 1,  0, -1}, { 1,  0,  0}, { 1,  0, 1}
-//    { 1,  1, -1}, { 1,  1,  0}, { 1,  1, 1}
+    private List<CubeLocation> cubes = new ArrayList<>();
 
     EnergySource(final int dimensions, final List<String> initialState) {
         this.dimensions = dimensions;
-        this.pocketDimensions = new char[BigInteger.valueOf(DIMENSION_SIZE).pow(dimensions).intValue()];
-        this.dOffsets = new int[BigInteger.valueOf(3).pow(dimensions).intValue() - 1][dimensions];
-        Arrays.fill(this.pocketDimensions, '.');
         for (int y = 0; y < initialState.size(); y++)
-            for (int x = 0; x < initialState.get(y).length(); x++) {
-                int offset = 0;
-                // w, z
-                for (int p = dimensions - 1; p > 1; p--)
-                    offset += CENTER_POINT * BigInteger.valueOf(DIMENSION_SIZE).pow(p).intValue();
-                // y
-                offset += DIMENSION_SIZE * (CENTER_POINT - initialState.size() + y);
-                // x
-                offset += CENTER_POINT - initialState.get(y).length() + x;
-                this.pocketDimensions[offset] = initialState.get(y).charAt(x);
-            }
+            for (int x = 0; x < initialState.get(y).length(); x++)
+                if (initialState.get(y).length() == '#')
+                    this.cubes.add(new CubeLocation(0, y, x));
     }
 
     static EnergySource fromFile(final String filename, final int dimensions) {
@@ -57,49 +64,43 @@ class EnergySource {
         return new EnergySource(dimensions, initialState);
     }
 
-    private char[] copyDimensions() {
-        char[] newDimensions = new char[BigInteger.valueOf(DIMENSION_SIZE).pow(this.dimensions).intValue()];
-        System.arraycopy(this.pocketDimensions, 0, newDimensions, 0, this.pocketDimensions.length);
-        return newDimensions;
-    }
-
-    private int calculateOffset(final int i, final int[] dOffset) {
-        int offset = 0;
-        offset += i + dOffset[this.dimensions];
-        return offset;
-    }
-
-    private char newStatus(final int i) {
+    private int countActiveNeighbours(final CubeLocation cube) {
+        int[][] dOffsets = {{-1, -1, -1}, {-1, -1,  0}, {-1, -1, 1},
+                {-1,  0, -1}, {-1,  0,  0}, {-1,  0, 1},
+                {-1,  1, -1}, {-1,  1,  0}, {-1,  1, 1},
+                { 0, -1, -1}, { 0, -1,  0}, { 0, -1, 1},
+                { 0,  0, -1},               { 0,  0, 1},
+                { 0,  1, -1}, { 0,  1,  0}, { 0,  1, 1},
+                { 1, -1, -1}, { 1, -1,  0}, { 1, -1, 1},
+                { 1,  0, -1}, { 1,  0,  0}, { 1,  0, 1},
+                { 1,  1, -1}, { 1,  1,  0}, { 1,  1, 1}};
         int activeNeighbours = 0;
-        for (int[] dOffset : this.dOffsets)
-            activeNeighbours += this.pocketDimensions[this.calculateOffset(i, dOffset)] == '#' ? 1 : 0;
-        char current = this.pocketDimensions[i];
-        if (current == '.')
-            return activeNeighbours == 3 ? '#' : '.';
-        else if (current == '#')
-            return activeNeighbours == 2 || activeNeighbours == 3 ? '#' : '.';
-        else
-            throw new IllegalStateException("Unknown state encountered!");
+        for (int[] dOffset : dOffsets) {
+            CubeLocation offsetCube = cube.offsetCube(dOffset[0], dOffset[1], dOffset[1]);
+            activeNeighbours += this.cubes.contains(offsetCube) ? 1 : 0;
+        }
+        return activeNeighbours;
+    }
+
+    private List<CubeLocation> cubeChanges(final CubeLocation cube) {
+        List<CubeLocation> changes = new ArrayList<>();
+        int activeNeighbours = this.countActiveNeighbours(cube);
+        if (activeNeighbours == 2 || activeNeighbours == 3)
+            changes.add(cube);
+        return changes;
     }
 
     private void cycle() {
-        char[] newDimensions = copyDimensions();
-        for (int i = 0; i < this.pocketDimensions.length; i++)
-             newDimensions[i] = this.newStatus(i);
-        this.pocketDimensions = newDimensions;
-    }
-
-    private int countCubes() {
-        int cubeCount = 0;
-        for (char position : this.pocketDimensions)
-            if (position == '#') cubeCount++;
-        return cubeCount;
+        List<CubeLocation> newCubes = new ArrayList<>();
+        for (CubeLocation cube: this.cubes)
+             newCubes.addAll(this.cubeChanges(cube));
+        this.cubes = newCubes;
     }
 
     int cycles() {
         for (int i = 0; i < CYCLES; i++)
             cycle();
-        return this.countCubes();
+        return this.cubes.size();
     }
 }
 
