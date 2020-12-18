@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 
 class CubeLocation {
@@ -29,12 +31,12 @@ class CubeLocation {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         CubeLocation that = (CubeLocation) o;
-        return z == that.z && y == that.y && x == that.x;
+        return this.z == that.z && this.y == that.y && this.x == that.x;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(z, y, x);
+        return Objects.hash(this.z, this.y, this.x);
     }
 }
 
@@ -43,14 +45,25 @@ class EnergySource {
 
     private static final int CYCLES = 6;
 
+    private static final int[][] dOFFSETS =
+           {{-1, -1, -1}, {-1, -1,  0}, {-1, -1, 1},
+            {-1,  0, -1}, {-1,  0,  0}, {-1,  0, 1},
+            {-1,  1, -1}, {-1,  1,  0}, {-1,  1, 1},
+            { 0, -1, -1}, { 0, -1,  0}, { 0, -1, 1},
+            { 0,  0, -1}, { 0,  0,  0}, { 0,  0, 1},
+            { 0,  1, -1}, { 0,  1,  0}, { 0,  1, 1},
+            { 1, -1, -1}, { 1, -1,  0}, { 1, -1, 1},
+            { 1,  0, -1}, { 1,  0,  0}, { 1,  0, 1},
+            { 1,  1, -1}, { 1,  1,  0}, { 1,  1, 1}};
+
     private int dimensions;
-    private List<CubeLocation> cubes = new ArrayList<>();
+    private Set<CubeLocation> cubes = new HashSet<>();
 
     EnergySource(final int dimensions, final List<String> initialState) {
         this.dimensions = dimensions;
         for (int y = 0; y < initialState.size(); y++)
             for (int x = 0; x < initialState.get(y).length(); x++)
-                if (initialState.get(y).length() == '#')
+                if (initialState.get(y).charAt(x) == '#')
                     this.cubes.add(new CubeLocation(0, y, x));
     }
 
@@ -65,33 +78,33 @@ class EnergySource {
     }
 
     private int countActiveNeighbours(final CubeLocation cube) {
-        int[][] dOffsets = {{-1, -1, -1}, {-1, -1,  0}, {-1, -1, 1},
-                {-1,  0, -1}, {-1,  0,  0}, {-1,  0, 1},
-                {-1,  1, -1}, {-1,  1,  0}, {-1,  1, 1},
-                { 0, -1, -1}, { 0, -1,  0}, { 0, -1, 1},
-                { 0,  0, -1},               { 0,  0, 1},
-                { 0,  1, -1}, { 0,  1,  0}, { 0,  1, 1},
-                { 1, -1, -1}, { 1, -1,  0}, { 1, -1, 1},
-                { 1,  0, -1}, { 1,  0,  0}, { 1,  0, 1},
-                { 1,  1, -1}, { 1,  1,  0}, { 1,  1, 1}};
         int activeNeighbours = 0;
-        for (int[] dOffset : dOffsets) {
-            CubeLocation offsetCube = cube.offsetCube(dOffset[0], dOffset[1], dOffset[1]);
-            activeNeighbours += this.cubes.contains(offsetCube) ? 1 : 0;
+        for (int[] dOffset : dOFFSETS) {
+            if (dOffset[0] != 0 || dOffset[1] != 0 || dOffset[2] != 0) {
+                CubeLocation offsetCube = cube.offsetCube(dOffset[0], dOffset[1], dOffset[2]);
+                if (this.cubes.contains(offsetCube)) activeNeighbours++;
+            }
         }
         return activeNeighbours;
     }
 
-    private List<CubeLocation> cubeChanges(final CubeLocation cube) {
-        List<CubeLocation> changes = new ArrayList<>();
-        int activeNeighbours = this.countActiveNeighbours(cube);
-        if (activeNeighbours == 2 || activeNeighbours == 3)
-            changes.add(cube);
+    private Set<CubeLocation> cubeChanges(final CubeLocation cube) {
+        Set<CubeLocation> changes = new HashSet<>();
+        for (int[] dOffset : dOFFSETS) {
+            CubeLocation checkLocation = cube.offsetCube(dOffset[0], dOffset[1], dOffset[2]);
+            int activeNeighbours = this.countActiveNeighbours(checkLocation);
+            if (checkLocation.equals(cube)) {
+                if (activeNeighbours == 2 || activeNeighbours == 3)
+                    changes.add(checkLocation);
+            } else if (activeNeighbours == 3) {
+                changes.add(checkLocation);
+            }
+        }
         return changes;
     }
 
     private void cycle() {
-        List<CubeLocation> newCubes = new ArrayList<>();
+        Set<CubeLocation> newCubes = new HashSet<>();
         for (CubeLocation cube: this.cubes)
              newCubes.addAll(this.cubeChanges(cube));
         this.cubes = newCubes;
