@@ -145,14 +145,14 @@ public class Advent2020Day18 {
         return sum;
     }
 
-    private static void testSumExpressions() {
-        long expectedSum = 26457;
+    private static void testSumExpressions(final long expectedSum) {
         long actualSum = sumExpressions("2020/day18/test18a.txt");
         assert actualSum == expectedSum : String.format("Expected sum of expressions to be %d not %d!%n", expectedSum, actualSum);
     }
 
     public static void main(final String[] args) {
-        testSumExpressions();
+        testSumExpressions(26457);
         System.out.printf("Day 18, Part 1 sum of expressions is %d.%n", sumExpressions("2020/day18/input18.txt"));
+        testSumExpressions(694173);
     }
 }
