@@ -74,4 +74,9 @@ array.
 Didn't spend long on this. Made some minor improvements to speed it up but didn't consider other solutions than brute force.
 
 ##### Day 16: Ticket Translation
-Java to the maximum! I ended up creating six additional classes whilst solving this.
+Java to the maximum! I liked this one's mix of parsing and puzzle and ended up creating six additional classes whilst solving it.
+
+##### Day 17: Conway Cubes
+I completed this but not happy with my solution.
+
+##### Day 18: Operation Order
