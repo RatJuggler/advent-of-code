@@ -69,3 +69,5 @@ Here are the other examples from above:
 - ((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2 becomes 23340.
 
 What do you get if you add up the results of evaluating the homework problems using these new rules?
+
+Your puzzle answer was 55699621957369.

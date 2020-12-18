@@ -184,5 +184,6 @@ public class Advent2020Day18 {
 //        testSumExpressions(26457);
 //        System.out.printf("Day 18, Part 1 sum of expressions is %d.%n", sumExpressions("2020/day18/input18.txt"));
         testSumExpressions(694173);
+        System.out.printf("Day 18, Part 2 sum of expressions is %d.%n", sumExpressions("2020/day18/input18.txt"));
     }
 }
