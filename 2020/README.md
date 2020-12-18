@@ -80,3 +80,5 @@ Java to the maximum! I liked this one's mix of parsing and puzzle and ended up c
 I completed this but not happy with my solution.
 
 ##### Day 18: Operation Order
+Took me a while to get my expression parser going properly using a tree structure but got there in the end. Certainly room for 
+improvement as I could be evaluating sub-expressions as they are parsed, rather than building the whole tree and then evaluating.
