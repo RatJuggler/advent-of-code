@@ -77,7 +77,10 @@ Didn't spend long on this. Made some minor improvements to speed it up but didn'
 Java to the maximum! I liked this one's mix of parsing and puzzle and ended up creating six additional classes whilst solving it.
 
 ##### Day 17: Conway Cubes
-I completed this but not happy with my solution.
+I completed this, but I wasn't happy with my solution, so I went back and completely rewrote it. I'd started by trying to simulate
+an arbitrarily large volume of space but this was very inefficient and unwieldy. Just working with a list of the cube positions, 
+and the offset positions they affect is actually much simpler, the hardest part is actually generating the offset combinations to 
+try.
 
 ##### Day 18: Operation Order
 Took me a while to get my expression parser going properly using a tree structure but got there in the end. Certainly room for 
