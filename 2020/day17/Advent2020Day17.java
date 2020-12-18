@@ -1,6 +1,7 @@
 package day17;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -42,19 +43,10 @@ class CubeLocation {
 class EnergySource {
 
     private static final int CYCLES = 6;
-
-    private static final int[][] dOFFSETS =
-           {{-1, -1, -1}, {-1, -1,  0}, {-1, -1, 1},
-            {-1,  0, -1}, {-1,  0,  0}, {-1,  0, 1},
-            {-1,  1, -1}, {-1,  1,  0}, {-1,  1, 1},
-            { 0, -1, -1}, { 0, -1,  0}, { 0, -1, 1},
-            { 0,  0, -1}, { 0,  0,  0}, { 0,  0, 1},
-            { 0,  1, -1}, { 0,  1,  0}, { 0,  1, 1},
-            { 1, -1, -1}, { 1, -1,  0}, { 1, -1, 1},
-            { 1,  0, -1}, { 1,  0,  0}, { 1,  0, 1},
-            { 1,  1, -1}, { 1,  1,  0}, { 1,  1, 1}};
+    private static final int[] OFFSETS = {-1, 0, 1};
 
     private Set<CubeLocation> cubes = new HashSet<>();
+    private final int[][] dOffsets;
 
     private static int[] createLocation(final int dimensions, final int y, final int x) {
         int[] location = new int[dimensions];
@@ -64,11 +56,42 @@ class EnergySource {
         return location;
     }
 
+    private static int[] newOffset(final int[] combination) {
+        int[] offset = new int[combination.length];
+        for (int j = 0; j < offset.length; j++) offset[j] = OFFSETS[combination[j]];
+        return offset;
+    }
+
+    private static void nextCombination(final int[] combination) {
+        int p = combination.length - 1;
+        while (p >= 0) {
+            if (combination[p] < 2) {
+                combination[p]++;
+                p = -1;
+            } else {
+                combination[p] = 0;
+                p--;
+            }
+        }
+    }
+
+    private static int[][] createOffsets(final int dimensions) {
+        int[][] offsets = new int[BigInteger.valueOf(3).pow(dimensions).intValue()][dimensions];
+        int[] c = new int[dimensions];
+        Arrays.fill(c, 0);
+        for (int i = 0; i < offsets.length; i++) {
+            offsets[i] = newOffset(c);
+            nextCombination(c);
+        }
+        return offsets;
+    }
+
     EnergySource(final int dimensions, final List<String> initialState) {
         for (int y = 0; y < initialState.size(); y++)
             for (int x = 0; x < initialState.get(y).length(); x++)
                 if (initialState.get(y).charAt(x) == '#')
                     this.cubes.add(new CubeLocation(createLocation(dimensions, y, x)));
+        this.dOffsets = createOffsets(dimensions);
     }
 
     static EnergySource fromFile(final String filename, final int dimensions) {
@@ -83,7 +106,7 @@ class EnergySource {
 
     private int countActiveNeighbours(final CubeLocation cube) {
         int activeNeighbours = 0;
-        for (int[] dOffset : dOFFSETS) {
+        for (int[] dOffset : dOffsets) {
             if (Arrays.stream(dOffset).anyMatch(n -> n != 0)) {
                 CubeLocation offsetCube = cube.offsetCube(dOffset);
                 if (this.cubes.contains(offsetCube)) activeNeighbours++;
@@ -94,7 +117,7 @@ class EnergySource {
 
     private Set<CubeLocation> cubeChanges(final CubeLocation cube) {
         Set<CubeLocation> changes = new HashSet<>();
-        for (int[] dOffset : dOFFSETS) {
+        for (int[] dOffset : dOffsets) {
             CubeLocation checkLocation = cube.offsetCube(dOffset);
             int activeNeighbours = this.countActiveNeighbours(checkLocation);
             if (checkLocation.equals(cube)) {
