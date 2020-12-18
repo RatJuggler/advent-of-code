@@ -3,6 +3,7 @@ package day18;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
+import java.util.Stack;
 import java.util.regex.Pattern;
 
 
@@ -133,9 +134,20 @@ class Expression {
     }
 
     Node buildTree() {
-        Node node = buildNode();
+        Stack<Node> nodes = new Stack<>();
         while (this.tokeniser.hasNextToken()) {
-            node = new Operation(node, this.tokeniser.nextToken(), buildNode());
+            String token = this.tokeniser.nextToken();
+            if (this.isNumeric(token)) {
+                nodes.push(new Operand(token));
+            } else if ("+".equals(token)) {
+                nodes.push(new Operation(nodes.pop(), token, buildNode()));
+            } else if (!"*".equals(token)) {
+                nodes.push(new Expression(new Tokeniser((token))).buildTree());
+            }
+        }
+        Node node = nodes.remove(0);
+        while (!nodes.isEmpty()) {
+            node = new Operation(node, "*", nodes.remove(0));
         }
         return node;
     }
@@ -169,8 +181,8 @@ public class Advent2020Day18 {
     }
 
     public static void main(final String[] args) {
-        testSumExpressions(26457);
-        System.out.printf("Day 18, Part 1 sum of expressions is %d.%n", sumExpressions("2020/day18/input18.txt"));
+//        testSumExpressions(26457);
+//        System.out.printf("Day 18, Part 1 sum of expressions is %d.%n", sumExpressions("2020/day18/input18.txt"));
         testSumExpressions(694173);
     }
 }
