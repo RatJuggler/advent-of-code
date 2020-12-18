@@ -3,27 +3,25 @@ package day17;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 
 class CubeLocation {
 
-    final int z;
-    final int y;
-    final int x;
+    final int[] location;
 
-    CubeLocation(final int z, final int y, final int x) {
-        this.z = z;
-        this.y = y;
-        this.x = x;
+    CubeLocation(final int[] location) {
+        this.location = location;
     }
 
-    CubeLocation offsetCube(final int dZ, final int dY, final int dX) {
-        return new CubeLocation(this.z + dZ, this.y + dY, this.x + dX);
+    CubeLocation offsetCube(final int[] dOffset) {
+        int[] newLocation = Arrays.copyOf(this.location, this.location.length);
+        for (int i = 0; i < newLocation.length; i++)
+            newLocation[i] += dOffset[i];
+        return new CubeLocation(newLocation);
     }
 
     @Override
@@ -31,12 +29,12 @@ class CubeLocation {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         CubeLocation that = (CubeLocation) o;
-        return this.z == that.z && this.y == that.y && this.x == that.x;
+        return Arrays.equals(this.location, that.location);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.z, this.y, this.x);
+        return Arrays.hashCode(this.location);
     }
 }
 
@@ -56,15 +54,21 @@ class EnergySource {
             { 1,  0, -1}, { 1,  0,  0}, { 1,  0, 1},
             { 1,  1, -1}, { 1,  1,  0}, { 1,  1, 1}};
 
-    private int dimensions;
     private Set<CubeLocation> cubes = new HashSet<>();
 
+    private static int[] createLocation(final int dimensions, final int y, final int x) {
+        int[] location = new int[dimensions];
+        Arrays.fill(location, 0);
+        location[dimensions - 1] = x;
+        location[dimensions - 2] = y;
+        return location;
+    }
+
     EnergySource(final int dimensions, final List<String> initialState) {
-        this.dimensions = dimensions;
         for (int y = 0; y < initialState.size(); y++)
             for (int x = 0; x < initialState.get(y).length(); x++)
                 if (initialState.get(y).charAt(x) == '#')
-                    this.cubes.add(new CubeLocation(0, y, x));
+                    this.cubes.add(new CubeLocation(createLocation(dimensions, y, x)));
     }
 
     static EnergySource fromFile(final String filename, final int dimensions) {
@@ -80,8 +84,8 @@ class EnergySource {
     private int countActiveNeighbours(final CubeLocation cube) {
         int activeNeighbours = 0;
         for (int[] dOffset : dOFFSETS) {
-            if (dOffset[0] != 0 || dOffset[1] != 0 || dOffset[2] != 0) {
-                CubeLocation offsetCube = cube.offsetCube(dOffset[0], dOffset[1], dOffset[2]);
+            if (Arrays.stream(dOffset).anyMatch(n -> n != 0)) {
+                CubeLocation offsetCube = cube.offsetCube(dOffset);
                 if (this.cubes.contains(offsetCube)) activeNeighbours++;
             }
         }
@@ -91,7 +95,7 @@ class EnergySource {
     private Set<CubeLocation> cubeChanges(final CubeLocation cube) {
         Set<CubeLocation> changes = new HashSet<>();
         for (int[] dOffset : dOFFSETS) {
-            CubeLocation checkLocation = cube.offsetCube(dOffset[0], dOffset[1], dOffset[2]);
+            CubeLocation checkLocation = cube.offsetCube(dOffset);
             int activeNeighbours = this.countActiveNeighbours(checkLocation);
             if (checkLocation.equals(cube)) {
                 if (activeNeighbours == 2 || activeNeighbours == 3)
