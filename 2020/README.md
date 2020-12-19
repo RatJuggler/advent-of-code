@@ -80,7 +80,7 @@ Java to the maximum! I liked this one's mix of parsing and puzzle and ended up c
 I completed this, but I wasn't happy with my solution, so I went back and completely rewrote it. I'd started by trying to simulate
 an arbitrarily large volume of space but this was very inefficient and unwieldy. Just working with a list of the cube positions, 
 and the offset positions they affect is actually much simpler, the hardest part is actually generating the offset combinations to 
-try.
+try. Further refactoring eliminated duplicate checks being carried on the same location, much improving performance.
 
 ##### Day 18: Operation Order
 Took me a while to get my expression parser going properly using a tree structure but got there in the end. Certainly room for 
