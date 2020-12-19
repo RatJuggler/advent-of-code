@@ -3,7 +3,6 @@ package day19;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -22,6 +21,10 @@ class MatchContext {
         this.str = str;
     }
 
+    boolean hasNextLetter() {
+        return this.i < str.length();
+    }
+
     char getLetter() {
         return this.str.charAt(this.i++);
     }
@@ -32,10 +35,6 @@ class MatchContext {
 
     void setPosition(final int i) {
         this.i = i;
-    }
-
-    boolean complete() {
-        return this.i == str.length();
     }
 }
 
@@ -66,7 +65,7 @@ class MatchRuleLetter extends MatchRule {
     }
 
     boolean match(final MatchContext context, final Map<String, MatchRule> matchRules) {
-        return this.letter == context.getLetter();
+        return context.hasNextLetter() && context.getLetter() == this.letter;
     }
 }
 
@@ -129,7 +128,7 @@ class MatchRules {
     private final Map<String, MatchRule> matchRules;
 
     MatchRules(final Map<String, MatchRule> matchRules) {
-        this.matchRules = Collections.unmodifiableMap(matchRules);
+        this.matchRules = matchRules;
     }
 
     static MatchRules fromList(final List<String> matchDefinitions) {
@@ -139,9 +138,14 @@ class MatchRules {
         return new MatchRules(definitions);
     }
 
+    void replaceRule(final String matchDefinition) {
+        MatchRule newRule = MatchRuleFactory.createMatchRule(matchDefinition);
+        this.matchRules.put(newRule.getId(), newRule);
+    }
+
     boolean match(final String str) {
         MatchContext context = new MatchContext(str);
-        return this.matchRules.get("0").match(context, matchRules) && context.complete();
+        return this.matchRules.get("0").match(context, matchRules) && !context.hasNextLetter();
     }
 }
 
@@ -183,6 +187,10 @@ class MessageMatcher {
         return new MessageMatcher(rules, messages);
     }
 
+    void replaceRule(final String replacementRule) {
+        this.matchRules.replaceRule(replacementRule);
+    }
+
     long countMatches() {
         return this.messages.stream().filter(this.matchRules::match).peek(System.out::println).count();
     }
@@ -198,6 +206,8 @@ public class Advent2020Day19 {
 
     private static long matchMessagesWithLoops(final String filename) {
         MessageMatcher matcher = MessageMatcher.fromFile(filename);
+        matcher.replaceRule("8: 42 | 42 8");
+        matcher.replaceRule("11: 42 31 | 42 11 31");
         return matcher.countMatches();
     }
 
