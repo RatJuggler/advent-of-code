@@ -13,9 +13,9 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 
-class MatchRule {
+abstract class MatchRule {
 
-    private String id;
+    private final String id;
 
     MatchRule(final String id) {
         this.id = id;
@@ -24,6 +24,8 @@ class MatchRule {
     String getId() {
         return this.id;
     }
+
+    abstract boolean match(final String str, final int i, final Map<String, MatchRule> matchRules);
 }
 
 
@@ -36,8 +38,8 @@ class MatchRuleLetter extends MatchRule {
         this.letter = letter;
     }
 
-    boolean match(final char letter) {
-        return this.letter == letter;
+    boolean match(final String str, final int i, final Map<String, MatchRule> matchRules) {
+        return str.charAt(i) == this.letter;
     }
 }
 
@@ -51,8 +53,16 @@ class MatchRuleSubRules extends MatchRule {
         this.subRules = subRules;
     }
 
-    boolean match() {
-        return false;
+    boolean match(final String str, final int i, final Map<String, MatchRule> matchRules) {
+        boolean subRulesMatch = false;
+        for (String[] subRule: this.subRules) {
+            int current = i;
+            boolean rulesMatch = true;
+            for (String id: subRule)
+                rulesMatch = rulesMatch && matchRules.get(id).match(str, current++, matchRules);
+            subRulesMatch = subRulesMatch || rulesMatch;
+        }
+        return subRulesMatch;
     }
 }
 
@@ -62,13 +72,13 @@ class MatchRuleFactory {
     private MatchRuleFactory() {}
 
     private static Matcher letterMatchRule(final String definition) {
-        String pattern = "^'(?<letter>[ab])'$";
+        String pattern = "^\"(?<letter>[ab])\"$";
         Pattern r = Pattern.compile(pattern);
         return r.matcher(definition);
     }
 
     private static MatchRuleSubRules createMarchSubRule(final String[] definition) {
-        String[] subRules = definition[1].split("\\|");
+        String[] subRules = definition[1].split(" \\| ");
         List<String[]> matchRules = new ArrayList<>();
         for (String subRule: subRules) {
             matchRules.add(subRule.split(" "));
@@ -91,8 +101,8 @@ class MatchRules {
 
     private final Map<String, MatchRule> matchRules;
 
-    MatchRules(final Map<String, MatchRule> matcheRules) {
-        this.matchRules = Collections.unmodifiableMap(matcheRules);
+    MatchRules(final Map<String, MatchRule> matchRules) {
+        this.matchRules = Collections.unmodifiableMap(matchRules);
     }
 
     static MatchRules fromList(final List<String> matchDefinitions) {
@@ -101,15 +111,19 @@ class MatchRules {
                 .collect(Collectors.toMap(MatchRule::getId, Function.identity()));
         return new MatchRules(definitions);
     }
+
+    boolean match(final String str) {
+        return this.matchRules.get("0").match(str, 0, matchRules);
+    }
 }
 
 
-class MessageValidator {
+class MessageMatcher {
 
     private final MatchRules matchRules;
     private final List<String> messages;
 
-    MessageValidator(final MatchRules matchRules, final List<String> messages) {
+    MessageMatcher(final MatchRules matchRules, final List<String> messages) {
         this.matchRules = matchRules;
         this.messages = messages;
     }
@@ -134,31 +148,32 @@ class MessageValidator {
         return fileSections;
     }
 
-    static MessageValidator fromFile(final String filename) {
+    static MessageMatcher fromFile(final String filename) {
         List<List<String>> fileSections = readFileSections(filename);
         MatchRules rules = MatchRules.fromList(fileSections.get(0));
         List<String> messages = fileSections.get(1);
-        return new MessageValidator(rules, messages);
+        return new MessageMatcher(rules, messages);
     }
 
-    int validate() {
-        int valid = 0;
-        return valid;
+    long countMatches() {
+        return this.messages.stream().filter(this.matchRules::match).count();
     }
 }
 
 
 public class Advent2020Day19 {
 
-    private static void testMessageValidator() {
-        int expectedMessages = 2;
-        MessageValidator validator = MessageValidator.fromFile("2020/day19/test19a.txt");
-        int actualMessages = validator.validate();
-        assert actualMessages == expectedMessages :
-                String.format("Expected valid messages to be %d not %d!%n", expectedMessages, actualMessages);
+    private static void testMessageMatcher() {
+        long expectedMatches = 2;
+        MessageMatcher matcher = MessageMatcher.fromFile("2020/day19/test19a.txt");
+        long actualMatches = matcher.countMatches();
+        assert actualMatches == expectedMatches :
+                String.format("Expected messages matched to be %d not %d!%n", expectedMatches, actualMatches);
     }
 
     public static void main(final String[] args) {
-        testMessageValidator();
+        testMessageMatcher();
+        MessageMatcher matcher = MessageMatcher.fromFile("2020/day19/input19.txt");
+        System.out.printf("Day 19, part 1, messages matched is %d.%n", matcher.countMatches());
     }
 }
