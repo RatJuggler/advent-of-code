@@ -5,7 +5,9 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -87,16 +89,16 @@ class MatchRuleFactory {
 
 class MatchRules {
 
-    private final List<MatchRule> matchRules;
+    private final Map<String, MatchRule> matchRules;
 
-    MatchRules(final List<MatchRule> matcheRules) {
-        this.matchRules = Collections.unmodifiableList(matcheRules);
+    MatchRules(final Map<String, MatchRule> matcheRules) {
+        this.matchRules = Collections.unmodifiableMap(matcheRules);
     }
 
     static MatchRules fromList(final List<String> matchDefinitions) {
-        List<MatchRule> definitions = matchDefinitions.stream()
+        Map<String, MatchRule> definitions = matchDefinitions.stream()
                 .map(MatchRuleFactory::createMatchRule)
-                .collect(Collectors.toList());
+                .collect(Collectors.toMap(MatchRule::getId, Function.identity()));
         return new MatchRules(definitions);
     }
 }
