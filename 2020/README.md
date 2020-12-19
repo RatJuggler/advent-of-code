@@ -80,8 +80,13 @@ Java to the maximum! I liked this one's mix of parsing and puzzle and ended up c
 I completed this, but I wasn't happy with my solution, so I went back and completely rewrote it. I'd started by trying to simulate
 an arbitrarily large volume of space but this was very inefficient and unwieldy. Just working with a list of the cube positions, 
 and the offset positions they affect is actually much simpler, the hardest part is actually generating the offset combinations to 
-try. Further refactoring eliminated duplicate checks being carried on the same location, much improving performance.
+try. Further, refactoring eliminated duplicate checks being carried on the same location, much improving performance.
 
 ##### Day 18: Operation Order
 Took me a while to get my expression parser going properly using a tree structure but got there in the end. Certainly room for 
 improvement as I could be evaluating sub-expressions as they are parsed, rather than building the whole tree and then evaluating.
+
+##### Day 19: Monster Messages
+I got the match rules going for part one with my usual tangle of Java classes and input file parsing, though it doesn't feel quite 
+right. Something about the way the rules and the message parsing context interact. 
+** Part Two not completed ** I'm having problems understanding the implications of the rule changes in part two.
