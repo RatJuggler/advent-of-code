@@ -2,6 +2,7 @@ package day4;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -145,6 +146,8 @@ class FieldValidatorFactory {
 
 abstract class PassportValidator {
 
+    private static final String[] FIELD_NAMES = {"byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"};
+
     private final Map<String, FieldValidator> fields;
 
     PassportValidator(final Map<String, FieldValidator> fields) {
@@ -152,11 +155,7 @@ abstract class PassportValidator {
     }
 
     boolean validateFieldsPresent() {
-        boolean valid = true;
-        String[] fields = {"byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"};
-        for (String field : fields)
-            valid = valid && this.fields.containsKey(field);
-        return valid;
+        return Arrays.stream(FIELD_NAMES).allMatch(this.fields::containsKey);
     }
 
     boolean validateFields() {
