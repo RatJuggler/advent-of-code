@@ -43,7 +43,7 @@ class CubeLocation {
 class EnergySource {
 
     private static final int CYCLES = 6;
-    private static final int[] OFFSETS = {-1, 0, 1};
+    private static final int[] OFFSETS = {0, -1, 1};
 
     private Set<CubeLocation> cubes = new HashSet<>();
     private final int[][] dOffsets;
@@ -76,12 +76,12 @@ class EnergySource {
     }
 
     private static int[][] createOffsets(final int dimensions) {
-        int[][] offsets = new int[BigInteger.valueOf(3).pow(dimensions).intValue()][dimensions];
+        int[][] offsets = new int[BigInteger.valueOf(3).pow(dimensions).intValue() - 1][dimensions];
         int[] c = new int[dimensions];
         Arrays.fill(c, 0);
         for (int i = 0; i < offsets.length; i++) {
-            offsets[i] = newOffset(c);
             nextCombination(c);
+            offsets[i] = newOffset(c);
         }
         return offsets;
     }
@@ -107,10 +107,8 @@ class EnergySource {
     private int countActiveNeighbours(final CubeLocation cube) {
         int activeNeighbours = 0;
         for (int[] dOffset : dOffsets) {
-            if (Arrays.stream(dOffset).anyMatch(n -> n != 0)) {
-                CubeLocation offsetCube = cube.offsetCube(dOffset);
-                if (this.cubes.contains(offsetCube)) activeNeighbours++;
-            }
+            CubeLocation offsetCube = cube.offsetCube(dOffset);
+            if (this.cubes.contains(offsetCube)) activeNeighbours++;
         }
         return activeNeighbours;
     }
