@@ -191,17 +191,33 @@ class MessageMatcher {
 
 public class Advent2020Day19 {
 
-    private static void testMessageMatcher(final String filename, final long expectedMatches) {
+    private static long matchMessagesWithoutLoops(final String filename) {
         MessageMatcher matcher = MessageMatcher.fromFile(filename);
-        long actualMatches = matcher.countMatches();
+        return matcher.countMatches();
+    }
+
+    private static long matchMessagesWithLoops(final String filename) {
+        MessageMatcher matcher = MessageMatcher.fromFile(filename);
+        return matcher.countMatches();
+    }
+
+    private static void testMessageMatcherWithoutLoops(final String filename, final long expectedMatches) {
+        long actualMatches = matchMessagesWithoutLoops(filename);
         assert actualMatches == expectedMatches :
-                String.format("Expected messages matched to be %d not %d!%n", expectedMatches, actualMatches);
+                String.format("Expected messages matched without loops to be %d not %d!%n", expectedMatches, actualMatches);
+    }
+
+    private static void testMessageMatcherWithLoops(final String filename, final long expectedMatches) {
+        long actualMatches = matchMessagesWithLoops(filename);
+        assert actualMatches == expectedMatches :
+                String.format("Expected messages matched with loops to be %d not %d!%n", expectedMatches, actualMatches);
     }
 
     public static void main(final String[] args) {
-        testMessageMatcher("2020/day19/test19a.txt", 2);
-        testMessageMatcher("2020/day19/test19b.txt", 3);
-        MessageMatcher matcher = MessageMatcher.fromFile("2020/day19/input19.txt");
-        System.out.printf("Day 19, part 1, messages matched is %d.%n", matcher.countMatches());
+        testMessageMatcherWithoutLoops("2020/day19/test19a.txt", 2);
+        testMessageMatcherWithoutLoops("2020/day19/test19b.txt", 3);
+        System.out.printf("Day 19, part 1, messages matched is %d.%n", matchMessagesWithoutLoops("2020/day19/input19.txt"));
+        testMessageMatcherWithLoops("2020/day19/test19b.txt", 12);
+        System.out.printf("Day 19, part 2, messages matched is %d.%n", matchMessagesWithLoops("2020/day19/input19.txt"));
     }
 }
