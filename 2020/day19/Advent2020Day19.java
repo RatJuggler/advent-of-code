@@ -191,16 +191,16 @@ class MessageMatcher {
 
 public class Advent2020Day19 {
 
-    private static void testMessageMatcher() {
-        long expectedMatches = 2;
-        MessageMatcher matcher = MessageMatcher.fromFile("2020/day19/test19a.txt");
+    private static void testMessageMatcher(final String filename, final long expectedMatches) {
+        MessageMatcher matcher = MessageMatcher.fromFile(filename);
         long actualMatches = matcher.countMatches();
         assert actualMatches == expectedMatches :
                 String.format("Expected messages matched to be %d not %d!%n", expectedMatches, actualMatches);
     }
 
     public static void main(final String[] args) {
-        testMessageMatcher();
+        testMessageMatcher("2020/day19/test19a.txt", 2);
+        testMessageMatcher("2020/day19/test19b.txt", 3);
         MessageMatcher matcher = MessageMatcher.fromFile("2020/day19/input19.txt");
         System.out.printf("Day 19, part 1, messages matched is %d.%n", matcher.countMatches());
     }
