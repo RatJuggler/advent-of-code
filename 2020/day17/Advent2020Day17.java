@@ -115,12 +115,17 @@ class EnergySource {
 
     private void cycle() {
         Set<CubeLocation> newCubes = new HashSet<>();
+        Set<CubeLocation> checked = new HashSet<>();
         for (CubeLocation cube: this.cubes) {
             int activeNeighbours = this.countActiveNeighbours(cube);
             if (activeNeighbours == 2 || activeNeighbours == 3) newCubes.add(cube);
             for (int[] dOffset : dOffsets) {
                 CubeLocation checkLocation = cube.offsetCube(dOffset);
-                if (this.countActiveNeighbours(checkLocation) == 3) newCubes.add(checkLocation);
+                if (!checked.contains(checkLocation)) {
+                    activeNeighbours = this.countActiveNeighbours(checkLocation);
+                    if (activeNeighbours == 3) newCubes.add(checkLocation);
+                    checked.add(checkLocation);
+                }
             }
         }
         this.cubes = newCubes;
