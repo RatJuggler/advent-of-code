@@ -13,6 +13,33 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 
+class MatchContext {
+
+    private final String str;
+    private int i = 0;
+
+    MatchContext(final String str) {
+        this.str = str;
+    }
+
+    char getLetter() {
+        return this.str.charAt(this.i++);
+    }
+
+    int getPosition() {
+        return this.i;
+    }
+
+    void setPosition(final int i) {
+        this.i = i;
+    }
+
+    boolean complete() {
+        return this.i == str.length();
+    }
+}
+
+
 abstract class MatchRule {
 
     private final String id;
@@ -25,7 +52,7 @@ abstract class MatchRule {
         return this.id;
     }
 
-    abstract boolean match(final String str, final int i, final Map<String, MatchRule> matchRules);
+    abstract boolean match(final MatchContext context, final Map<String, MatchRule> matchRules);
 }
 
 
@@ -38,8 +65,8 @@ class MatchRuleLetter extends MatchRule {
         this.letter = letter;
     }
 
-    boolean match(final String str, final int i, final Map<String, MatchRule> matchRules) {
-        return str.charAt(i) == this.letter;
+    boolean match(final MatchContext context, final Map<String, MatchRule> matchRules) {
+        return this.letter == context.getLetter();
     }
 }
 
@@ -53,16 +80,16 @@ class MatchRuleSubRules extends MatchRule {
         this.subRules = subRules;
     }
 
-    boolean match(final String str, final int i, final Map<String, MatchRule> matchRules) {
-        boolean subRulesMatch = false;
+    boolean match(final MatchContext context, final Map<String, MatchRule> matchRules) {
+        int current = context.getPosition();
         for (String[] subRule: this.subRules) {
-            int current = i;
-            boolean rulesMatch = true;
+            context.setPosition(current);
+            boolean subRulesMatch = true;
             for (String id: subRule)
-                rulesMatch = rulesMatch && matchRules.get(id).match(str, current++, matchRules);
-            subRulesMatch = subRulesMatch || rulesMatch;
+                subRulesMatch = subRulesMatch && matchRules.get(id).match(context, matchRules);
+            if (subRulesMatch) return true;
         }
-        return subRulesMatch;
+        return false;
     }
 }
 
@@ -113,7 +140,8 @@ class MatchRules {
     }
 
     boolean match(final String str) {
-        return this.matchRules.get("0").match(str, 0, matchRules);
+        MatchContext context = new MatchContext(str);
+        return this.matchRules.get("0").match(context, matchRules) && context.complete();
     }
 }
 
@@ -156,7 +184,7 @@ class MessageMatcher {
     }
 
     long countMatches() {
-        return this.messages.stream().filter(this.matchRules::match).count();
+        return this.messages.stream().filter(this.matchRules::match).peek(System.out::println).count();
     }
 }
 
