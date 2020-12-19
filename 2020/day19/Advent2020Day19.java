@@ -14,11 +14,17 @@ import java.util.stream.Collectors;
 
 class MatchContext {
 
+    private final Map<String, MatchRule> matchRules;
     private final String str;
     private int i = 0;
 
-    MatchContext(final String str) {
+    MatchContext(final Map<String, MatchRule> matchRules, final String str) {
+        this.matchRules = matchRules;
         this.str = str;
+    }
+
+    boolean apply(final String id) {
+        return this.matchRules.get(id).match(this);
     }
 
     boolean hasNextLetter() {
@@ -51,7 +57,7 @@ abstract class MatchRule {
         return this.id;
     }
 
-    abstract boolean match(final MatchContext context, final Map<String, MatchRule> matchRules);
+    abstract boolean match(final MatchContext context);
 }
 
 
@@ -64,7 +70,7 @@ class MatchRuleLetter extends MatchRule {
         this.letter = letter;
     }
 
-    boolean match(final MatchContext context, final Map<String, MatchRule> matchRules) {
+    boolean match(final MatchContext context) {
         return context.hasNextLetter() && context.getLetter() == this.letter;
     }
 }
@@ -79,13 +85,13 @@ class MatchRuleSubRules extends MatchRule {
         this.subRules = subRules;
     }
 
-    boolean match(final MatchContext context, final Map<String, MatchRule> matchRules) {
+    boolean match(final MatchContext context) {
         int current = context.getPosition();
         for (String[] subRule: this.subRules) {
             context.setPosition(current);
             boolean subRulesMatch = true;
             for (String id: subRule)
-                subRulesMatch = subRulesMatch && matchRules.get(id).match(context, matchRules);
+                subRulesMatch = subRulesMatch && context.apply(id);
             if (subRulesMatch) return true;
         }
         return false;
@@ -144,8 +150,8 @@ class MatchRules {
     }
 
     boolean match(final String str) {
-        MatchContext context = new MatchContext(str);
-        return this.matchRules.get("0").match(context, matchRules) && !context.hasNextLetter();
+        MatchContext context = new MatchContext(this.matchRules, str);
+        return context.apply("0") && !context.hasNextLetter();
     }
 }
 
