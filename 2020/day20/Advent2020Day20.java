@@ -6,14 +6,34 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 class ImageTile {
 
+    private final long id;
     private final List<String> tile;
 
-    ImageTile(final List<String> tile) {
+    ImageTile(final long id, final List<String> tile) {
+        this.id = id;
         this.tile = Collections.unmodifiableList(tile);
+    }
+
+    private static long parseTileId(final String tileId) {
+        String pattern = "^Tile (?<id>\\d+):$";
+        Pattern r = Pattern.compile(pattern);
+        Matcher m = r.matcher(tileId);
+        if (!m.find()) {
+            throw new IllegalStateException("Unable to parse tile id: " + tileId);
+        }
+        return Long.parseLong(m.group("id"));
+    }
+
+    static ImageTile fromStrings(final List<String> tile) {
+        long id = parseTileId(tile.get(0));
+        tile.remove(0);
+        return new ImageTile(id, tile);
     }
 }
 
@@ -35,11 +55,11 @@ class ImageAssembler {
                 if (line.length() != 0) {
                     tile.add(line);
                 } else {
-                    tiles.add(new ImageTile(tile));
+                    tiles.add(ImageTile.fromStrings(tile));
                     tile = new ArrayList<>();
                 }
             }
-            tiles.add(new ImageTile(tile));
+            tiles.add(ImageTile.fromStrings(tile));
         } catch (FileNotFoundException fnf) {
             throw new IllegalArgumentException("Unable to read message file!", fnf);
         }
