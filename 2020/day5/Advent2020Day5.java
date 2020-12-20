@@ -35,7 +35,6 @@ public class Advent2020Day5 {
     private static void testSeatIdGenerator(final String seatCode, int expectedId) {
         assert Seat.createFromCode(seatCode).id() == expectedId :
                 String.format("Expected Id for seat \"%s\" to be %s!", seatCode, expectedId);
-
     }
 
     private static void testPart1SeatIdGenerator() {
@@ -45,30 +44,39 @@ public class Advent2020Day5 {
         testSeatIdGenerator("BBFFBBFRLL", 820);
     }
 
-    private static int findHighestSeatId(String filename) throws IOException {
+    private static int[] readBoardingPasses(final String filename) {
         try (Stream<String> stream = Files.lines(Paths.get(filename))) {
             return stream.map(Seat::createFromCode)
                     .mapToInt(Seat::id)
-                    .max()
-                    .orElse(-1);
-        }
-    }
-    private static int findMissingSeatId(String filename) throws IOException {
-        try (Stream<String> stream = Files.lines(Paths.get(filename))) {
-            int[] seats = stream.map(Seat::createFromCode)
-                    .mapToInt(Seat::id)
                     .sorted()
                     .toArray();
-            int i = 0;
-            while (seats[i + 1] == seats[i] + 1) i++;
-            return seats[i] + 1;
+        } catch (IOException ioe) {
+            throw new IllegalArgumentException("Problem reading boarding pass file!", ioe);
         }
     }
 
-    public static void main(final String[] args) throws IOException {
+    private static int findMissingSeatId(final int[] seats) {
+        for (int i = 0; i < seats.length - 1; i++) {
+            int nextSeat = seats[i] + 1;
+            if (seats[i + 1] != nextSeat)
+                return nextSeat;
+        }
+        return -1;
+    }
+
+    private static void testPart1HighestSeat() {
+        int expectedHighest = 820;
+        int[] testSeats = readBoardingPasses("2020/day5/test5a.txt");
+        int actualHighest = testSeats[testSeats.length - 1];
+        assert actualHighest == expectedHighest :
+                String.format("Expected highest seat Id to be %d, but, was %d!", expectedHighest, actualHighest);
+    }
+
+    public static void main(final String[] args) {
         testPart1SeatIdGenerator();
-        assert findHighestSeatId("2020/day5/test5a.txt") == 820 : "Expected highest seat Id to be 820!";
-        System.out.printf("Day 5, part 1, highest seat Id is %d.%n", findHighestSeatId("2020/day5/input5.txt"));
-        System.out.printf("Day 5, part 2, my seat Id is %d.%n", findMissingSeatId("2020/day5/input5.txt"));
+        testPart1HighestSeat();
+        int[] seats = readBoardingPasses("2020/day5/input5.txt");
+        System.out.printf("Day 5, part 1, highest seat Id is %d.%n", seats[seats.length - 1]);
+        System.out.printf("Day 5, part 2, my seat Id is %d.%n", findMissingSeatId(seats));
     }
 }
