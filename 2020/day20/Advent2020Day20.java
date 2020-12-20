@@ -76,6 +76,11 @@ class ImageTile {
         this.left = reverse(this.left);
         this.right = reverse(this.right);
     }
+
+    @Override
+    public String toString() {
+        return String.format("ImageTile{id=%d, size=%d, top=%d, right=%d, bottom=%d, left=%d}", id, size, top, right, bottom, left);
+    }
 }
 
 
@@ -134,13 +139,23 @@ class ImageAssembler {
         }
         return 0;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("ImageAssembler{\n");
+        for (ImageTile tile: this.tiles)
+            sb.append(tile.toString()).append('\n');
+        return sb.append("}\n").toString();
+    }
 }
 
 
 public class Advent2020Day20 {
 
     private static long assembleTiles(final String filename) {
-        return ImageAssembler.fromFile(filename).assemble();
+        ImageAssembler assembler = ImageAssembler.fromFile(filename);
+        System.out.print(assembler);
+        return assembler.assemble();
     }
 
     private static void testImageAssembler(final String filename, final long expectedCornerProduct) {
