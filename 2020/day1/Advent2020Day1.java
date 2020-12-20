@@ -9,11 +9,13 @@ import java.util.Scanner;
 
 final class Advent2020Day1 {
 
-    private static List<Integer> readExpenses(final String filename) throws FileNotFoundException {
-        Scanner scanner = new Scanner(new File(filename));
+    private static List<Integer> readExpenses(final String filename) {
         List<Integer> expenses = new ArrayList<>();
-        while (scanner.hasNextInt()) {
-            expenses.add(scanner.nextInt());
+        try (Scanner scanner = new Scanner(new File(filename))) {
+            while (scanner.hasNextInt())
+                expenses.add(scanner.nextInt());
+        } catch (FileNotFoundException fnf) {
+            throw new IllegalArgumentException("Problem reading expenses file!", fnf);
         }
         expenses.sort(Integer::compareTo);
         return expenses;
@@ -28,7 +30,7 @@ final class Advent2020Day1 {
                     if (expenses.get(i) + expenses.get(j) == totalToFind)
                         return expenses.get(i) * expenses.get(j);
                 }
-        throw new IllegalStateException();
+        throw new IllegalStateException("Expected to find a result!");
     }
 
     private static int findThreeExpensesProduct(final List<Integer> expenses, final int totalToFind) {
@@ -46,23 +48,18 @@ final class Advent2020Day1 {
                                 return expenses.get(i) * expenses.get(j) * expenses.get(k);
                         }
                 }
-        throw new IllegalStateException();
+        throw new IllegalStateException("Expected to find a result!");
     }
 
-    private static void testFind2020DoubleProduct(final List<Integer> expenses) {
-        int result = findTwoExpensesProduct(expenses, 2020);
-        assert result == 514579 : String.format("Expected result not found, was %d!", result);
+    private static void testExpenseProduct(final int actualResult, final int expectedResult) {
+        assert actualResult == expectedResult :
+                String.format("Expected expense product to be %d, but, was %d!", expectedResult, actualResult);
     }
 
-    private static void testFind2020TripleProduct(final List<Integer> expenses) {
-        int result = findThreeExpensesProduct(expenses, 2020);
-        assert result == 241861950 : String.format("Expected result not found, was %d!", result);
-    }
-
-    public static void main(final String[] args) throws FileNotFoundException {
+    public static void main(final String[] args) {
         List<Integer> testExpenses = readExpenses("2020/day1/test1a.txt");
-        testFind2020DoubleProduct(testExpenses);
-        testFind2020TripleProduct(testExpenses);
+        testExpenseProduct(findTwoExpensesProduct(testExpenses, 2020), 514579);
+        testExpenseProduct(findThreeExpensesProduct(testExpenses, 2020), 241861950);
         List<Integer> expenses = readExpenses("2020/day1/input1.txt");
         System.out.printf("Day 1, Part 1 the answer is %d.%n", findTwoExpensesProduct(expenses, 2020));
         System.out.printf("Day 1, Part 2 the answer is %d.%n", findThreeExpensesProduct(expenses, 2020));
