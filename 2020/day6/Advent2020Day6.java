@@ -26,24 +26,27 @@ public class Advent2020Day6 {
                 String.format("Expected unique answer count for \"%s\" to be %d!", answers, expected);
     }
 
-    private static long totalAnswers(final String filename, final Function<List<String>, Long> count) throws FileNotFoundException {
+    private static long totalAnswers(final String filename, final Function<List<String>, Long> count) {
         long totalAnswers = 0;
         List<String> groupAnswers = new ArrayList<>();
-        Scanner s = new Scanner(new File(filename));
-        while (s.hasNext()) {
-            String line = s.nextLine();
-            if ("".equals(line)) {
-                totalAnswers += count.apply(groupAnswers);
-                groupAnswers.clear();
-            } else {
-                groupAnswers.add(line);
+        try (Scanner s = new Scanner(new File(filename))) {
+            while (s.hasNext()) {
+                String line = s.nextLine();
+                if (line.length() != 0) {
+                    groupAnswers.add(line);
+                } else {
+                    totalAnswers += count.apply(groupAnswers);
+                    groupAnswers.clear();
+                }
             }
+        } catch (FileNotFoundException fnf) {
+            throw new IllegalArgumentException("Problem reading answers file!", fnf);
         }
         totalAnswers += count.apply(groupAnswers);
         return totalAnswers;
     }
 
-    public static void main(final String[] args) throws FileNotFoundException {
+    public static void main(final String[] args) {
         testCountAnswers(List.of("abcx", "abcy", "abcz"), countUniqueAnswers, 6);
         assert totalAnswers("2020/day6/test6a.txt", countUniqueAnswers) == 11 : "Expected total unique answers to be 11!";
         System.out.printf("Day 6, part 1, total unique answer count is %d.%n", totalAnswers("2020/day6/input6.txt", countUniqueAnswers));
