@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 
 class ImageTile {
 
-    private final long id;
+    final long id;
     private final List<String> tile;
     private final int size;
     int top;
@@ -124,9 +124,10 @@ class ImageAssembler {
         List<ImageTile> leftEdges = new ArrayList<>(this.tiles);
         List<ImageTile> rightEdges = new ArrayList<>(this.tiles);
         for (ImageTile checkTile: this.tiles) {
-            for (int f = 0; f < 2; f++) {
-                for (int r = 0; r < 4; r++) {
+            for (int checkFlip = 0; checkFlip < 2; checkFlip++) {
+                for (int checkRotate = 0; checkRotate < 4; checkRotate++) {
                     for (ImageTile withTile : this.tiles) {
+                        if (checkTile.id == withTile.id) continue;
                         if (checkTile.top == withTile.bottom) topEdges.remove(checkTile);
                         if (checkTile.bottom == withTile.top) bottomEdges.remove(checkTile);
                         if (checkTile.left == withTile.right) leftEdges.remove(checkTile);
