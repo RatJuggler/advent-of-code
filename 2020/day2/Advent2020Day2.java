@@ -93,36 +93,38 @@ class CompanyPasswordValidatorFactory {
 public class Advent2020Day2 {
 
     private static void testPasswordValidator(final String company, final String line, final boolean expected) {
-        assert CompanyPasswordValidatorFactory.createValidator(company, line).validate() == expected :
-                String.format("Expected password in line \"%s\" to be %s!", line, expected ? "valid" : "invalid");
+        boolean actual = CompanyPasswordValidatorFactory.createValidator(company, line).validate();
+        assert actual == expected : String.format("Expected password in line \"%s\" to be %s!", line, expected ? "valid" : "invalid");
     }
 
     private static void testSledCompanyPasswordValidator() {
         testPasswordValidator("Sled", "1-3 a: abcde", true);
         testPasswordValidator("Sled", "1-3 b: cdefg", false);
         testPasswordValidator("Sled", "2-9 c: ccccccccc", true);
+        assert countValidPasswords("Sled", "2020/day2/test2a.txt") == 2 : "Expected valid password count to be 2!";
     }
 
     private static void testTobogganCompanyPasswordValidator() {
         testPasswordValidator("Toboggan", "1-3 a: abcde", true);
         testPasswordValidator("Toboggan", "1-3 b: cdefg", false);
         testPasswordValidator("Toboggan", "2-9 c: ccccccccc", false);
+        assert countValidPasswords("Toboggan", "2020/day2/test2a.txt") == 1 : "Expected valid password count to be 1!";
     }
 
-    private static long countValidPasswords(final String company, final String filename) throws IOException {
+    private static long countValidPasswords(final String company, final String filename) {
         try (Stream<String> stream = Files.lines(Paths.get(filename))) {
             return stream.map(line -> CompanyPasswordValidatorFactory.createValidator(company, line))
                     .filter(PasswordValidator::validate)
                     .count();
+        } catch (IOException ioe) {
+            throw new IllegalArgumentException("Problem reading passwords file!", ioe);
         }
     }
 
-    public static void main(final String[] args) throws IOException {
+    public static void main(final String[] args) {
         testSledCompanyPasswordValidator();
-        assert countValidPasswords("Sled", "2020/day2/test2a.txt") == 2 : "Expected valid password count to be 2!";
         System.out.printf("Day 1, part 1, number of valid passwords is %d.%n", countValidPasswords("Sled", "2020/day2/input2.txt"));
         testTobogganCompanyPasswordValidator();
-        assert countValidPasswords("Toboggan", "2020/day2/test2a.txt") == 1 : "Expected valid password count to be 1!";
         System.out.printf("Day 1, part 2, number of valid passwords is %d.%n", countValidPasswords("Toboggan", "2020/day2/input2.txt"));
     }
 }
