@@ -65,6 +65,7 @@ class ImageAssembler {
         try (Scanner scanner = new Scanner(new File(filename))) {
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
+                if (line.startsWith("//")) continue;
                 if (line.length() != 0) {
                     tile.add(line);
                 } else {
@@ -103,7 +104,9 @@ public class Advent2020Day20 {
     }
 
     public static void main(final String[] args) {
-        testImageAssembler("2020/day20/test20a.txt", 2971L * 13L * 33L * 31L);
+        // Simple test file with no rotations or flips.
+        testImageAssembler("2020/day20/test20a.txt", 11L * 13L * 33L * 31L);
+        // Test file with rotations and flips.
         testImageAssembler("2020/day20/test20b.txt", 1951L * 3079L * 1171L * 2971L);
         System.out.printf("Day 20, part 1, corner product is %d.%n", assembleTiles("2020/day20/input20.txt"));
     }
