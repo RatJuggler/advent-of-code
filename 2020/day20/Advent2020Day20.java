@@ -15,10 +15,10 @@ class ImageTile {
     private final long id;
     private final List<String> tile;
     private final int size;
-    private int top;
-    private int bottom;
-    private int left;
-    private int right;
+    final int top;
+    final int bottom;
+    final int left;
+    final int right;
 
     private static int convertToBinary(final String side) {
         String binary = side.replace('#', '1').replace('.', '0');
@@ -91,6 +91,18 @@ class ImageAssembler {
     }
 
     long assemble() {
+        List<ImageTile> topEdges = new ArrayList<>(this.tiles);
+        List<ImageTile> bottomEdges = new ArrayList<>(this.tiles);
+        List<ImageTile> leftEdges = new ArrayList<>(this.tiles);
+        List<ImageTile> rightEdges = new ArrayList<>(this.tiles);
+        for (ImageTile checkTile: this.tiles) {
+            for (ImageTile withTile: this.tiles) {
+                if (checkTile.top == withTile.bottom) topEdges.remove(checkTile);
+                if (checkTile.bottom == withTile.top) bottomEdges.remove(checkTile);
+                if (checkTile.left == withTile.right) leftEdges.remove(checkTile);
+                if (checkTile.right == withTile.left) rightEdges.remove(checkTile);
+            }
+        }
         return 0;
     }
 }
