@@ -15,25 +15,30 @@ class ImageTile {
     private final long id;
     private final List<String> tile;
     private final int size;
-    private String top;
-    private String bottom;
-    private String left;
-    private String right;
+    private int top;
+    private int bottom;
+    private int left;
+    private int right;
+
+    private static int convertToBinary(final String side) {
+        String binary = side.replace('#', '1').replace('.', '0');
+        return Integer.parseInt(binary, 2);
+    }
 
     ImageTile(final long id, final List<String> tile) {
         this.id = id;
         this.tile = Collections.unmodifiableList(tile);
         this.size = this.tile.size();
-        this.top = tile.get(0);
-        this.bottom = tile.get(this.size - 1);
+        this.top = convertToBinary(tile.get(0));
+        this.bottom = convertToBinary(tile.get(this.size - 1));
         StringBuilder sbLeft = new StringBuilder(this.size);
         StringBuilder sbRight = new StringBuilder(this.size);
         for (int i = 0; i < this.size; i++) {
             sbLeft.append(this.tile.get(i).charAt(0));
             sbRight.append(this.tile.get(i).charAt(this.size - 1));
         }
-        this.left = sbLeft.toString();
-        this.right = sbRight.toString();
+        this.left = convertToBinary(sbLeft.toString());
+        this.right = convertToBinary(sbRight.toString());
     }
 
     private static long parseTileId(final String tileId) {
