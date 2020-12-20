@@ -1,10 +1,10 @@
 package day3;
 
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+
 
 class MapOfTrees {
 
@@ -16,9 +16,13 @@ class MapOfTrees {
         this.width = map.get(0).length();
     }
 
-    static MapOfTrees fromFile(final String filename) throws IOException {
-        List<String> map = Files.readAllLines(Paths.get(filename));
-        return new MapOfTrees(map);
+    static MapOfTrees fromFile(final String filename) {
+        try {
+            List<String> map = Files.readAllLines(Paths.get(filename));
+            return new MapOfTrees(map);
+        } catch (IOException ioe) {
+            throw new IllegalArgumentException("Problem reading map file!", ioe);
+        }
     }
 
     int countTrees(final int slopeX, final int slopeY) {
@@ -38,12 +42,12 @@ class MapOfTrees {
 
 public class Advent2020Day3 {
 
-    private static int countTrees(final String filename) throws IOException {
+    private static int countTrees(final String filename) {
         MapOfTrees mapOfTrees = MapOfTrees.fromFile(filename);
         return mapOfTrees.countTrees(3, 1);
     }
 
-    private static long treeCountProduct(final String filename) throws IOException {
+    private static long treeCountProduct(final String filename) {
         MapOfTrees mapOfTrees = MapOfTrees.fromFile(filename);
         return (long) mapOfTrees.countTrees(1, 1) *
                 mapOfTrees.countTrees(3, 1) *
@@ -52,21 +56,21 @@ public class Advent2020Day3 {
                 mapOfTrees.countTrees(1, 2);
     }
 
-    private static void testPart1TreeCount() throws IOException {
+    private static void testPart1TreeCount() {
         int expectedTreeCount = 7;
         int actualTreeCount = countTrees("2020/day3/test3a.txt");
         assert actualTreeCount == expectedTreeCount :
                 String.format("Expected to encounter %d trees not %d!%n", expectedTreeCount, actualTreeCount);
     }
 
-    private static void testPart2TreeCountProduct() throws IOException {
+    private static void testPart2TreeCountProduct() {
         long expectedTreeCountProduct = 336;
         long actualTreeCountProduct = treeCountProduct("2020/day3/test3a.txt");
         assert actualTreeCountProduct == expectedTreeCountProduct :
                 String.format("Expected to get %d not %d!%n", expectedTreeCountProduct, actualTreeCountProduct);
     }
 
-    public static void main(final String[] args) throws IOException {
+    public static void main(final String[] args) {
         testPart1TreeCount();
         System.out.printf("Day 3, part 1, number of trees is %d.%n", countTrees("2020/day3/input3.txt"));
         testPart2TreeCountProduct();
