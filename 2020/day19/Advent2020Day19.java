@@ -3,6 +3,7 @@ package day19;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -79,13 +80,48 @@ class MatchRuleLetter extends MatchRule {
 class MatchRuleSubRules extends MatchRule {
 
     private final List<String[]> subRules;
+    private final boolean looping;
 
-    MatchRuleSubRules(final String id, final List<String[]> subRules) {
+    MatchRuleSubRules(final String id, final List<String[]> subRules, final boolean looping) {
         super(id);
         this.subRules = subRules;
+        this.looping = looping;
     }
 
-    boolean match(final MatchContext context) {
+    private boolean matchLooping(final MatchContext context) {
+        // 8: 42 | 42 8
+        // Run 8 => (run 42 = true/false) | (run 42 = true/false) (run 8 = true while repeat match valid, then false)
+        // {run{rule:result}}, true = match, false = no-match
+        // {{42:false}} => false | false false => false
+        // {{42:true}, {42:false}} => true | true (false | false)) => true
+        // {{42:true}, {42:true}, {42:false}} => true | true (true | true (false | false)) => true
+        // 11: 42 31 | 42 11 31
+        // Run 11 => (run 42 = true/false) (run 31 = true/false) | (run 42 = true/false) (run 11 = true while repeat match valid, then false) (run 31 = true/false)
+        // {run{rule:result}}, true = match, false = no-match
+        // {{42:false, 31:false}} => false false | false false false => false
+        // {{42:true, 31:false}} => true false | true false false => false
+        // {{42:false, 31:true}} => false true | false false true => false
+        // {{42:true, 31:true}} => true true | true false true => true
+        // {{42:true, 31:true}, {42:false, 31:false}} => true true | true (false false | false false false) true => true
+        // {{42:true, 31:true}, {42:true, 31:false}} => true true | true (true false | true false false) true => true
+        // {{42:true, 31:true}, {42:false, 31:true}} => true true | true (false true | false false true) true => true
+        // {{42:true, 31:true}, {42:true, 31:true}} => true true | true (true true | true false true) true => true
+        int current = context.getPosition();
+        for (String[] subRule : this.subRules) {
+            context.setPosition(current);
+            boolean subRulesMatch = true;
+            for (String id : subRule) {
+                if (id.equals(this.getId()))
+                    while (this.matchLooping(context)) ;
+                else
+                    subRulesMatch = subRulesMatch && context.apply(id);
+            }
+            if (subRulesMatch) return true;
+        }
+        return false;
+    }
+
+    private boolean matchNoLooping(final MatchContext context) {
         int current = context.getPosition();
         for (String[] subRule: this.subRules) {
             context.setPosition(current);
@@ -95,6 +131,13 @@ class MatchRuleSubRules extends MatchRule {
             if (subRulesMatch) return true;
         }
         return false;
+    }
+
+    boolean match(final MatchContext context) {
+        if (this.looping)
+            return this.matchLooping(context);
+        else
+            return this.matchNoLooping(context);
     }
 }
 
@@ -109,13 +152,16 @@ class MatchRuleFactory {
         return r.matcher(definition);
     }
 
-    private static MatchRuleSubRules createMarchSubRule(final String[] definition) {
-        String[] subRules = definition[1].split(" \\| ");
+    private static MatchRuleSubRules createMarchSubRule(final String id, final String subRulesList) {
+        String[] subRules = subRulesList.split(" \\| ");
+        boolean looping = false;
         List<String[]> matchRules = new ArrayList<>();
         for (String subRule: subRules) {
-            matchRules.add(subRule.split(" "));
+            String[] matchRule = subRule.split(" ");
+            matchRules.add(matchRule);
+            looping = looping || Arrays.asList(matchRule).contains(id);
         }
-        return new MatchRuleSubRules(definition[0], matchRules);
+        return new MatchRuleSubRules(id, matchRules, looping);
     }
 
     static MatchRule createMatchRule(final String matchRuleDefinition) {
@@ -124,7 +170,7 @@ class MatchRuleFactory {
         if (letterRule.find())
             return new MatchRuleLetter(definition[0], letterRule.group("letter").charAt(0));
         else
-            return createMarchSubRule(definition);
+            return createMarchSubRule(definition[0], definition[1]);
     }
 }
 
