@@ -15,10 +15,10 @@ class ImageTile {
     private final long id;
     private final List<String> tile;
     private final int size;
-    final int top;
-    final int bottom;
-    final int left;
-    final int right;
+    int top;
+    int bottom;
+    int left;
+    int right;
 
     private static int convertToBinary(final String side) {
         String binary = side.replace('#', '1').replace('.', '0');
@@ -52,6 +52,29 @@ class ImageTile {
     static ImageTile fromStrings(final List<String> tile) {
         long id = parseTileId(tile.remove(0));
         return new ImageTile(id, tile);
+    }
+
+    void rotate() {
+        int tempTop = this.top;
+        this.top = this.left;
+        this.left = this.bottom;
+        this.bottom = this.right;
+        this.right = tempTop;
+    }
+
+    private int reverse(final int side) {
+        StringBuilder reverse = new StringBuilder(this.size).append(Integer.toBinaryString(side));
+        while (reverse.length() < this.size)
+            reverse.insert(0, '0');
+        return Integer.parseInt(reverse.reverse().toString(), 2);
+    }
+
+    void flip() {
+        int tempTop = this.top;
+        this.top = this.bottom;
+        this.bottom = tempTop;
+        this.left = reverse(this.left);
+        this.right = reverse(this.right);
     }
 }
 
@@ -96,11 +119,17 @@ class ImageAssembler {
         List<ImageTile> leftEdges = new ArrayList<>(this.tiles);
         List<ImageTile> rightEdges = new ArrayList<>(this.tiles);
         for (ImageTile checkTile: this.tiles) {
-            for (ImageTile withTile: this.tiles) {
-                if (checkTile.top == withTile.bottom) topEdges.remove(checkTile);
-                if (checkTile.bottom == withTile.top) bottomEdges.remove(checkTile);
-                if (checkTile.left == withTile.right) leftEdges.remove(checkTile);
-                if (checkTile.right == withTile.left) rightEdges.remove(checkTile);
+            for (int f = 0; f < 2; f++) {
+                for (int r = 0; r < 4; r++) {
+                    for (ImageTile withTile : this.tiles) {
+                        if (checkTile.top == withTile.bottom) topEdges.remove(checkTile);
+                        if (checkTile.bottom == withTile.top) bottomEdges.remove(checkTile);
+                        if (checkTile.left == withTile.right) leftEdges.remove(checkTile);
+                        if (checkTile.right == withTile.left) rightEdges.remove(checkTile);
+                    }
+                    checkTile.rotate();
+                }
+                checkTile.flip();
             }
         }
         return 0;
