@@ -230,7 +230,8 @@ class PassportValidatorFactory {
 public class Advent2020Day4 {
 
     private static void testPassportValidator(final String type, final String passport, final boolean expected) {
-        assert PassportValidatorFactory.createValidator(type, passport).validate() == expected :
+        boolean actual = PassportValidatorFactory.createValidator(type, passport).validate();
+        assert actual == expected :
                 String.format("Expected %s validation for passport \"%s\" to be %s!", type, passport, expected ? "valid" : "invalid");
     }
 
@@ -248,7 +249,8 @@ public class Advent2020Day4 {
     }
 
     private static void testFieldValidator(final String field, final String data, final boolean expected) {
-        assert FieldValidatorFactory.createValidator(field, data).validate() == expected :
+        boolean actual = FieldValidatorFactory.createValidator(field, data).validate();
+        assert actual == expected :
                 String.format("Expected field \"%s\" data \"%s\" to be %s!", field, data, expected ? "valid" : "invalid");
     }
 
@@ -303,24 +305,29 @@ public class Advent2020Day4 {
         testPassportValidator("Part2", "iyr:2010 hgt:158cm hcl:#b6652a ecl:blu byr:1944 eyr:2021 pid:093154719", true);
     }
 
-    private static int countValidPassports(final String type, final String filename) throws FileNotFoundException {
+    private static int countValidPassports(final String type, final String filename) {
         int validPassports = 0;
         StringBuilder passport = new StringBuilder();
-        Scanner s = new Scanner(new File(filename));
-        while (s.hasNext()) {
-            String line = s.nextLine();
-            if ("".equals(line)) {
-                if (PassportValidatorFactory.createValidator(type, passport.toString()).validate()) validPassports++;
-                passport = new StringBuilder();
-            } else {
-                passport.append(' ').append(line);
+        try (Scanner s = new Scanner(new File(filename))) {
+            while (s.hasNext()) {
+                String line = s.nextLine();
+                if (line.length() != 0) {
+                    passport.append(' ').append(line);
+                } else {
+                    if (PassportValidatorFactory.createValidator(type, passport.toString()).validate())
+                        validPassports++;
+                    passport = new StringBuilder();
+                }
             }
+        } catch (FileNotFoundException fnf) {
+            throw new IllegalArgumentException("Problem reading passports file!", fnf);
         }
-        if (PassportValidatorFactory.createValidator(type, passport.toString()).validate()) validPassports++;
+        if (PassportValidatorFactory.createValidator(type, passport.toString()).validate())
+            validPassports++;
         return validPassports;
     }
 
-    public static void main(final String[] args) throws FileNotFoundException {
+    public static void main(final String[] args) {
         testPart1PassportValidator();
         assert countValidPassports("Part1", "2020/day4/test4a.txt") == 2 : "Expected valid passport count to be 2!";
         System.out.printf("Day 4, part 1, number of valid passports is %d.%n", countValidPassports("Part1", "2020/day4/input4.txt"));
