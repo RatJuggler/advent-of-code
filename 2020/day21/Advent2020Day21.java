@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -35,12 +36,14 @@ class FoodItem {
 
 class FoodList {
 
-    private final List<FoodItem> food;
+    private final List<FoodItem> foodItems;
     private final Set<String> allergens;
 
-    FoodList(final List<FoodItem> food) {
-        this.food = food;
-        this.allergens = food.stream().flatMap(i -> i.allergens.stream()).collect(Collectors.toSet());
+    FoodList(final List<FoodItem> foodItems) {
+        this.foodItems = Collections.unmodifiableList(foodItems);
+        this.allergens = foodItems.stream()
+                .flatMap(i -> i.allergens.stream())
+                .collect(Collectors.toSet());
     }
 
     static FoodList fromFile(final String filename) {
@@ -55,12 +58,9 @@ class FoodList {
     }
 
     private List<FoodItem> findFoodItemsWithAllergen(final String allergen) {
-        List<FoodItem> contains = new ArrayList<>();
-        for (FoodItem foodItem: this.food) {
-            if (foodItem.allergens.contains(allergen))
-                contains.add(foodItem);
-        }
-        return contains;
+        return this.foodItems.stream()
+                .filter(i -> i.allergens.contains(allergen))
+                .collect(Collectors.toList());
     }
 
     private List<String> findCommonIngredients(final List<FoodItem> foodItems) {
@@ -104,19 +104,17 @@ class FoodList {
 
     int countNonAllergenIngredients() {
         Map<String, String> allergens = this.getAllergenIngredients();
-        for (FoodItem foodItem : this.food) {
-            foodItem.ingredients.removeAll(allergens.values());
-        }
-        int count = 0;
-        for (FoodItem foodItem: this.food) {
-            count += foodItem.ingredients.size();
-        }
-        return count;
+        List<String> ingredients = this.foodItems.stream().flatMap(i -> i.ingredients.stream()).collect(Collectors.toList());
+        ingredients.removeAll(allergens.values());
+        return ingredients.size();
     }
 
     String listAllergenIngredients() {
-        Map<String, String> allergens = this.getAllergenIngredients();
-        return allergens.entrySet().stream().sorted(Map.Entry.comparingByKey()).map(Map.Entry::getValue).collect(Collectors.joining(","));
+        return this.getAllergenIngredients()
+                .entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .map(Map.Entry::getValue)
+                .collect(Collectors.joining(","));
     }
 }
 
