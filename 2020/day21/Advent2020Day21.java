@@ -5,7 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -13,8 +13,8 @@ import java.util.stream.Stream;
 
 class FoodItem {
 
-    private final List<String> ingredients;
-    private final List<String> allergens;
+    final List<String> ingredients;
+    final List<String> allergens;
 
     FoodItem(final List<String> ingredients, final List<String> allergens) {
         this.ingredients = ingredients;
@@ -22,10 +22,18 @@ class FoodItem {
     }
 
     static FoodItem fromString(final String item) {
-        String[] groups = item.substring(0, item.length() -1).split(" \\(contains ");
-        List<String> ingredients = Arrays.asList(groups[0].split(" "));
-        List<String> allergens = Arrays.asList(groups[1].split(" "));
+        String[] groups = item.substring(0, item.length() - 1).split(" \\(contains ");
+        List<String> ingredients = new ArrayList<>(Arrays.asList(groups[0].split(" ")));
+        List<String> allergens = new ArrayList<>(Arrays.asList(groups[1].split(" ")));
         return new FoodItem(ingredients, allergens);
+    }
+
+    boolean containsIngredient(final String ingredient) {
+        return this.ingredients.contains(ingredient);
+    }
+
+    boolean containsAllergen(final String allergen) {
+        return this.allergens.contains(allergen);
     }
 }
 
@@ -35,7 +43,7 @@ class FoodList {
     private final List<FoodItem> food;
 
     FoodList(final List<FoodItem> food) {
-        this.food = Collections.unmodifiableList(food);
+        this.food = food;
     }
 
     static FoodList fromFile(final String filename) {
@@ -49,8 +57,27 @@ class FoodList {
         return new FoodList(food);
     }
 
+    private boolean uniqueIngredient(final FoodItem infoodItem, final String ingredient) {
+        for (FoodItem foodItem: this.food) {
+            if (foodItem != infoodItem && foodItem.containsIngredient(ingredient))
+                return false;
+        }
+        return true;
+    }
+
     int countNonAllergenIngredients() {
-        return 0;
+        int nonAllergenIngredients = 0;
+        for (FoodItem foodItem: this.food) {
+            for (Iterator<String> it = foodItem.ingredients.iterator(); it.hasNext(); ) {
+                String ingredient = it.next();
+                if (uniqueIngredient(foodItem, ingredient)) {
+                    System.out.println(ingredient);
+                    it.remove();
+                    nonAllergenIngredients++;
+                }
+            }
+        }
+        return nonAllergenIngredients;
     }
 }
 
