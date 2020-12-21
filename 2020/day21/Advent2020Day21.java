@@ -45,8 +45,8 @@ class FoodItem {
         return this.allergens.contains(allergen);
     }
 
-    boolean allAllergens() {
-        return this.ingredients.size() == this.allergens.size();
+    int allAllergens() {
+        return this.ingredients.size() == this.allergens.size() ? this.ingredients.size() : 0;
     }
 
     List<String> commonAllergens(final FoodItem foodItem) {
@@ -122,15 +122,26 @@ class FoodList {
         for (FoodItem foodItem: this.food) {
             foodItem.ingredients.removeAll(uniqueIngredients);
         }
-        Map<String, String> allergens = new HashMap<>();
-        for (FoodItem foodItem: this.food) {
-            if (foodItem.allAllergens()) {
-                allergens.putAll(findAllergens(foodItem));
+        Map<String, String> allergens;
+        do {
+            allergens = new HashMap<>();
+            for (FoodItem foodItem: this.food) {
+                int allAllergens = foodItem.allAllergens();
+                if (allAllergens > 0) {
+                    if (allAllergens == 1) {
+                        allergens.put(foodItem.allergens.get(0), foodItem.ingredients.get(0));
+                    } else {
+                        allergens.putAll(findAllergens(foodItem));
+                    }
+                }
             }
-        }
+            for (FoodItem foodItem: this.food) {
+                foodItem.ingredients.removeAll(allergens.values());
+                foodItem.allergens.removeAll(allergens.keySet());
+            }
+        } while (allergens.size() > 0);
         for (FoodItem foodItem: this.food) {
-            foodItem.ingredients.removeAll(allergens.values());
-            foodItem.allergens.removeAll(allergens.keySet());
+            uniqueIngredients.addAll(foodItem.ingredients);
         }
         return uniqueIngredients.size();
     }
