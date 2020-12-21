@@ -37,13 +37,11 @@ class FoodItem {
 class FoodList {
 
     private final List<FoodItem> foodItems;
-    private final Set<String> allergens;
+    private final Map<String, String> allergens;
 
     FoodList(final List<FoodItem> foodItems) {
         this.foodItems = Collections.unmodifiableList(foodItems);
-        this.allergens = foodItems.stream()
-                .flatMap(i -> i.allergens.stream())
-                .collect(Collectors.toSet());
+        this.allergens = getAllergenIngredients();
     }
 
     static FoodList fromFile(final String filename) {
@@ -65,15 +63,21 @@ class FoodList {
 
     private List<String> findCommonIngredients(final List<FoodItem> foodItems) {
         Set<String> common = new HashSet<>(foodItems.get(0).ingredients);
-        for (FoodItem foodItem: foodItems) {
+        // Don't think this can be streamed, we are finding the intersection of all the ingredient lists.
+        for (FoodItem foodItem: foodItems)
             common.retainAll(foodItem.ingredients);
-        }
         return new ArrayList<>(common);
     }
 
     private Map<String, List<String>> findAllergenCandidates() {
         Map<String, List<String>> candidates = new HashMap<>();
-        for (String allergen : this.allergens) {
+        // Extract a list of all the unique allergen names.
+        List<String> allergens = foodItems.stream()
+                .flatMap(i -> i.allergens.stream())
+                .distinct()
+                .collect(Collectors.toList());
+        // For each allergen find a list of candidate ingredients it might be in.
+        for (String allergen : allergens) {
             List<FoodItem> itemsWithAllergen = findFoodItemsWithAllergen(allergen);
             List<String> commonIngredients = findCommonIngredients(itemsWithAllergen);
             candidates.put(allergen, commonIngredients);
@@ -81,37 +85,30 @@ class FoodList {
         return candidates;
     }
 
-    Map<String, String> getAllergenIngredients() {
-        Map<String, List<String>> allergenCandidates = findAllergenCandidates();
+    private Map<String, String> getAllergenIngredients() {
         Map<String, String> allergens = new HashMap<>();
+        Map<String, List<String>> allergenCandidates = findAllergenCandidates();
         do {
-            for (String allergen : allergenCandidates.keySet()) {
-                if (allergenCandidates.get(allergen).size() == 1) {
-                    allergens.put(allergen, allergenCandidates.get(allergen).get(0));
-                }
-            }
-            for (String allergen : allergens.keySet()) {
-                allergenCandidates.remove(allergen);
-            }
-            for (String ingredient : allergens.values()) {
-                for (List<String> candidates : allergenCandidates.values()) {
-                    candidates.remove(ingredient);
-                }
-            }
+            // Find the known allergens (only one candidate).
+            allergenCandidates.entrySet().stream()
+                    .filter(e -> e.getValue().size() == 1)
+                    .forEach(e -> allergens.put(e.getKey(), e.getValue().get(0)));
+            // Remove the known allergens from the candidates list.
+            allergens.keySet().forEach(allergenCandidates::remove);
+            allergenCandidates.values().forEach(c -> c.removeAll(allergens.values()));
         } while (allergenCandidates.size() > 0);
         return allergens;
     }
 
-    int countNonAllergenIngredients() {
-        Map<String, String> allergens = this.getAllergenIngredients();
-        List<String> ingredients = this.foodItems.stream().flatMap(i -> i.ingredients.stream()).collect(Collectors.toList());
-        ingredients.removeAll(allergens.values());
-        return ingredients.size();
+    long countNonAllergenIngredients() {
+        return this.foodItems.stream()
+                .flatMap(i -> i.ingredients.stream())
+                .filter(i -> !this.allergens.containsValue(i))
+                .count();
     }
 
     String listAllergenIngredients() {
-        return this.getAllergenIngredients()
-                .entrySet().stream()
+        return this.allergens.entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
                 .map(Map.Entry::getValue)
                 .collect(Collectors.joining(","));
@@ -121,28 +118,26 @@ class FoodList {
 
 public class Advent2020Day21 {
 
-    private static void testCountNonAllergenIngredients() {
-        int expectedCount = 5;
-        FoodList food = FoodList.fromFile("2020/day21/test21a.txt");
-        int actualCount = food.countNonAllergenIngredients();
+    private static void testCountNonAllergenIngredients(final FoodList foodList) {
+        long expectedCount = 5;
+        long actualCount = foodList.countNonAllergenIngredients();
         assert actualCount == expectedCount :
                 String.format("Expected non-allergen ingredient count to be %d not %d!%n", expectedCount, actualCount);
     }
 
-    private static void testListAllergenIngredients() {
+    private static void testListAllergenIngredients(final FoodList foodList) {
         String expectedIngredients = "mxmxvkd,sqjhc,fvjkl";
-        FoodList food = FoodList.fromFile("2020/day21/test21a.txt");
-        String actualIngredients = food.listAllergenIngredients();
+        String actualIngredients = foodList.listAllergenIngredients();
         assert actualIngredients.equals(expectedIngredients) :
                 String.format("Expected allergen ingredient list to be \"%s\" not \"%s\"!%n", expectedIngredients, actualIngredients);
     }
 
     public static void main(final String[] args) {
-        testCountNonAllergenIngredients();
-        FoodList food1 = FoodList.fromFile("2020/day21/input21.txt");
-        System.out.printf("Day 21, part 1, non-allergen ingredient count is %d.%n", food1.countNonAllergenIngredients());
-        testListAllergenIngredients();
-        FoodList food2 = FoodList.fromFile("2020/day21/input21.txt");
-        System.out.printf("Day 21, part 2, allergen ingredient list is \"%s\".%n", food2.listAllergenIngredients());
+        FoodList testFood = FoodList.fromFile("2020/day21/test21a.txt");
+        testCountNonAllergenIngredients(testFood);
+        testListAllergenIngredients(testFood);
+        FoodList food = FoodList.fromFile("2020/day21/input21.txt");
+        System.out.printf("Day 21, part 1, non-allergen ingredient count is %d.%n", food.countNonAllergenIngredients());
+        System.out.printf("Day 21, part 2, allergen ingredient list is \"%s\".%n", food.listAllergenIngredients());
     }
 }
