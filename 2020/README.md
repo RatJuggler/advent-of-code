@@ -90,3 +90,6 @@ improvement as I could be evaluating sub-expressions as they are parsed, rather 
 I got the match rules going for part one with my usual tangle of Java classes and input file parsing, though it doesn't feel quite 
 right. Something about the way the rules and the message parsing context interact. 
 ** Part Two not completed ** I'm having problems understanding the implications of the rule changes in part two.
+
+##### Day 20: Jurassic Jigsaw
+No progress.
