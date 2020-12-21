@@ -3,6 +3,8 @@ package day21;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -11,14 +13,19 @@ import java.util.stream.Stream;
 
 class FoodItem {
 
-    private final String ingredients;
+    private final List<String> ingredients;
+    private final List<String> allergens;
 
-    FoodItem(final String ingredients) {
+    FoodItem(final List<String> ingredients, final List<String> allergens) {
         this.ingredients = ingredients;
+        this.allergens = allergens;
     }
 
     static FoodItem fromString(final String item) {
-        return new FoodItem(item);
+        String[] groups = item.substring(0, item.length() -1).split(" \\(contains ");
+        List<String> ingredients = Arrays.asList(groups[0].split(" "));
+        List<String> allergens = Arrays.asList(groups[1].split(" "));
+        return new FoodItem(ingredients, allergens);
     }
 }
 
