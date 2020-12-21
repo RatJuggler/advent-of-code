@@ -69,12 +69,20 @@ class ImageTile {
         return Integer.parseInt(reverse.reverse().toString(), 2);
     }
 
-    void flip() {
+    void horizontalFlip() {
         int tempTop = this.top;
         this.top = this.bottom;
         this.bottom = tempTop;
         this.left = reverse(this.left);
         this.right = reverse(this.right);
+    }
+
+    void verticalFlip() {
+        this.top = reverse(this.top);
+        this.bottom = reverse(this.bottom);
+        int templeft = this.left;
+        this.left = this.right;
+        this.right = templeft;
     }
 
     @Override
@@ -118,24 +126,46 @@ class ImageAssembler {
         return new ImageAssembler(tiles);
     }
 
+    private void flip(final int flip, final ImageTile tile) {
+        if (flip == 0) {
+            tile.horizontalFlip();
+        } else if (flip == 1) {
+            tile.horizontalFlip();
+            tile.verticalFlip();
+        } else if (flip == 2) {
+            tile.verticalFlip();
+            tile.horizontalFlip();
+            tile.verticalFlip();
+        } else {
+            tile.verticalFlip();
+            tile.horizontalFlip();
+        }
+    }
+
     long assemble() {
         List<ImageTile> topEdges = new ArrayList<>(this.tiles);
         List<ImageTile> bottomEdges = new ArrayList<>(this.tiles);
         List<ImageTile> leftEdges = new ArrayList<>(this.tiles);
         List<ImageTile> rightEdges = new ArrayList<>(this.tiles);
         for (ImageTile checkTile: this.tiles) {
-            for (int checkFlip = 0; checkFlip < 2; checkFlip++) {
+            for (int checkFlip = 0; checkFlip < 4; checkFlip++) {
                 for (int checkRotate = 0; checkRotate < 4; checkRotate++) {
                     for (ImageTile withTile : this.tiles) {
-                        if (checkTile.id == withTile.id) continue;
-                        if (checkTile.top == withTile.bottom) topEdges.remove(checkTile);
-                        if (checkTile.bottom == withTile.top) bottomEdges.remove(checkTile);
-                        if (checkTile.left == withTile.right) leftEdges.remove(checkTile);
-                        if (checkTile.right == withTile.left) rightEdges.remove(checkTile);
+                        for (int withFlip = 0; withFlip < 4; withFlip++) {
+                            for (int withRotate = 0; withRotate < 4; withRotate++) {
+                                if (checkTile.id == withTile.id) continue;
+                                if (checkTile.top == withTile.bottom) topEdges.remove(checkTile);
+                                if (checkTile.bottom == withTile.top) bottomEdges.remove(checkTile);
+                                if (checkTile.left == withTile.right) leftEdges.remove(checkTile);
+                                if (checkTile.right == withTile.left) rightEdges.remove(checkTile);
+                                withTile.rotate();
+                            }
+                            flip(withFlip, withTile);
+                        }
                     }
                     checkTile.rotate();
                 }
-                checkTile.flip();
+                flip(checkFlip, checkTile);
             }
         }
         return 0;
@@ -167,7 +197,7 @@ public class Advent2020Day20 {
 
     public static void main(final String[] args) {
         // Simple test file with no rotations or flips.
-        testImageAssembler("2020/day20/test20a.txt", 11L * 13L * 33L * 31L);
+//        testImageAssembler("2020/day20/test20a.txt", 11L * 13L * 33L * 31L);
         // Test file with rotations and flips.
         testImageAssembler("2020/day20/test20b.txt", 1951L * 3079L * 1171L * 2971L);
         System.out.printf("Day 20, part 1, corner product is %d.%n", assembleTiles("2020/day20/input20.txt"));
