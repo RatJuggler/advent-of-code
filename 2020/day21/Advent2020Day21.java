@@ -71,23 +71,26 @@ class FoodList {
         return new ArrayList<>(common);
     }
 
-    int countNonAllergenIngredients() {
-        Map<String, List<String>> allergenCandidates = new HashMap<>();
-        for (String allergen: this.allergens) {
-            System.out.println("Looking for allergen: " + allergen);
-            List<FoodItem> containAllergen = findFoodItemsWithAllergen(allergen);
-            List<String> commonIngredients = findCommonIngredients(containAllergen);
-            System.out.println("Found: " + commonIngredients);
-            allergenCandidates.put(allergen, commonIngredients);
+    private Map<String, List<String>> findAllergenCandidates() {
+        Map<String, List<String>> candidates = new HashMap<>();
+        for (String allergen : this.allergens) {
+            List<FoodItem> itemsWithAllergen = findFoodItemsWithAllergen(allergen);
+            List<String> commonIngredients = findCommonIngredients(itemsWithAllergen);
+            candidates.put(allergen, commonIngredients);
         }
+        return candidates;
+    }
+
+    Map<String, String> getAllergenIngredients() {
+        Map<String, List<String>> allergenCandidates = findAllergenCandidates();
         Map<String, String> allergens = new HashMap<>();
         do {
-            for (String allergen: allergenCandidates.keySet()) {
+            for (String allergen : allergenCandidates.keySet()) {
                 if (allergenCandidates.get(allergen).size() == 1) {
                     allergens.put(allergen, allergenCandidates.get(allergen).get(0));
                 }
             }
-            for (String allergen: allergens.keySet()) {
+            for (String allergen : allergens.keySet()) {
                 allergenCandidates.remove(allergen);
             }
             for (String ingredient : allergens.values()) {
@@ -96,7 +99,12 @@ class FoodList {
                 }
             }
         } while (allergenCandidates.size() > 0);
-        for (FoodItem foodItem: this.food) {
+        return allergens;
+    }
+
+    int countNonAllergenIngredients() {
+        Map<String, String> allergens = this.getAllergenIngredients();
+        for (FoodItem foodItem : this.food) {
             foodItem.ingredients.removeAll(allergens.values());
         }
         int count = 0;
@@ -107,7 +115,8 @@ class FoodList {
     }
 
     String listAllergenIngredients() {
-        return "";
+        Map<String, String> allergens = this.getAllergenIngredients();
+        return allergens.entrySet().stream().sorted(Map.Entry.comparingByKey()).map(Map.Entry::getValue).collect(Collectors.joining(","));
     }
 }
 
