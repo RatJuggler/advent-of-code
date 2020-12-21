@@ -93,3 +93,7 @@ right. Something about the way the rules and the message parsing context interac
 
 ##### Day 20: Jurassic Jigsaw
 No progress.
+
+##### Day 21: Allergen Assessment
+Had to restart this after the example didn't turn out to be as close to what was required with the actual input, but I got there
+in the end. Another chance to practice with Java streams and `Set` intersections with `retainAll`. 
