@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -106,6 +105,10 @@ class FoodList {
         }
         return count;
     }
+
+    String listAllergenIngredients() {
+        return "";
+    }
 }
 
 
@@ -119,9 +122,20 @@ public class Advent2020Day21 {
                 String.format("Expected non-allergen ingredient count to be %d not %d!%n", expectedCount, actualCount);
     }
 
+    private static void testListAllergenIngredients() {
+        String expectedIngredients = "mxmxvkd,sqjhc,fvjkl";
+        FoodList food = FoodList.fromFile("2020/day21/test21a.txt");
+        String actualIngredients = food.listAllergenIngredients();
+        assert actualIngredients.equals(expectedIngredients) :
+                String.format("Expected allergen ingredient list to be \"%s\" not \"%s\"!%n", expectedIngredients, actualIngredients);
+    }
+
     public static void main(final String[] args) {
         testCountNonAllergenIngredients();
-        FoodList food = FoodList.fromFile("2020/day21/input21.txt");
-        System.out.printf("Day 21, part 1, non-allergen ingredient count is %d.%n", food.countNonAllergenIngredients());
+        FoodList food1 = FoodList.fromFile("2020/day21/input21.txt");
+        System.out.printf("Day 21, part 1, non-allergen ingredient count is %d.%n", food1.countNonAllergenIngredients());
+        testListAllergenIngredients();
+        FoodList food2 = FoodList.fromFile("2020/day21/input21.txt");
+        System.out.printf("Day 21, part 2, allergen ingredient list is \"%s\".%n", food2.listAllergenIngredients());
     }
 }
