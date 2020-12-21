@@ -5,9 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -27,36 +25,6 @@ class FoodItem {
         List<String> ingredients = new ArrayList<>(Arrays.asList(groups[0].split(" ")));
         List<String> allergens = new ArrayList<>(Arrays.asList(groups[1].split(", ")));
         return new FoodItem(ingredients, allergens);
-    }
-
-    boolean containsIngredient(final String ingredient) {
-        return this.ingredients.contains(ingredient);
-    }
-
-    boolean containsAnyIngredients(final List<String> anyIngredients) {
-        for (String ingredient: this.ingredients) {
-            if (anyIngredients.contains(ingredient))
-                return true;
-        }
-        return false;
-    }
-
-    boolean containsAllergen(final String allergen) {
-        return this.allergens.contains(allergen);
-    }
-
-    int allAllergens() {
-        return this.ingredients.size() == this.allergens.size() ? this.ingredients.size() : 0;
-    }
-
-    List<String> commonAllergens(final FoodItem foodItem) {
-        List<String> common = new ArrayList<>();
-        for (String allergen: this.allergens) {
-            if (foodItem.containsAllergen(allergen)) {
-                common.add(allergen);
-            }
-        }
-        return common;
     }
 }
 
@@ -80,70 +48,8 @@ class FoodList {
         return new FoodList(food);
     }
 
-    private boolean uniqueIngredient(final FoodItem infoodItem, final String ingredient) {
-        for (FoodItem foodItem: this.food) {
-            if (foodItem != infoodItem && foodItem.containsIngredient(ingredient))
-                return false;
-        }
-        return true;
-    }
-
-    private List<String> findUniqueIngredients() {
-        List<String> uniqueIngredients = new ArrayList<>();
-        for (FoodItem foodItem: this.food) {
-            for (String ingredient : foodItem.ingredients) {
-                if (uniqueIngredient(foodItem, ingredient)) {
-                    uniqueIngredients.add(ingredient);
-                }
-            }
-        }
-        return uniqueIngredients;
-    }
-
-    private Map<String, String> findAllergens(final FoodItem allAllergens) {
-        Map<String, String> allergens = new HashMap<>();
-        List<String> allergyIngredients = new ArrayList<>(allAllergens.ingredients);
-        while (allergyIngredients.size() > 0) {
-            String allergyIngredient = allergyIngredients.remove(0);
-            for (FoodItem foodItem: this.food) {
-                if (foodItem != allAllergens && foodItem.containsIngredient(allergyIngredient) && !foodItem.containsAnyIngredients(allergyIngredients)) {
-                    List<String> commonAllergens = foodItem.commonAllergens(allAllergens);
-                    if (commonAllergens.size() == 1) {
-                        allergens.put(commonAllergens.get(0), allergyIngredient);
-                    }
-                }
-            }
-        }
-        return allergens;
-    }
-
     int countNonAllergenIngredients() {
-        List<String> uniqueIngredients = findUniqueIngredients();
-        for (FoodItem foodItem: this.food) {
-            foodItem.ingredients.removeAll(uniqueIngredients);
-        }
-        Map<String, String> allergens;
-        do {
-            allergens = new HashMap<>();
-            for (FoodItem foodItem: this.food) {
-                int allAllergens = foodItem.allAllergens();
-                if (allAllergens > 0) {
-                    if (allAllergens == 1) {
-                        allergens.put(foodItem.allergens.get(0), foodItem.ingredients.get(0));
-                    } else {
-                        allergens.putAll(findAllergens(foodItem));
-                    }
-                }
-            }
-            for (FoodItem foodItem: this.food) {
-                foodItem.ingredients.removeAll(allergens.values());
-                foodItem.allergens.removeAll(allergens.keySet());
-            }
-        } while (allergens.size() > 0);
-        for (FoodItem foodItem: this.food) {
-            uniqueIngredients.addAll(foodItem.ingredients);
-        }
-        return uniqueIngredients.size();
+        return 0;
     }
 }
 
@@ -156,7 +62,6 @@ public class Advent2020Day21 {
         int actualCount = food.countNonAllergenIngredients();
         assert actualCount == expectedCount :
                 String.format("Expected non-allergen ingredient count to be %d not %d!%n", expectedCount, actualCount);
-
     }
 
     public static void main(final String[] args) {
