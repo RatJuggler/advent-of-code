@@ -1,12 +1,45 @@
 package day21;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+
+class FoodItem {
+
+    private final String ingredients;
+
+    FoodItem(final String ingredients) {
+        this.ingredients = ingredients;
+    }
+
+    static FoodItem fromString(final String item) {
+        return new FoodItem(item);
+    }
+}
+
 
 class FoodList {
 
-    FoodList() {}
+    private final List<FoodItem> food;
+
+    FoodList(final List<FoodItem> food) {
+        this.food = Collections.unmodifiableList(food);
+    }
 
     static FoodList fromFile(final String filename) {
-        return new FoodList();
+        List<FoodItem> food;
+        try (Stream<String> stream = Files.lines(Paths.get(filename))) {
+            food = stream.map(FoodItem::fromString)
+                    .collect(Collectors.toList());
+        } catch (IOException ioe) {
+            throw new IllegalArgumentException("Problem reading food ingredients file!", ioe);
+        }
+        return new FoodList(food);
     }
 
     int countNonAllergenIngredients() {
