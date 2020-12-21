@@ -5,8 +5,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -24,7 +25,7 @@ class FoodItem {
     static FoodItem fromString(final String item) {
         String[] groups = item.substring(0, item.length() - 1).split(" \\(contains ");
         List<String> ingredients = new ArrayList<>(Arrays.asList(groups[0].split(" ")));
-        List<String> allergens = new ArrayList<>(Arrays.asList(groups[1].split(" ")));
+        List<String> allergens = new ArrayList<>(Arrays.asList(groups[1].split(", ")));
         return new FoodItem(ingredients, allergens);
     }
 
@@ -32,8 +33,30 @@ class FoodItem {
         return this.ingredients.contains(ingredient);
     }
 
+    boolean containsAnyIngredients(final List<String> anyIngredients) {
+        for (String ingredient: this.ingredients) {
+            if (anyIngredients.contains(ingredient))
+                return true;
+        }
+        return false;
+    }
+
     boolean containsAllergen(final String allergen) {
         return this.allergens.contains(allergen);
+    }
+
+    boolean allAllergens() {
+        return this.ingredients.size() == this.allergens.size();
+    }
+
+    List<String> commonAllergens(final FoodItem foodItem) {
+        List<String> common = new ArrayList<>();
+        for (String allergen: this.allergens) {
+            if (foodItem.containsAllergen(allergen)) {
+                common.add(allergen);
+            }
+        }
+        return common;
     }
 }
 
@@ -65,19 +88,51 @@ class FoodList {
         return true;
     }
 
-    int countNonAllergenIngredients() {
-        int nonAllergenIngredients = 0;
+    private List<String> findUniqueIngredients() {
+        List<String> uniqueIngredients = new ArrayList<>();
         for (FoodItem foodItem: this.food) {
-            for (Iterator<String> it = foodItem.ingredients.iterator(); it.hasNext(); ) {
-                String ingredient = it.next();
+            for (String ingredient : foodItem.ingredients) {
                 if (uniqueIngredient(foodItem, ingredient)) {
-                    System.out.println(ingredient);
-                    it.remove();
-                    nonAllergenIngredients++;
+                    uniqueIngredients.add(ingredient);
                 }
             }
         }
-        return nonAllergenIngredients;
+        return uniqueIngredients;
+    }
+
+    private Map<String, String> findAllergens(final FoodItem allAllergens) {
+        Map<String, String> allergens = new HashMap<>();
+        List<String> allergyIngredients = new ArrayList<>(allAllergens.ingredients);
+        while (allergyIngredients.size() > 0) {
+            String allergyIngredient = allergyIngredients.remove(0);
+            for (FoodItem foodItem: this.food) {
+                if (foodItem != allAllergens && foodItem.containsIngredient(allergyIngredient) && !foodItem.containsAnyIngredients(allergyIngredients)) {
+                    List<String> commonAllergens = foodItem.commonAllergens(allAllergens);
+                    if (commonAllergens.size() == 1) {
+                        allergens.put(commonAllergens.get(0), allergyIngredient);
+                    }
+                }
+            }
+        }
+        return allergens;
+    }
+
+    int countNonAllergenIngredients() {
+        List<String> uniqueIngredients = findUniqueIngredients();
+        for (FoodItem foodItem: this.food) {
+            foodItem.ingredients.removeAll(uniqueIngredients);
+        }
+        Map<String, String> allergens = new HashMap<>();
+        for (FoodItem foodItem: this.food) {
+            if (foodItem.allAllergens()) {
+                allergens.putAll(findAllergens(foodItem));
+            }
+        }
+        for (FoodItem foodItem: this.food) {
+            foodItem.ingredients.removeAll(allergens.values());
+            foodItem.allergens.removeAll(allergens.keySet());
+        }
+        return uniqueIngredients.size();
     }
 }
 
