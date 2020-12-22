@@ -3,27 +3,30 @@ package day22;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 
 
 class Player {
 
     private final String name;
-    private final List<Integer> deck;
-    private final List<Integer> deckHistory = new ArrayList<>();
+    private final LinkedList<Integer> deck;
+    private final Set<Integer> deckHistory = new HashSet<>();
 
-    Player(final String name, final List<Integer> deck) {
+    Player(final String name, final LinkedList<Integer> deck) {
         this.name = name;
         this.deck = deck;
     }
 
     Player recursive(final Integer newDeckSize) {
-        return new Player(this.name, new ArrayList<>(this.deck.subList(0, newDeckSize)));
+        return new Player(this.name, new LinkedList<>(this.deck.subList(0, newDeckSize)));
     }
 
     Integer getCard() {
-        return this.deck.remove(0);
+        return this.deck.poll();
     }
 
     void addCards(final Integer card1, final Integer card2) {
@@ -68,7 +71,7 @@ class CombatGame {
         try (Scanner scanner = new Scanner(new File(filename))) {
             while (scanner.hasNextLine()) {
                 String name = scanner.nextLine();
-                List<Integer> startingDeck = new ArrayList<>();
+                LinkedList<Integer> startingDeck = new LinkedList<>();
                 while (scanner.hasNextLine()) {
                     String card = scanner.nextLine();
                     if (card.length() == 0) break;
