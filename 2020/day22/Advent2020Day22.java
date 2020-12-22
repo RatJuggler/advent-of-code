@@ -12,14 +12,13 @@ import java.util.stream.Collectors;
 class Player {
 
     final String name;
-    private final List<Integer> deck = new ArrayList<>();
+    private final List<Integer> deck;
+    private final List<List<Integer>> deckHistory = new ArrayList<>();
 
-    Player(final String name) {
+    Player(final String name, final List<Integer> deck) {
         this.name = name;
-    }
-
-    void addCard(final Integer card) {
-        this.deck.add(card);
+        this.deck = deck;
+        this.deckHistory.add(new ArrayList<>(this.deck));
     }
 
     Integer getCard() {
@@ -29,10 +28,11 @@ class Player {
     void addCards(final List<Integer> cards) {
         cards.sort(Collections.reverseOrder());
         this.deck.addAll(cards);
+        this.deckHistory.add(new ArrayList<>(this.deck));
     }
 
-    int holdingCards() {
-        return this.deck.size();
+    boolean stillHoldingCards() {
+        return this.deck.size() > 0;
     }
 
     int score() {
@@ -40,6 +40,10 @@ class Player {
         for (int i = 0; i < this.deck.size(); i++)
             score += this.deck.get(i) * (this.deck.size() - i);
         return score;
+    }
+
+    boolean repeatDeck() {
+        return this.deckHistory.stream().anyMatch(this.deck::equals);
     }
 }
 
@@ -57,13 +61,13 @@ class CombatGame {
         try (Scanner scanner = new Scanner(new File(filename))) {
             while (scanner.hasNextLine()) {
                 String name = scanner.nextLine();
-                Player player = new Player(name);
+                List<Integer> startingDeck = new ArrayList<>();
                 while (scanner.hasNextLine()) {
                     String card = scanner.nextLine();
                     if (card.length() == 0) break;
-                    player.addCard(Integer.decode(card));
+                    startingDeck.add(Integer.decode(card));
                 }
-                players.add(player);
+                players.add(new Player(name, startingDeck));
             }
         } catch (FileNotFoundException fnf) {
             throw new IllegalArgumentException("Unable to read tiles file!", fnf);
@@ -80,11 +84,22 @@ class CombatGame {
     }
 
     private Player findWinner() {
-        List<Player> winner = this.players.stream().filter(p -> p.holdingCards() > 0).collect(Collectors.toList());
+        List<Player> winner = this.players.stream().filter(Player::stillHoldingCards).collect(Collectors.toList());
         if (winner.size() > 1)
             return null;
         else
             return winner.get(0);
+    }
+
+    private boolean recursiveWinner() {
+        return this.players.stream().anyMatch(Player::repeatDeck);
+    }
+
+    private Player findRecursiveWinner() {
+        if (this.recursiveWinner())
+            return this.players.get(0);
+        else
+            return this.findWinner();
     }
 
     int play() {
@@ -99,7 +114,14 @@ class CombatGame {
     }
 
     int playRecursive() {
-        return 0;
+        Player winner = null;
+        while (winner == null) {
+            List<Integer> round = this.drawRoundCards();
+            int roundWinner = this.findRoundWinner(round);
+            this.players.get(roundWinner).addCards(round);
+            winner = this.findRecursiveWinner();
+        }
+        return winner.score();
     }
 }
 
