@@ -14,12 +14,11 @@ class Player {
 
     final String name;
     private final List<Integer> deck;
-    private final List<List<Integer>> deckHistory = new ArrayList<>();
+    private final List<Integer> deckHistory = new ArrayList<>();
 
     Player(final String name, final List<Integer> deck) {
         this.name = name;
         this.deck = deck;
-        this.deckHistory.add(new ArrayList<>(this.deck));
     }
 
     Integer getCard() {
@@ -27,8 +26,8 @@ class Player {
     }
 
     void addCards(final List<Integer> cards) {
+        this.deckHistory.add(this.deck.hashCode());
         this.deck.addAll(cards);
-        this.deckHistory.add(new ArrayList<>(this.deck));
     }
 
     boolean stillHoldingCards() {
@@ -40,7 +39,7 @@ class Player {
     }
 
     boolean repeatDeck() {
-        return this.deckHistory.stream().anyMatch(this.deck::equals);
+        return this.deckHistory.contains(this.deck.hashCode());
     }
 
     boolean hasAtLeast(final int number) {
@@ -109,14 +108,6 @@ class CombatGame {
             return winner.get(0);
     }
 
-    private Integer findRecursiveWinner() {
-        boolean repeatedDeck = this.players.stream().anyMatch(Player::repeatDeck);
-        if (repeatedDeck)
-            return 0;
-        else
-            return this.findGameWinner();
-    }
-
     private boolean recursiveRound(final List<Integer> round) {
         return IntStream.range(0, round.size()).allMatch(i -> this.players.get(i).hasAtLeast(round.get(i)));
     }
@@ -143,6 +134,11 @@ class CombatGame {
     private int recursivePlay() {
         Integer winner = null;
         while (winner == null) {
+            boolean repeatedDeck = this.players.stream().anyMatch(Player::repeatDeck);
+            if (repeatedDeck) {
+                winner = 0;
+                continue;
+            }
             List<Integer> round = this.drawRoundCards();
             int roundWinner;
             if (this.recursiveRound(round)) {
@@ -153,14 +149,15 @@ class CombatGame {
                 roundWinner = this.findRoundWinner(round);
                 round.sort(Collections.reverseOrder());
             }
-            winner = this.findRecursiveWinner();
             this.players.get(roundWinner).addCards(round);
+            winner = this.findGameWinner();
         }
         return winner;
     }
 
     int playRecursive() {
-        return this.players.get(this.recursivePlay()).score();
+        int winner = this.recursivePlay();
+        return this.players.get(winner).score();
     }
 }
 
