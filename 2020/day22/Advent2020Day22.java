@@ -46,6 +46,10 @@ class Player {
     boolean hasAtLeast(final int number) {
         return this.deck.size() >= number;
     }
+
+    List<Integer> copyDeck(final int size) {
+        return this.deck.subList(0, size);
+    }
 }
 
 
@@ -72,6 +76,16 @@ class CombatGame {
             }
         } catch (FileNotFoundException fnf) {
             throw new IllegalArgumentException("Unable to read tiles file!", fnf);
+        }
+        return new CombatGame(players);
+    }
+
+    static CombatGame recursive(final CombatGame game, final List<Integer> deckSizes) {
+        List<Player> players = new ArrayList<>();
+        for (int i = 0; i < deckSizes.size(); i++) {
+            Player currentPlayer = game.players.get(i);
+            List<Integer> newDeck = currentPlayer.copyDeck(deckSizes.get(i));
+            players.add(new Player(currentPlayer.name, newDeck));
         }
         return new CombatGame(players);
     }
@@ -129,14 +143,15 @@ class CombatGame {
             List<Integer> round = this.drawRoundCards();
             Player roundWinner;
             if (this.recursiveRound(round)) {
-                roundWinner = this.recursivePlay();
+                CombatGame recursiveGame = CombatGame.recursive(this, round);
+                roundWinner = recursiveGame.recursivePlay();
                 round = this.recursiveResults(round, this.players.indexOf(roundWinner));
             } else {
                 roundWinner = this.findRoundWinner(round);
                 round.sort(Collections.reverseOrder());
             }
-            roundWinner.addCards(round);
             winner = this.findRecursiveWinner();
+            roundWinner.addCards(round);
         }
         return winner;
     }
