@@ -3,14 +3,16 @@ package day22;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 
 class Player {
 
     final String name;
-    final List<Integer> deck = new ArrayList<>();
+    private final List<Integer> deck = new ArrayList<>();
 
     Player(final String name) {
         this.name = name;
@@ -19,12 +21,36 @@ class Player {
     void addCard(final Integer card) {
         this.deck.add(card);
     }
+
+    Integer getCard() {
+        return this.deck.remove(0);
+    }
+
+    void addCards(final List<Integer> cards) {
+        cards.sort(Collections.reverseOrder());
+        this.deck.addAll(cards);
+    }
+
+    int holdingCards() {
+        return this.deck.size();
+    }
+
+    int score() {
+        int score = 0;
+        for (int i = 0; i < this.deck.size(); i++)
+            score += this.deck.get(i) * (this.deck.size() - i);
+        return score;
+    }
 }
 
 
 class CombatGame {
 
-    CombatGame(final List<Player> players) {}
+    private final List<Player> players;
+
+    CombatGame(final List<Player> players) {
+        this.players = players;
+    }
 
     static CombatGame fromFile(final String filename) {
         List<Player> players = new ArrayList<>();
@@ -45,8 +71,31 @@ class CombatGame {
         return new CombatGame(players);
     }
 
+    private List<Integer> drawRoundCards() {
+        return this.players.stream().map(Player::getCard).collect(Collectors.toList());
+    }
+
+    private int findRoundWinner(List<Integer> play) {
+        return play.indexOf(Collections.max(play));
+    }
+
+    private Player findWinner() {
+        List<Player> winner = this.players.stream().filter(p -> p.holdingCards() > 0).collect(Collectors.toList());
+        if (winner.size() > 1)
+            return null;
+        else
+            return winner.get(0);
+    }
+
     int play() {
-        return 0;
+        Player winner = null;
+        while (winner == null) {
+            List<Integer> round = this.drawRoundCards();
+            int roundWinner = this.findRoundWinner(round);
+            this.players.get(roundWinner).addCards(round);
+            winner = this.findWinner();
+        }
+        return winner.score();
     }
 }
 
