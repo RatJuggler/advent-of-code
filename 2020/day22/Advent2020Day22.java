@@ -1,12 +1,48 @@
 package day22;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+
+class Player {
+
+    final String name;
+    final List<Integer> deck = new ArrayList<>();
+
+    Player(final String name) {
+        this.name = name;
+    }
+
+    void addCard(final Integer card) {
+        this.deck.add(card);
+    }
+}
+
 
 class CombatGame {
 
-    CombatGame() {}
+    CombatGame(final List<Player> players) {}
 
-    static CombatGame fromFile(final String fromFile) {
-        return new CombatGame();
+    static CombatGame fromFile(final String filename) {
+        List<Player> players = new ArrayList<>();
+        try (Scanner scanner = new Scanner(new File(filename))) {
+            while (scanner.hasNextLine()) {
+                String name = scanner.nextLine();
+                Player player = new Player(name);
+                while (scanner.hasNextLine()) {
+                    String card = scanner.nextLine();
+                    if (card.length() == 0) break;
+                    player.addCard(Integer.decode(card));
+                }
+                players.add(player);
+            }
+        } catch (FileNotFoundException fnf) {
+            throw new IllegalArgumentException("Unable to read tiles file!", fnf);
+        }
+        return new CombatGame(players);
     }
 
     int play() {
