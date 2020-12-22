@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 
 class Player {
@@ -36,10 +37,7 @@ class Player {
     }
 
     int score() {
-        int score = 0;
-        for (int i = 0; i < this.deck.size(); i++)
-            score += this.deck.get(i) * (this.deck.size() - i);
-        return score;
+        return IntStream.range(0, this.deck.size()).map(i -> this.deck.get(i) * (this.deck.size() - i)).sum();
     }
 
     boolean repeatDeck() {
