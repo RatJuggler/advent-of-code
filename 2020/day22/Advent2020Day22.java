@@ -9,7 +9,7 @@ import java.util.Scanner;
 
 class Player {
 
-    final String name;
+    private final String name;
     private final List<Integer> deck;
     private final List<Integer> deckHistory = new ArrayList<>();
 
@@ -19,7 +19,7 @@ class Player {
     }
 
     Player recursive(final Integer newDeckSize) {
-        return new Player(this.name, this.copyDeck(newDeckSize));
+        return new Player(this.name, new ArrayList<>(this.deck.subList(0, newDeckSize)));
     }
 
     Integer getCard() {
@@ -32,15 +32,8 @@ class Player {
         this.deck.add(card2);
     }
 
-    boolean hasEmptyDeck() {
-        return this.deck.size() == 0;
-    }
-
-    int score() {
-        int score = 0;
-        for (int i = 0; i < this.deck.size(); i++)
-            score += this.deck.get(i) * (this.deck.size() - i);
-        return score;
+    boolean hasCards() {
+        return this.deck.size() > 0;
     }
 
     boolean repeatDeck() {
@@ -51,8 +44,11 @@ class Player {
         return this.deck.size() >= number;
     }
 
-    List<Integer> copyDeck(final int size) {
-        return new ArrayList<>(this.deck.subList(0, size));
+    int score() {
+        int score = 0;
+        for (int i = 0; i < this.deck.size(); i++)
+            score += this.deck.get(i) * (this.deck.size() - i);
+        return score;
     }
 }
 
@@ -87,42 +83,40 @@ class CombatGame {
     }
 
     int play() {
-        while (!this.player1.hasEmptyDeck() && !this.player2.hasEmptyDeck()) {
+        while (this.player1.hasCards() && this.player2.hasCards()) {
             Integer player1Card = this.player1.getCard();
             Integer player2Card = this.player2.getCard();
-            if (player1Card > player2Card)
+            if (player1Card > player2Card) {
                 this.player1.addCards(player1Card, player2Card);
-            else
+            } else {
                 this.player2.addCards(player2Card, player1Card);
+            }
         }
-        return this.player1.hasEmptyDeck() ? this.player2.score() : this.player1.score();
+        return this.player1.hasCards() ? this.player1.score() : this.player2.score();
     }
 
     private int recursivePlay() {
-        int winner = 0;
-        while (winner == 0) {
-            if (this.player1.repeatDeck() || this.player2.repeatDeck()) {
-                winner = 1;
-                continue;
-            }
+        while (this.player1.hasCards() && this.player2.hasCards()) {
+            if (this.player1.repeatDeck() || this.player2.repeatDeck()) break;
             Integer player1Card = this.player1.getCard();
             Integer player2Card = this.player2.getCard();
+            int winner;
             if (this.player1.hasAtLeast(player1Card) && this.player2.hasAtLeast(player2Card)) {
-                CombatGame recursiveGame = new CombatGame(this.player1.recursive(player1Card), this.player2.recursive(player2Card));
-                if (recursiveGame.recursivePlay() == 1)
-                    this.player1.addCards(player1Card, player2Card);
-                else
-                    this.player2.addCards(player2Card, player1Card);
+                winner = new CombatGame(this.player1.recursive(player1Card), this.player2.recursive(player2Card)).recursivePlay();
             } else {
-                if (player1Card > player2Card)
-                    this.player1.addCards(player1Card, player2Card);
-                else
-                    this.player2.addCards(player2Card, player1Card);
+                winner = player1Card > player2Card ? 1 : 2;
             }
-            if (this.player1.hasEmptyDeck()) winner = 2;
-            if (this.player2.hasEmptyDeck()) winner = 1;
+            if (winner == 1) {
+                this.player1.addCards(player1Card, player2Card);
+            } else {
+                this.player2.addCards(player2Card, player1Card);
+            }
         }
-        return winner;
+        if (this.player1.repeatDeck() || this.player2.repeatDeck()) {
+            return 1;
+        } else {
+            return this.player1.hasCards() ? 1 : 2;
+        }
     }
 
     int playRecursive() {
