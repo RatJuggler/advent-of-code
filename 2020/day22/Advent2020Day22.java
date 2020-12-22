@@ -42,6 +42,10 @@ class Player {
     boolean repeatDeck() {
         return this.deckHistory.stream().anyMatch(this.deck::equals);
     }
+
+    boolean hasAtLeast(final int number) {
+        return this.deck.size() >= number;
+    }
 }
 
 
@@ -88,23 +92,23 @@ class CombatGame {
             return winner.get(0);
     }
 
-    private boolean recursiveWinner() {
-        return this.players.stream().anyMatch(Player::repeatDeck);
-    }
-
     private Player findRecursiveWinner() {
-        if (this.recursiveWinner())
+        boolean repeatedDeck = this.players.stream().anyMatch(Player::repeatDeck);
+        if (repeatedDeck)
             return this.players.get(0);
         else
             return this.findWinner();
     }
 
     private boolean recursiveRound(final List<Integer> round) {
-        return false;
+        return IntStream.range(0, round.size()).allMatch(i -> this.players.get(i).hasAtLeast(round.get(i)));
     }
 
     private List<Integer> recursiveResults(final List<Integer> round, final int roundWinner) {
-        return new ArrayList<>();
+        List<Integer> results = new ArrayList<>();
+        results.add(round.remove(roundWinner));
+        results.addAll(round);
+        return results;
     }
 
     int play() {
@@ -112,6 +116,7 @@ class CombatGame {
         while (winner == null) {
             List<Integer> round = this.drawRoundCards();
             int roundWinner = this.findRoundWinner(round);
+            round.sort(Collections.reverseOrder());
             this.players.get(roundWinner).addCards(round);
             winner = this.findWinner();
         }
