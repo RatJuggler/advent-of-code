@@ -97,3 +97,11 @@ No progress.
 ##### Day 21: Allergen Assessment
 Had to restart this after the example didn't turn out to be as close to what was required with the actual input, but I got there
 in the end. Another chance to practice with Java streams and `Set` intersections with `retainAll`. 
+
+##### Day 22: Crab Combat
+I managed to determine a solution for part one using rather too generic code with lots of streams. After working on part two for a 
+while it became apparent this was overly complicated to work with, so I refactored to a simpler style.
+** Part Two not completed ** Despite this I've not been able to crack part 2. 
+
+##### Day 23: Crab Cups
+No progress.
