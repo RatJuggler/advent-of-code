@@ -77,24 +77,73 @@ class MatchRuleLetter extends MatchRule {
 }
 
 
-class MatchRuleSubRules extends MatchRule {
+abstract class MatchRuleSubRules extends MatchRule {
 
-    private final List<String[]> subRules;
-    private final boolean looping;
+    final List<String[]> subRules;
 
-    MatchRuleSubRules(final String id, final List<String[]> subRules, final boolean looping) {
+    MatchRuleSubRules(final String id, final List<String[]> subRules) {
         super(id);
         this.subRules = subRules;
-        this.looping = looping;
+    }
+}
+
+
+class MatchRuleSubRulesNoLooping extends MatchRuleSubRules {
+
+    MatchRuleSubRulesNoLooping(final String id, final List<String[]> subRules) {
+        super(id, subRules);
     }
 
-    private boolean matchLooping(final MatchContext context) {
+    boolean match(final MatchContext context) {
+        int current = context.getPosition();
+        for (String[] subRule: this.subRules) {
+            context.setPosition(current);
+            boolean subRulesMatch = true;
+            for (String id: subRule)
+                subRulesMatch = subRulesMatch && context.apply(id);
+            if (subRulesMatch) return true;
+        }
+        return false;
+    }
+}
+
+
+class MatchRuleSubRulesLooping8 extends MatchRuleSubRules {
+
+    MatchRuleSubRulesLooping8(final String id, final List<String[]> subRules) {
+        super(id, subRules);
+    }
+
+    @Override
+    boolean match(final MatchContext context) {
         // 8: 42 | 42 8
         // Run 8 => (run 42 = true/false) | (run 42 = true/false) (run 8 = true while repeat match valid, then false)
         // {run{rule:result}}, true = match, false = no-match
         // {{42:false}} => false | false false => false
         // {{42:true}, {42:false}} => true | true (false | false)) => true
         // {{42:true}, {42:true}, {42:false}} => true | true (true | true (false | false)) => true
+        String[] subRule = this.subRules.get(0);
+        int lastValid;
+        int matches = -1;
+        do {
+            lastValid = context.getPosition();
+            matches++;
+        } while (context.apply(subRule[0]));
+        if (matches == 0) return false;
+        context.setPosition(lastValid);
+        return true;
+    }
+}
+
+
+class MatchRuleSubRulesLooping11 extends MatchRuleSubRules {
+
+    MatchRuleSubRulesLooping11(final String id, final List<String[]> subRules) {
+        super(id, subRules);
+    }
+
+    @Override
+    boolean match(final MatchContext context) {
         // 11: 42 31 | 42 11 31
         // Run 11 => (run 42 = true/false) (run 31 = true/false) | (run 42 = true/false) (run 11 = true while repeat match valid, then false) (run 31 = true/false)
         // {run{rule:result}}, true = match, false = no-match
@@ -106,38 +155,22 @@ class MatchRuleSubRules extends MatchRule {
         // {{42:true, 31:true}, {42:true, 31:false}} => true true | true (true false | true false false) true => true
         // {{42:true, 31:true}, {42:false, 31:true}} => true true | true (false true | false false true) true => true
         // {{42:true, 31:true}, {42:true, 31:true}} => true true | true (true true | true false true) true => true
-        int current = context.getPosition();
-        for (String[] subRule : this.subRules) {
-            context.setPosition(current);
-            boolean subRulesMatch = true;
-            for (String id : subRule) {
-                if (id.equals(this.getId()))
-                    while (this.matchLooping(context)) ;
-                else
-                    subRulesMatch = subRulesMatch && context.apply(id);
-            }
-            if (subRulesMatch) return true;
-        }
-        return false;
-    }
-
-    private boolean matchNoLooping(final MatchContext context) {
-        int current = context.getPosition();
-        for (String[] subRule: this.subRules) {
-            context.setPosition(current);
-            boolean subRulesMatch = true;
-            for (String id: subRule)
-                subRulesMatch = subRulesMatch && context.apply(id);
-            if (subRulesMatch) return true;
-        }
-        return false;
-    }
-
-    boolean match(final MatchContext context) {
-        if (this.looping)
-            return this.matchLooping(context);
-        else
-            return this.matchNoLooping(context);
+        String[] subRule = this.subRules.get(0);
+        int lastValid;
+        int matches = -1;
+        do {
+            lastValid = context.getPosition();
+            matches++;
+        } while (context.apply(subRule[0]));
+        if (matches == 0) return false;
+        context.setPosition(lastValid);
+        do {
+            lastValid = context.getPosition();
+            matches--;
+        } while (context.apply(subRule[1]));
+        if (matches != -1) return false;
+        context.setPosition(lastValid);
+        return true;
     }
 }
 
@@ -161,7 +194,12 @@ class MatchRuleFactory {
             matchRules.add(matchRule);
             looping = looping || Arrays.asList(matchRule).contains(id);
         }
-        return new MatchRuleSubRules(id, matchRules, looping);
+        if (id.equals("8") && looping)
+            return new MatchRuleSubRulesLooping8(id, matchRules);
+        else if (id.equals("11") && looping)
+            return new MatchRuleSubRulesLooping11(id, matchRules);
+        else
+            return new MatchRuleSubRulesNoLooping(id, matchRules);
     }
 
     static MatchRule createMatchRule(final String matchRuleDefinition) {
