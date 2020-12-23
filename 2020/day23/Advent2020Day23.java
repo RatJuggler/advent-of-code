@@ -1,9 +1,23 @@
 package day23;
 
+
 public class Advent2020Day23 {
 
+    private static String sequenceFrom1(final String cups) {
+        int one = cups.indexOf("1");
+        if (one + 1 == cups.length())
+            return cups.substring(0, one);
+        else
+            return cups.substring(one + 1) + cups.substring(0, one);
+    }
+
     private static String crabCups(final String startingCups, final int moves) {
-        return "";
+        String cups = startingCups;
+        int cupCount = cups.length();
+        char cup = cups.charAt(0);
+        for (int i = 0; i < moves; i++) {
+        }
+        return sequenceFrom1(cups);
     }
 
     private static void testCrabCups(final String startingCups, final int moves, final String expectedResult) {
