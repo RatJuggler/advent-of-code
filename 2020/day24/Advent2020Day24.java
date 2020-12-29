@@ -1,10 +1,49 @@
 package day24;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+
+class Floor {
+
+    private final List<String> blackTiles = new ArrayList<>();
+
+    Floor() {}
+
+    private String followDirections(final String directions) {
+        return directions;
+    }
+
+    void followInstructions(final String filename) {
+        try (Scanner scanner = new Scanner(new File(filename))) {
+            while (scanner.hasNextLine()) {
+                String directions = scanner.nextLine();
+                String flipTile = this.followDirections(directions);
+                if (this.blackTiles.contains(flipTile))
+                    this.blackTiles.remove(flipTile);
+                else
+                    this.blackTiles.add(flipTile);
+            }
+        } catch (FileNotFoundException fnf) {
+            throw new IllegalArgumentException("Unable to read tile layout file!", fnf);
+        }
+    }
+
+    int countBlackTile() {
+        return this.blackTiles.size();
+    }
+}
+
 
 public class Advent2020Day24 {
 
     private static int followInstructions(final String filename) {
-        return 0;
+        Floor floor = new Floor();
+        floor.followInstructions(filename);
+        return floor.countBlackTile();
     }
 
     private static void testFlipTiles() {
