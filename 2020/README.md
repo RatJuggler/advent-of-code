@@ -105,3 +105,9 @@ while it became apparent this was overly complicated to work with, so I refactor
 
 ##### Day 23: Crab Cups
 No progress.
+
+##### Day 24: Lobby Layout
+Not started.
+
+##### Day 25: Combo Breaker
+Not started.
